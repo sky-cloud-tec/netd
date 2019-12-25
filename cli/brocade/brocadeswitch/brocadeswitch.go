@@ -36,7 +36,7 @@ func createbrocadeSwitch() cli.Operator {
 		},
 		lineBeak: "\n",
 	}
-}
+}git 
 
 func (s *brocadeSwitch) GetPrompts(k string) []*regexp.Regexp {
 	if v, ok := s.prompts[k]; ok {

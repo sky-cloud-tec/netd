@@ -163,6 +163,7 @@ func (s *CliConn) init() error {
 			return err
 		}
 
+		logs.Debug("init done")
 		// read login prompt
 		_, prompt, err := s.readBuff()
 		if err != nil {

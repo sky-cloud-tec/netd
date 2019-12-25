@@ -609,30 +609,75 @@ func TestNxos_Show(t *testing.T) {
 	})
 }
 
-func TestNxos_Set(t *testing.T) {
+//func TestNxos_Set(t *testing.T) {
+//
+//	Convey("set nxos cli commands", t, func() {
+//		client, err := net.Dial("tcp", "localhost:8088")
+//		So(
+//			err,
+//			ShouldBeNil,
+//		)
+//		// Synchronous call
+//		args := &protocol.CliRequest{
+//			Device:  "nxos-set-test",
+//			Vendor:  "cisco",
+//			Type:    "NX-OS",
+//			Version: "7.0(3)I5(2)",
+//			Address: "192.168.1.248:22",
+//			Auth: protocol.Auth{
+//				Username: "admin",
+//				Password: "r00tme",
+//			},
+//			Commands: []string{
+//				`hostname ab`,
+//			},
+//			Protocol: "ssh",
+//			Mode:     "configure_terminal",
+//			Timeout:  30,
+//		}
+//		var reply protocol.CliResponse
+//		c := jsonrpc.NewClient(client)
+//		err = c.Call("CliHandler.Handle", args, &reply)
+//		So(
+//			err,
+//			ShouldBeNil,
+//		)
+//		So(
+//			reply.Retcode == common.OK,
+//			ShouldBeTrue,
+//		)
+//		So(
+//			len(reply.CmdsStd) == 1,
+//			ShouldBeTrue,
+//		)
+//	})
+//}
 
-	Convey("set nxos cli commands", t, func() {
-		client, err := net.Dial("tcp", "localhost:8088")
+
+func TestBrocadeSwitch_login(t *testing.T) {
+
+	Convey("login", t, func() {
+		client, err := net.Dial("tcp", "192.168.1.146:8088")
 		So(
 			err,
 			ShouldBeNil,
 		)
 		// Synchronous call
 		args := &protocol.CliRequest{
-			Device:  "nxos-set-test",
-			Vendor:  "cisco",
-			Type:    "NX-OS",
-			Version: "7.0(3)I5(2)",
-			Address: "192.168.1.248:22",
+			Device:  "g168",
+			Vendor:  "brocade",
+			Type:    "brocadeswitch",
+			Version: "g160",
+			Address: "192.168.1.109:22",
 			Auth: protocol.Auth{
 				Username: "admin",
-				Password: "r00tme",
+				Password: "password",
 			},
 			Commands: []string{
-				`hostname ab`,
+				`switchshow`,
 			},
 			Protocol: "ssh",
-			Mode:     "configure_terminal",
+			Mode:     "login",
 			Timeout:  30,
 		}
 		var reply protocol.CliResponse
@@ -652,3 +697,4 @@ func TestNxos_Set(t *testing.T) {
 		)
 	})
 }
+
