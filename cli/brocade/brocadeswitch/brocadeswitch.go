@@ -22,7 +22,7 @@ type brocadeSwitch struct {
 }
 
 func createbrocadeSwitch() cli.Operator {
-	loginPrompt := regexp.MustCompile("Lab_610_1:admin> ")
+	loginPrompt := regexp.MustCompile("(.*){1,}:([[:alnum:]]+){0,}> ")
 	return &brocadeSwitch{
 		// mode transition
 		// login_enable -> configure_terminal
@@ -36,7 +36,7 @@ func createbrocadeSwitch() cli.Operator {
 		},
 		lineBeak: "\n",
 	}
-}git 
+}
 
 func (s *brocadeSwitch) GetPrompts(k string) []*regexp.Regexp {
 	if v, ok := s.prompts[k]; ok {
@@ -82,6 +82,13 @@ func (s *brocadeSwitch) GetSSHInitializer() cli.SSHInitializer {
 			session.Close()
 			return nil, nil, nil, fmt.Errorf("create stdin pipe failed, %s", err)
 		}
+		modes := ssh.TerminalModes{
+			ssh.ECHO: 1, // enable echoingf
+		}
+		if err := session.RequestPty("xterm", 0, 2000, modes); err != nil {
+			return nil, nil, nil, fmt.Errorf("request pty failed, %s", err)
+		}
+		// open channel
 		if err := session.Shell(); err != nil {
 			session.Close()
 			return nil, nil, nil, fmt.Errorf("create shell failed, %s", err)
