@@ -1,4 +1,4 @@
-package brocadeswitch
+package g600
 
 import (
 	"fmt"

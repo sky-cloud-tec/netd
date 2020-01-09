@@ -33,7 +33,7 @@ import (
 	_ "github.com/sky-cloud-tec/netd/cli/dptech/fw1000"     // load dptech fw1000
 
         _ "github.com/sky-cloud-tec/netd/cli/linux/centos"   //  load linux centos
-	_ "github.com/sky-cloud-tec/netd/cli/brocade/brocadeswitch"   //  load linux centos
+	_ "github.com/sky-cloud-tec/netd/cli/brocade/g600"   //  load linux centos
 
 	"github.com/sky-cloud-tec/netd/common"
 	"github.com/sky-cloud-tec/netd/protocol"
