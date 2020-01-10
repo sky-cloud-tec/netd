@@ -23,13 +23,14 @@ type brocadeSwitch struct {
 
 func createbrocadeSwitch() cli.Operator {
 	loginPrompt := regexp.MustCompile("(.*){1,}:([[:alnum:]]+){0,}> ")
+	optionPrompt := regexp.MustCompile("\\[no\\] $")
 	return &brocadeSwitch{
 		// mode transition
 		// login_enable -> configure_terminal
 		transitions: map[string][]string{
 		},
 		prompts: map[string][]*regexp.Regexp{
-			"login":                 {loginPrompt},
+			"login":                 {loginPrompt,optionPrompt},
 		},
 		errs: []*regexp.Regexp{
 			regexp.MustCompile("^ERROR: "),

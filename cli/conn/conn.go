@@ -100,7 +100,7 @@ func newCliConn(req *protocol.CliRequest, op cli.Operator) (*CliConn, error) {
 			User:            req.Auth.Username,
 			Auth:            []ssh.AuthMethod{ssh.Password(req.Auth.Password)},
 			HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-			Timeout:         200 * time.Second,
+			Timeout:         5 * time.Second,
 		}
 		sshConfig.SetDefaults()
 		sshConfig.Ciphers = append(sshConfig.Ciphers, []string{"aes128-cbc", "3des-cbc"}...)
