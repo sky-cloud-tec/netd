@@ -21,6 +21,7 @@ import (
 	"regexp"
 
 	"github.com/sky-cloud-tec/netd/cli"
+	"github.com/sky-cloud-tec/netd/protocol"
 	"golang.org/x/crypto/ssh"
 )
 
