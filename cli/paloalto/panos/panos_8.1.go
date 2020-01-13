@@ -21,26 +21,27 @@ import (
 	"regexp"
 
 	"github.com/sky-cloud-tec/netd/cli"
+	"github.com/sky-cloud-tec/netd/protocol"
 	"golang.org/x/crypto/ssh"
 )
 
 func init() {
 	// register paloalto
-	cli.OperatorManagerInstance.Register(`(?i)paloalto\.pan-os\..*`, createOppaloalto())
+	cli.OperatorManagerInstance.Register(`(?i)paloalto\.pan-os\..*`, createOpPaloalto())
 }
 
-type oppaloalto struct {
+type opPaloalto struct {
 	lineBeak    string // \r\n \n
 	transitions map[string][]string
 	prompts     map[string][]*regexp.Regexp
 	errs        []*regexp.Regexp
 }
 
-func createOppaloalto() cli.Operator {
+func createOpPaloalto() cli.Operator {
 	loginPrompt := regexp.MustCompile("[[:alnum:]_]{1,}[.]{0,1}[[:alnum:]_-]{0,}[.]{0,1}[[:alnum:]_-]{0,}@[[:alnum:]._-]+> $")
 	configurePrompt := regexp.MustCompile(`[[:alnum:]_]{1,}[.]{0,1}[[:alnum:]_-]{0,}[.]{0,1}[[:alnum:]_-]{0,}@[[:alnum:]._-]+# $`)
 
-	return &oppaloalto{
+	return &opPaloalto{
 		transitions: map[string][]string{
 			"login->configure": {"configure"},
 			"configure->login": {"exit"},
@@ -60,14 +61,14 @@ func createOppaloalto() cli.Operator {
 	}
 }
 
-func (s *oppaloalto) GetPrompts(k string) []*regexp.Regexp {
+func (s *opPaloalto) GetPrompts(k string) []*regexp.Regexp {
 	if v, ok := s.prompts[k]; ok {
 		return v
 	}
 	return nil
 }
 
-func (s *oppaloalto) GetTransitions(c, t string) []string {
+func (s *opPaloalto) GetTransitions(c, t string) []string {
 	k := c + "->" + t
 	if v, ok := s.transitions[k]; ok {
 		return v
@@ -75,20 +76,20 @@ func (s *oppaloalto) GetTransitions(c, t string) []string {
 	return nil
 }
 
-func (s *oppaloalto) GetErrPatterns() []*regexp.Regexp {
+func (s *opPaloalto) GetErrPatterns() []*regexp.Regexp {
 	return s.errs
 }
 
-func (s *oppaloalto) GetLinebreak() string {
+func (s *opPaloalto) GetLinebreak() string {
 	return s.lineBeak
 }
 
-func (s *oppaloalto) GetStartMode() string {
+func (s *opPaloalto) GetStartMode() string {
 	return "login"
 }
 
-func (s *oppaloalto) GetSSHInitializer() cli.SSHInitializer {
-	return func(c *ssh.Client) (io.Reader, io.WriteCloser, *ssh.Session, error) {
+func (s *opPaloalto) GetSSHInitializer() cli.SSHInitializer {
+	return func(c *ssh.Client, req *protocol.CliRequest) (io.Reader, io.WriteCloser, *ssh.Session, error) {
 		var err error
 		session, err := c.NewSession()
 		if err != nil {
@@ -119,3 +120,4 @@ func (s *oppaloalto) GetSSHInitializer() cli.SSHInitializer {
 		return r, w, session, nil
 	}
 }
+

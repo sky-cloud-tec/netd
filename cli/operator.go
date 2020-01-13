@@ -20,6 +20,7 @@ import (
 	"log"
 	"regexp"
 
+	"github.com/sky-cloud-tec/netd/protocol"
 	"github.com/songtianyi/rrframework/logs"
 	"golang.org/x/crypto/ssh"
 )
@@ -40,7 +41,7 @@ var (
 )
 
 // SSHInitializer ssh init func generator
-type SSHInitializer func(*ssh.Client) (io.Reader, io.WriteCloser, *ssh.Session, error)
+type SSHInitializer func(*ssh.Client, *protocol.CliRequest) (io.Reader, io.WriteCloser, *ssh.Session, error)
 
 func init() {
 	OperatorManagerInstance = &OperatorManager{

@@ -21,12 +21,13 @@ import (
 	"regexp"
 
 	"github.com/sky-cloud-tec/netd/cli"
+	"github.com/sky-cloud-tec/netd/protocol"
 	"golang.org/x/crypto/ssh"
 )
 
 func init() {
 	// register asa 9.x+
-	cli.OperatorManagerInstance.Register(`(?i)cisco\.asa\.(9|[0-9]{1,})\..*`, createOp9xPlus())
+	cli.OperatorManagerInstance.Register(`(?i)cisco\.asa[a-z]{0,}\.(9|[0-9]{1,})\..*`, createOp9xPlus())
 }
 
 type op9xPlus struct {
@@ -87,7 +88,7 @@ func (s *op9xPlus) GetStartMode() string {
 }
 
 func (s *op9xPlus) GetSSHInitializer() cli.SSHInitializer {
-	return func(c *ssh.Client) (io.Reader, io.WriteCloser, *ssh.Session, error) {
+	return func(c *ssh.Client, req *protocol.CliRequest) (io.Reader, io.WriteCloser, *ssh.Session, error) {
 		var err error
 		session, err := c.NewSession()
 		if err != nil {

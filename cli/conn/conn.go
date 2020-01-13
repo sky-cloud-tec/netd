@@ -69,6 +69,9 @@ func Acquire(req *protocol.CliRequest, op cli.Operator) (*CliConn, error) {
 	// try
 	semas[req.Address] <- struct{}{}
 	logs.Info(req.LogPrefix, "sema acquired")
+	if req.Mode == "" {
+		req.Mode = op.GetStartMode()
+	}
 	// if cli conn already created
 	if v, ok := conns[req.Address]; ok {
 		v.req = req
@@ -158,11 +161,10 @@ func (s *CliConn) init() error {
 	if s.t == common.SSHConn {
 		f := s.op.GetSSHInitializer()
 		var err error
-		s.r, s.w, s.session, err = f(s.client)
+		s.r, s.w, s.session, err = f(s.client, s.req)
 		if err != nil {
 			return err
 		}
-
 		// read login prompt
 		_, prompt, err := s.readBuff()
 		if err != nil {
@@ -189,13 +191,30 @@ func (s *CliConn) init() error {
 						return err
 					}
 				}
-			} else if s.mode == "login" {
-				if strings.EqualFold(s.req.Vendor, "Paloalto") && strings.EqualFold(s.req.Type, "Pan-os") {
-					// set pager
-					if _, err := s.writeBuff("set cli pager off"); err != nil {
+			}
+		} else {
+			if err := s.closePage(); err != nil {
+				return err
+			}
+			if strings.EqualFold(s.req.Vendor, "Paloalto") && strings.EqualFold(s.req.Type, "PAN-OS") {
+				// set format
+				if s.req.Format != "" {
+					if _, err := s.writeBuff("set cli config-output-format " + s.req.Format); err != nil {
 						return err
 					}
-					if _, _, err := s.readBuff(); err != nil {
+				}
+			}
+			if strings.EqualFold(s.req.Vendor, "fortinet") && strings.EqualFold(s.req.Type, "fortigate") {
+				if pts := s.op.GetPrompts(s.req.Mode); pts != nil {
+					//no vdom
+					if !strings.Contains(pts[0].String(), s.req.Mode) {
+						return s.closePage()
+					}
+					logs.Debug("entering domain global...")
+					if _, err := s.writeBuff("config global"); err != nil {
+						return err
+					}
+					if err := s.closePage(); err != nil {
 						return err
 					}
 				}
@@ -207,28 +226,33 @@ func (s *CliConn) init() error {
 }
 
 func (s *CliConn) closePage() error {
-	if strings.EqualFold(s.req.Vendor, "cisco") && strings.EqualFold(s.req.Type, "asa") {
+	if strings.EqualFold(s.req.Vendor, "cisco") && (strings.EqualFold(s.req.Type, "asa") || strings.EqualFold(s.req.Type, "asav")) {
 		// ===config or normal both ok===
 		// set terminal pager
 		if _, err := s.writeBuff("terminal pager 0"); err != nil {
-			return err
-		}
-		if _, _, err := s.readBuff(); err != nil {
 			return err
 		}
 		// set page lines
 		if _, err := s.writeBuff("terminal pager lines 0"); err != nil {
 			return err
 		}
-		if _, _, err := s.readBuff(); err != nil {
-			return err
-		}
-		// ==============================
 	} else if strings.EqualFold(s.req.Vendor, "cisco") && strings.EqualFold(s.req.Type, "ios") {
 		if _, err := s.writeBuff("terminal length 0"); err != nil {
 			return err
 		}
-		if _, _, err := s.readBuff(); err != nil {
+	} else if strings.EqualFold(s.req.Vendor, "Paloalto") && strings.EqualFold(s.req.Type, "PAN-OS") {
+		// set pager
+		if _, err := s.writeBuff("set cli pager off"); err != nil {
+			return err
+		}
+	} else if strings.EqualFold(s.req.Vendor, "hillstone") && strings.EqualFold(s.req.Type, "SG-6000-VM01") {
+		// set pager
+		if _, err := s.writeBuff("terminal length 0"); err != nil {
+			return err
+		}
+	} else if strings.EqualFold(s.req.Vendor, "fortinet") && strings.EqualFold(s.req.Type, "fortigate") {
+		// set console
+		if _, err := s.writeBuff("config system console\n\tset output standard\nend"); err != nil {
 			return err
 		}
 	}
@@ -306,18 +330,25 @@ func (s *CliConn) readLines() *readBuffOut {
 	buf := make([]byte, 1000)
 	var (
 		waitingString, lastLine string
+		errRes                  error
 	)
 	for {
 		n, err := s.read(buf) //this reads the ssh/telnet terminal
 		if err != nil {
 			// something wrong
 			logs.Error(s.req.LogPrefix, "io.Reader read error,", err)
+			errRes = err
 			break
 		}
 		// for every line
 		current := string(buf[:n])
 		logs.Debug(s.req.LogPrefix, "(", n, ")", current)
 		lastLine = s.findLastLine(waitingString + current)
+		if s.op.GetPrompts(s.mode) == nil {
+			logs.Error(s.req.LogPrefix, "no patterns for mode", s.mode)
+			errRes = fmt.Errorf("%s no patterns for mode %s", s.req.LogPrefix, s.mode)
+			break
+		}
 		matches := s.anyPatternMatches(lastLine, s.op.GetPrompts(s.mode))
 		if len(matches) > 0 {
 			logs.Info(s.req.LogPrefix, "prompt matched", s.mode, ":", matches)
@@ -328,7 +359,7 @@ func (s *CliConn) readLines() *readBuffOut {
 		waitingString += current
 	}
 	return &readBuffOut{
-		nil,
+		errRes,
 		waitingString,
 		lastLine,
 	}
