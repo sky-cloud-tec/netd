@@ -26,23 +26,21 @@ import (
 )
 
 func init() {
-	// register asa 9.x+
-	cli.OperatorManagerInstance.Register(`(?i)brocade\.brocadeswitch\..*`, createbrocadeSwitch())
+	// register brocade g600
+	cli.OperatorManagerInstance.Register(`(?i)brocade\.g600\..*`, createopG600Switch())
 }
 
-type brocadeSwitch struct {
+type opG600Switch struct {
 	lineBeak    string // \r\n \n
 	transitions map[string][]string
 	prompts     map[string][]*regexp.Regexp
 	errs        []*regexp.Regexp
 }
 
-func createbrocadeSwitch() cli.Operator {
+func createopG600Switch() cli.Operator {
 	loginPrompt := regexp.MustCompile("(.*){1,}:([[:alnum:]]+){0,}> ")
 	optionPrompt := regexp.MustCompile("\\[no\\] $")
-	return &brocadeSwitch{
-		// mode transition
-		// login_enable -> configure_terminal
+	return &opG600Switch{
 		transitions: map[string][]string{
 		},
 		prompts: map[string][]*regexp.Regexp{
@@ -55,13 +53,13 @@ func createbrocadeSwitch() cli.Operator {
 	}
 }
 
-func (s *brocadeSwitch) GetPrompts(k string) []*regexp.Regexp {
+func (s *opG600Switch) GetPrompts(k string) []*regexp.Regexp {
 	if v, ok := s.prompts[k]; ok {
 		return v
 	}
 	return nil
 }
-func (s *brocadeSwitch) GetTransitions(c, t string) []string {
+func (s *opG600Switch) GetTransitions(c, t string) []string {
 	k := c + "->" + t
 	if v, ok := s.transitions[k]; ok {
 		return v
@@ -69,19 +67,19 @@ func (s *brocadeSwitch) GetTransitions(c, t string) []string {
 	return nil
 }
 
-func (s *brocadeSwitch) GetErrPatterns() []*regexp.Regexp {
+func (s *opG600Switch) GetErrPatterns() []*regexp.Regexp {
 	return s.errs
 }
 
-func (s *brocadeSwitch) GetLinebreak() string {
+func (s *opG600Switch) GetLinebreak() string {
 	return s.lineBeak
 }
 
-func (s *brocadeSwitch) GetStartMode() string {
+func (s *opG600Switch) GetStartMode() string {
 	return "login"
 }
 
-func (s *brocadeSwitch) GetSSHInitializer() cli.SSHInitializer {
+func (s *opG600Switch) GetSSHInitializer() cli.SSHInitializer {
 	return func(c *ssh.Client, req *protocol.CliRequest) (io.Reader, io.WriteCloser, *ssh.Session, error) {
 		var err error
 		session, err := c.NewSession()
