@@ -90,7 +90,7 @@ func (s *Centos) GetStartMode() string {
 
 //GetSSHInitializer Centos
 func (s *Centos) GetSSHInitializer() cli.SSHInitializer {
-	return func(c *ssh.Client) (io.Reader, io.WriteCloser, *ssh.Session, error) {
+	return func(c *ssh.Client, req *protocol.CliRequest) (io.Reader, io.WriteCloser, *ssh.Session, error) {
 		var err error
 		session, err := c.NewSession()
 		if err != nil {
