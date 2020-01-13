@@ -33,6 +33,8 @@ import (
 	_ "github.com/sky-cloud-tec/netd/cli/juniper/ssg"      // load juniper ssg
 	_ "github.com/sky-cloud-tec/netd/cli/paloalto/panos"   // load paloalto panos
 	_ "github.com/sky-cloud-tec/netd/cli/fortinet/fortigate" // load fortinet fortigate
+	_ "github.com/sky-cloud-tec/netd/cli/linux/centos"   //  load linux centos
+	_ "github.com/sky-cloud-tec/netd/cli/brocade/g600"   //  load linux centos
 
 	"github.com/sky-cloud-tec/netd/common"
 	"github.com/sky-cloud-tec/netd/protocol"
