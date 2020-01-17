@@ -740,3 +740,91 @@ func TestHillstone_set(t *testing.T) {
 		)
 	})
 }
+
+func TestFortinet_set(t *testing.T) {
+
+	Convey("set fortinet cli commands", t, func() {
+		client, err := net.Dial("tcp", "localhost:8088")
+		So(
+			err,
+			ShouldBeNil,
+		)
+		// Synchronous call
+		args := &protocol.CliRequest{
+			Device:  "fortinet-set-test",
+			Vendor:  "fortinet",
+			Type:    "FortiGate-VM64-KVM",
+			Version: "v5.6.x",
+			Address: "192.168.1.239:22",
+			Auth: protocol.Auth{
+				Username: "admin",
+				Password: "r00tme",
+			},
+			Commands: []string{
+				`set hostname fortinet239`,
+			},
+			Protocol: "ssh",
+			Mode:     "global",
+			Timeout:  30,
+		}
+		var reply protocol.CliResponse
+		c := jsonrpc.NewClient(client)
+		err = c.Call("CliHandler.Handle", args, &reply)
+		So(
+			err,
+			ShouldBeNil,
+		)
+		So(
+			reply.Retcode == common.OK,
+			ShouldBeTrue,
+		)
+		So(
+			len(reply.CmdsStd) == 1,
+			ShouldBeTrue,
+		)
+	})
+}
+
+func TestFortinet_show(t *testing.T) {
+
+	Convey("show fortinet cli commands", t, func() {
+		client, err := net.Dial("tcp", "localhost:8088")
+		So(
+			err,
+			ShouldBeNil,
+		)
+		// Synchronous call
+		args := &protocol.CliRequest{
+			Device:  "fortinet-show-test",
+			Vendor:  "fortinet",
+			Type:    "FortiGate-VM64-KVM",
+			Version: "v5.6.x",
+			Address: "192.168.1.239:22",
+			Auth: protocol.Auth{
+				Username: "admin",
+				Password: "r00tme",
+			},
+			Commands: []string{
+				`show system global`,
+			},
+			Protocol: "ssh",
+			Mode:     "login",
+			Timeout:  30,
+		}
+		var reply protocol.CliResponse
+		c := jsonrpc.NewClient(client)
+		err = c.Call("CliHandler.Handle", args, &reply)
+		So(
+			err,
+			ShouldBeNil,
+		)
+		So(
+			reply.Retcode == common.OK,
+			ShouldBeTrue,
+		)
+		So(
+			len(reply.CmdsStd) == 1,
+			ShouldBeTrue,
+		)
+	})
+}
