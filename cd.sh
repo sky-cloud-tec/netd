@@ -9,7 +9,7 @@ then
 fi
 
 rev=$(git rev-parse --short HEAD)
-sudo cat /etc/docker/daemon.json | jq '. + {\"insecure-registries\": [\"hub.sky-cloud.net\"]}' | sudo tee /etc/docker/daemon.json
+sudo cat /etc/docker/daemon.json | jq '. + {"insecure-registries": ["hub.sky-cloud.net"]}' | sudo tee /etc/docker/daemon.json
 sudo service docker restart
 echo "$HUB" | docker login -u docker-image-builder  http://hub.sky-cloud.net --password-stdin
 docker build -t hub.sky-cloud.net/nap2/netd:${TRAVIS_BRANCH}_build-${rev} .
