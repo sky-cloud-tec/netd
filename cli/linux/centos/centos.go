@@ -43,10 +43,9 @@ func createCentos() cli.Operator {
 	return &Centos{
 		// mode transition
 		// login -> configure_terminal
-		transitions: map[string][]string{
-		},
+		transitions: map[string][]string{},
 		prompts: map[string][]*regexp.Regexp{
-			"login":              {userPrompt},
+			"login": {userPrompt},
 		},
 		errs: []*regexp.Regexp{
 			regexp.MustCompile(".*command not found.*"),

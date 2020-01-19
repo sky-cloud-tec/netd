@@ -41,10 +41,9 @@ func createopG600Switch() cli.Operator {
 	loginPrompt := regexp.MustCompile("(.*){1,}:([[:alnum:]]+){0,}> ")
 	optionPrompt := regexp.MustCompile("\\[no\\] $")
 	return &opG600Switch{
-		transitions: map[string][]string{
-		},
+		transitions: map[string][]string{},
 		prompts: map[string][]*regexp.Regexp{
-			"login":                 {loginPrompt,optionPrompt},
+			"login": {loginPrompt, optionPrompt},
 		},
 		errs: []*regexp.Regexp{
 			regexp.MustCompile("^ERROR: "),

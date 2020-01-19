@@ -202,8 +202,8 @@ func (s *CliConn) init() error {
 				}
 				// close page
 				if err := s.closePage(); err != nil {
-                                	return err
-                        	}
+					return err
+				}
 			} else if strings.EqualFold(s.req.Vendor, "fortinet") && strings.EqualFold(s.req.Type, "fortigate-VM64-KVM") {
 				if pts := s.op.GetPrompts(s.req.Mode); pts != nil {
 					//no vdom
@@ -217,18 +217,18 @@ func (s *CliConn) init() error {
 					if err := s.closePage(); err != nil {
 						return err
 					}
-					logs.Debug(s.req.LogPrefix, "exiting vdom global ...") 
+					logs.Debug(s.req.LogPrefix, "exiting vdom global ...")
 					if _, err := s.writeBuff("end"); err != nil {
 						return err
 					}
 					if _, _, err := s.readBuff(); err != nil {
-						return err;
+						return err
 					}
 				}
 			} else {
 				if err := s.closePage(); err != nil {
-                                	return err
-                        	}		
+					return err
+				}
 			}
 		}
 	}

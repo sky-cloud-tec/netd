@@ -120,4 +120,3 @@ func (s *opPaloalto) GetSSHInitializer() cli.SSHInitializer {
 		return r, w, session, nil
 	}
 }
-

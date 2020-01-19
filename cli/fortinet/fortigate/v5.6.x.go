@@ -15,7 +15,7 @@
 
 package fortigate
 
-import(
+import (
 	"fmt"
 	"io"
 	"regexp"
@@ -28,22 +28,22 @@ import(
 type opFortinet struct {
 	lineBreak   string // /r/n \n
 	transitions map[string][]string
-	prompts 	map[string][]*regexp.Regexp
-	errs   		[]*regexp.Regexp
+	prompts     map[string][]*regexp.Regexp
+	errs        []*regexp.Regexp
 }
-func init()  {
+
+func init() {
 	cli.OperatorManagerInstance.Register(`(?i)fortinet\.FortiGate-VM64-KVM\..*`, createOpfortinet())
 }
 
-func createOpfortinet() cli.Operator{
+func createOpfortinet() cli.Operator {
 	loginPrompt := regexp.MustCompile(`[[:alnum:]]{1,}[[:alnum:]-_]{0,} # $`)
-	return &opFortinet {
-		transitions: map[string][]string {
+	return &opFortinet{
+		transitions: map[string][]string{},
+		prompts: map[string][]*regexp.Regexp{
+			"login": {loginPrompt},
 		},
-		prompts: map[string][]*regexp.Regexp {
-			"login": 	 {loginPrompt},
-		},
-		errs: []*regexp.Regexp {
+		errs: []*regexp.Regexp{
 			regexp.MustCompile("^Unknown action 0$"),
 			regexp.MustCompile("^command parse error"),
 			regexp.MustCompile("^value parse error"),
@@ -79,21 +79,21 @@ func (s *opFortinet) GetStartMode() string {
 	return "login"
 }
 
-func (s *opFortinet) GetLinebreak() string{
+func (s *opFortinet) GetLinebreak() string {
 	return s.lineBreak
 }
 
 func (s *opFortinet) GetSSHInitializer() cli.SSHInitializer {
-	return func (c *ssh.Client, req *protocol.CliRequest) (io.Reader, io.WriteCloser, *ssh.Session, error) {
+	return func(c *ssh.Client, req *protocol.CliRequest) (io.Reader, io.WriteCloser, *ssh.Session, error) {
 		if s.GetPrompts(req.Mode) == nil {
 			// no pattern for this mode
 			// try insert
 			s.prompts[req.Mode] = []*regexp.Regexp{
-			 regexp.MustCompile(`[[:alnum:]]{1,}[[:alnum:]-_]{0,} \(`+ req.Mode + `\) # $`),
+				regexp.MustCompile(`[[:alnum:]]{1,}[[:alnum:]-_]{0,} \(` + req.Mode + `\) # $`),
 			}
 			s.transitions["login->"+req.Mode] = []string{"config vdom\n\t" +
-			 "edit " + req.Mode +
-			 ``}
+				"edit " + req.Mode +
+				``}
 			s.transitions[req.Mode+"->"+"login"] = []string{"end"}
 		}
 		var err error
@@ -119,4 +119,3 @@ func (s *opFortinet) GetSSHInitializer() cli.SSHInitializer {
 		return r, w, session, nil
 	}
 }
-
