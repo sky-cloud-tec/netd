@@ -91,8 +91,8 @@ func (s *opFortinet) GetSSHInitializer() cli.SSHInitializer {
 			s.prompts[req.Mode] = []*regexp.Regexp{
 			 regexp.MustCompile(`[[:alnum:]]{1,}[[:alnum:]-_]{0,} \(`+ req.Mode + `\) # $`),
 			}
-			s.transitions["login->"+req.Mode] = []string{`config vdom ` +
-			 `edit ` + req.Mode +
+			s.transitions["login->"+req.Mode] = []string{"config vdom\n\t" +
+			 "edit " + req.Mode +
 			 ``}
 			s.transitions[req.Mode+"->"+"login"] = []string{"end"}
 		}
