@@ -73,7 +73,7 @@ func main() {
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "address, addr",
-					Value: "0.0.0.0:8088",
+					Value: "0.0.0.0:8188",
 					Usage: "jprc listen address",
 				},
 			},

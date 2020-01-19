@@ -11,3 +11,6 @@ script:
     - "bash check.sh"
     - go build .
 
+after_success:
+    - "bash cd.sh"
+
