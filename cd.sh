@@ -9,7 +9,7 @@ then
 fi
 
 rev=$(git rev-parse --short HEAD)
-echo "$HUB" | docker login -u docker-image-builder  --password-stdin
+echo "$HUB" | docker login -u docker-image-builder  hub.sky-cloud.net --password-stdin
 docker build -t hub.sky-cloud.net/nap2/netd:${TRAVIS_BRANCH}_build-${rev} .
 docker push hub.sky-cloud.net/nap2/netd:${TRAVIS_BRANCH}_build-${rev}
 
