@@ -3,9 +3,8 @@ MAINTAINER songtianyi@sky-cloud.net
 
 ADD netd /usr/bin/
 
-
 RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
 		  echo "Asia/Shanghai" > /etc/timezone
 
-CMD netd --loglevel ${LOG_LEVEL} --logfile ${LOG_FILE} \
+CMD /usr/bin/netd --loglevel ${LOG_LEVEL} --logfile ${LOG_FILE} \
 		jrpc --address ${ADDR}
