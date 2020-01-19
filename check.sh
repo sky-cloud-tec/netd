@@ -37,6 +37,8 @@ fmt(){
     else
         echo "[N] You have $count go file haven't been formatted:"
         all_unformat_files
+		exit 5
+
     fi
 
     echo "------------------CODE STATS--------------------"
@@ -51,7 +53,7 @@ fmt(){
 
 check_license(){
 	# check license header
-	find . -name '*.go' | xargs -n 1 -P 10 -I {} sh -c 'file="$@"; if ! grep -q 'Copyright' $file; then echo no license header in $file, run addlicense.sh to add; exit 1;fi' _ {}
+	find . -name '*.go' | xargs -n 1 -P 10 -I {} sh -c 'file="$@"; if ! grep -q 'Copyright' $file; then echo no license header in $file, run addlicense.sh to add; exit 4;fi' _ {}
     echo "[Y] check license header passed."
 }
 
