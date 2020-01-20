@@ -110,7 +110,7 @@ func newCliConn(req *protocol.CliRequest, op cli.Operator) (*CliConn, error) {
 		client, err := ssh.Dial("tcp", req.Address, sshConfig)
 		if err != nil {
 			logs.Error(req.LogPrefix, "dial", req.Address, "error", err)
-			return nil, fmt.Errorf("%s dial %s error, %s", req.LogPrefix, req.Address, err)
+			return nil, fmt.Errorf("dial %s error, %s", req.Address, err)
 		}
 		c := &CliConn{t: common.SSHConn, client: client, req: req, op: op, mode: op.GetStartMode()}
 		if err := c.init(); err != nil {
@@ -121,7 +121,7 @@ func newCliConn(req *protocol.CliRequest, op cli.Operator) (*CliConn, error) {
 	} else if strings.ToLower(req.Protocol) == "telnet" {
 		conn, err := telnet.DialTimeout("tcp", req.Address, 5*time.Second)
 		if err != nil {
-			return nil, fmt.Errorf("[ %s ] dial %s error, %s", req.Device, req.Address, err)
+			return nil, fmt.Errorf("dial %s error, %s", req.Address, err)
 		}
 		c := &CliConn{t: common.TELNETConn, conn: conn, req: req, op: op, mode: op.GetStartMode()}
 		return c, nil
