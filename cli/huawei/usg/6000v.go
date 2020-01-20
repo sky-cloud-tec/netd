@@ -52,11 +52,7 @@ func createopUsg6000V() cli.Operator {
 			"system_View": {systemViewPrompt},
 		},
 		errs: []*regexp.Regexp{
-			regexp.MustCompile("^Error: Unrecognized command found at '\\^' position\\."),
-			regexp.MustCompile("^Error: Wrong parameter found at '\\^' position\\."),
-			regexp.MustCompile("^Error:Incomplete command found at '\\^' position\\."),
-			regexp.MustCompile("^Error:Too many parameters found at '\\^' position\\."),
-			regexp.MustCompile("^Error:Ambiguous command found at '\\^' position\\."),
+			regexp.MustCompile("^ ?Error: ?"),
 		},
 		lineBeak: "\n",
 	}
