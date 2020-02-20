@@ -138,20 +138,18 @@ func (s *CliConn) heartbeat() {
 				// try
 				logs.Info(s.req.LogPrefix, "Acquiring heartbeat sema...")
 				semas[s.req.Address] <- struct{}{}
+				defer func() { <-semas[s.req.Address] }()
 				logs.Info(s.req.LogPrefix, "heartbeat sema acquired")
 				if _, err := s.writeBuff(""); err != nil {
-					semas[s.req.Address] <- struct{}{}
 					logs.Critical(s.req.LogPrefix, "heartbeat error,", err)
 					s.Close()
 					return
 				}
 				if _, _, err := s.readBuff(); err != nil {
-					semas[s.req.Address] <- struct{}{}
 					logs.Critical(s.req.LogPrefix, "heartbeat error,", err)
 					s.Close()
 					return
 				}
-				<-semas[s.req.Address]
 			}
 		}
 	}()
@@ -217,7 +215,7 @@ func (s *CliConn) init() error {
 					if err := s.closePage(); err != nil {
 						return err
 					}
-					logs.Debug(s.req.LogPrefix, "exiting vdom global ...")
+					logs.Debug(s.req.LogPrefix, "exiting vdom global...")
 					if _, err := s.writeBuff("end"); err != nil {
 						return err
 					}
@@ -275,7 +273,7 @@ func (s *CliConn) Close() error {
 	delete(conns, s.req.Address)
 	if s.t == common.TELNETConn {
 		if s.conn == nil {
-			logs.Info("telnet conn nil when close")
+			logs.Info(s.req.LogPrefix, "telnet conn nil when close")
 			return nil
 		}
 		return s.conn.Close()
@@ -285,10 +283,10 @@ func (s *CliConn) Close() error {
 			return err
 		}
 	} else {
-		logs.Notice("ssh session nil when close")
+		logs.Notice(s.req.LogPrefix, "ssh session nil when close")
 	}
 	if s.client == nil {
-		logs.Notice("ssh conn nil when close")
+		logs.Notice(s.req.LogPrefix, "ssh conn nil when close")
 		return nil
 	}
 	return s.client.Close()
