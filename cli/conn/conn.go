@@ -106,7 +106,8 @@ func newCliConn(req *protocol.CliRequest, op cli.Operator) (*CliConn, error) {
 			Timeout:         5 * time.Second,
 		}
 		sshConfig.SetDefaults()
-		sshConfig.Ciphers = append(sshConfig.Ciphers, []string{"aes128-cbc", "3des-cbc", "diffie-hellman-group-exchange-sha1", "diffie-hellman-group1-sha1"}...)
+		sshConfig.Ciphers = append(sshConfig.Ciphers, []string{"aes128-cbc", "3des-cbc"}...)
+		sshConfig.KeyExchanges = append(sshConfig.KeyExchanges, []string{"diffie-hellman-group-exchange-sha1", "diffie-hellman-group1-sha1", "diffie-hellman-group-exchange-sha256"}...)
 		client, err := ssh.Dial("tcp", req.Address, sshConfig)
 		if err != nil {
 			logs.Error(req.LogPrefix, "dial", req.Address, "error", err)
