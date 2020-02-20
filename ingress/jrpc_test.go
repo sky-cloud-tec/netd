@@ -251,7 +251,7 @@ import (
 func TestCiscoAsa_Set(t *testing.T) {
 
 	Convey("set cisco asa configuration", t, func() {
-		client, err := net.Dial("tcp", "localhost:8088")
+		client, err := net.Dial("tcp", "localhost:8188")
 		So(
 			err,
 			ShouldBeNil,
