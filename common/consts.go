@@ -26,5 +26,5 @@ const (
 
 const (
 	// DefaultTimeout default max cli execution time
-	DefaultTimeout = 5 * time.Second // seconds
+	DefaultTimeout = 200 * time.Second // seconds
 )
