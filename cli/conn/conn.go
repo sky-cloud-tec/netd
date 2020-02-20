@@ -17,6 +17,7 @@ package conn
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"io"
 	"regexp"
@@ -341,7 +342,9 @@ func (s *CliConn) readLines() *readBuffOut {
 	var (
 		waitingString, lastLine string
 		errRes                  error
+		wbuf                    bytes.Buffer
 	)
+outside:
 	for {
 		n, err := s.read(buf) //this reads the ssh/telnet terminal
 		if err != nil {
@@ -350,23 +353,55 @@ func (s *CliConn) readLines() *readBuffOut {
 			errRes = err
 			break
 		}
-		// for every line
-		current := string(buf[:n])
-		logs.Debug(s.req.LogPrefix, "(", n, ")", current)
-		lastLine = s.findLastLine(waitingString + current)
+
+		// print received content
+		logs.Debug(s.req.LogPrefix, "(", n, ")", string(buf[:n]))
+
+		// write received content to whole document buffer
+		wbuf.Write(buf[:n])
+		// slice alias
+		rbuf := wbuf.Bytes()
+
+		// reverse traversal
+		// traverse lastline
+		var beginIdx int
+		for i := wbuf.Len() - 1; i >= 0; i-- {
+			if rbuf[i] == '\n' || rbuf[i] == '\r' || i == 0 {
+				beginIdx = i
+				break
+			}
+		}
+		testee := string(rbuf[beginIdx:wbuf.Len()])
+		// check prompt patterns
 		if s.op.GetPrompts(s.mode) == nil {
 			logs.Error(s.req.LogPrefix, "no patterns for mode", s.mode)
 			errRes = fmt.Errorf("%s no patterns for mode %s", s.req.LogPrefix, s.mode)
-			break
+			break outside
 		}
-		matches := s.anyPatternMatches(lastLine, s.op.GetPrompts(s.mode))
+		// test
+		matches := s.anyPatternMatches(testee, s.op.GetPrompts(s.mode))
 		if len(matches) > 0 {
+			// test pass
 			logs.Info(s.req.LogPrefix, "prompt matched", s.mode, ":", matches)
-			waitingString = strings.TrimSuffix(waitingString+current, matches[0])
-			break
+			// ignore prompt and break
+			if beginIdx == 0 {
+				lastLine = testee
+			} else {
+				// newline not include
+				lastLine = string(rbuf[beginIdx+1:])
+				// \n not include but \r maybe include in windows linebreak
+				waitingString = string(rbuf[:beginIdx])
+			}
+			// break the out loop
+			break outside
 		}
-		// add current line to result string
-		waitingString += current
+		// not match
+		// check buf size is large enough
+		if cap(buf) == n {
+			// buf full, it proves that maybe lots of more content out there
+			// enlarge buf
+			buf = make([]byte, 2*n)
+		}
 	}
 	return &readBuffOut{
 		errRes,
