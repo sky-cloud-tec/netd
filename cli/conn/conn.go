@@ -82,6 +82,8 @@ func Acquire(req *protocol.CliRequest, op cli.Operator) (*CliConn, error) {
 	}
 	c, err := newCliConn(req, op)
 	if err != nil {
+		// release sema
+		<-semas[req.Address]
 		return nil, err
 	}
 	conns[req.Address] = c
@@ -314,18 +316,6 @@ type readBuffOut struct {
 	prompt string
 }
 
-func (s *CliConn) findLastLine(t string) string {
-	scanner := bufio.NewScanner(strings.NewReader(t))
-	var last string
-	for scanner.Scan() {
-		s := scanner.Text()
-		if len(s) > 0 {
-			last = s
-		}
-	}
-	return last
-}
-
 // AnyPatternMatches return matched string slice if any pattern fullfil
 func (s *CliConn) anyPatternMatches(t string, patterns []*regexp.Regexp) []string {
 	for _, v := range patterns {
@@ -366,16 +356,16 @@ outside:
 		// traverse lastline
 		var beginIdx int
 		for i := wbuf.Len() - 1; i >= 0; i-- {
-			if rbuf[i] == '\n' || rbuf[i] == '\r' || i == 0 {
+			if rbuf[i] == '\n' || rbuf[i] == '\r' {
 				beginIdx = i
 				break
 			}
 		}
-		testee := string(rbuf[beginIdx:wbuf.Len()])
+		testee := string(rbuf[beginIdx:])
 		// check prompt patterns
 		if s.op.GetPrompts(s.mode) == nil {
 			logs.Error(s.req.LogPrefix, "no patterns for mode", s.mode)
-			errRes = fmt.Errorf("%s no patterns for mode %s", s.req.LogPrefix, s.mode)
+			errRes = fmt.Errorf("no patterns for mode %s", s.mode)
 			break outside
 		}
 		// test

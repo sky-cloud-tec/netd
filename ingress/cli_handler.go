@@ -77,7 +77,7 @@ func (s *CliHandler) Handle(req *protocol.CliRequest, res *protocol.CliResponse)
 	case res := <-ch:
 		return res
 	case <-time.After(req.Timeout):
-		*res = makeCliErrRes(common.ErrNoOpFound, "handle req timeout")
+		*res = makeCliErrRes(common.ErrTimeout, "handle req timeout")
 	}
 	return nil
 }
