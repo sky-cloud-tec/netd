@@ -70,6 +70,7 @@ func Acquire(req *protocol.CliRequest, op cli.Operator) (*CliConn, error) {
 	// try
 	semas[req.Address] <- struct{}{}
 	logs.Info(req.LogPrefix, "sema acquired")
+	// no matter what going on next, sema should be released once
 	if req.Mode == "" {
 		req.Mode = op.GetStartMode()
 	}
@@ -82,8 +83,7 @@ func Acquire(req *protocol.CliRequest, op cli.Operator) (*CliConn, error) {
 	}
 	c, err := newCliConn(req, op)
 	if err != nil {
-		// release sema
-		<-semas[req.Address]
+		// sema will be released in parent func
 		return nil, err
 	}
 	conns[req.Address] = c
@@ -142,16 +142,17 @@ func (s *CliConn) heartbeat() {
 				// try
 				logs.Info(s.req.LogPrefix, "Acquiring heartbeat sema...")
 				semas[s.req.Address] <- struct{}{}
-				defer func() { <-semas[s.req.Address] }()
 				logs.Info(s.req.LogPrefix, "heartbeat sema acquired")
 				if _, err := s.writeBuff(""); err != nil {
 					logs.Critical(s.req.LogPrefix, "heartbeat error,", err)
 					s.Close()
+					Release(s.req)
 					return
 				}
 				if _, _, err := s.readBuff(); err != nil {
 					logs.Critical(s.req.LogPrefix, "heartbeat error,", err)
 					s.Close()
+					Release(s.req)
 					return
 				}
 			}
