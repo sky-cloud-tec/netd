@@ -50,7 +50,8 @@ check [jrpc test](https://github.com/sky-cloud-tec/netd/blob/master/ingress/jrpc
     * asa
     * ios switch
     * nx-os switch
-
 * fortinet
     * fortigate
 * paloalto
+* huawei
+    * usg
