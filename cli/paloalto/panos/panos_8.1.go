@@ -39,7 +39,9 @@ type opPaloalto struct {
 
 func createOpPaloalto() cli.Operator {
 	loginPrompt := regexp.MustCompile("[[:alnum:]_]{1,}[.]{0,1}[[:alnum:]_-]{0,}[.]{0,1}[[:alnum:]_-]{0,}@[[:alnum:]._-]+> $")
+	loginPromptActive := regexp.MustCompile(`[[:alnum:]_]{1,}[.]{0,1}[[:alnum:]_-]{0,}[.]{0,1}[[:alnum:]_-]{0,}@[[:alnum:]._-]+\(active\)> $`)
 	configurePrompt := regexp.MustCompile(`[[:alnum:]_]{1,}[.]{0,1}[[:alnum:]_-]{0,}[.]{0,1}[[:alnum:]_-]{0,}@[[:alnum:]._-]+# $`)
+	configurePromptActive := regexp.MustCompile(`[[:alnum:]_]{1,}[.]{0,1}[[:alnum:]_-]{0,}[.]{0,1}[[:alnum:]_-]{0,}@[[:alnum:]._-]+\(active\)# $`)
 
 	return &opPaloalto{
 		transitions: map[string][]string{
@@ -47,8 +49,8 @@ func createOpPaloalto() cli.Operator {
 			"configure->login": {"exit"},
 		},
 		prompts: map[string][]*regexp.Regexp{
-			"login":     {loginPrompt},
-			"configure": {configurePrompt},
+			"login":     {loginPrompt, loginPromptActive},
+			"configure": {configurePrompt, configurePromptActive},
 		},
 
 		errs: []*regexp.Regexp{
