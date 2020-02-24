@@ -155,6 +155,8 @@ func (s *CliConn) heartbeat() {
 					Release(s.req)
 					return
 				}
+				// OK
+				Release(s.req)
 			}
 		}
 	}()
