@@ -47,7 +47,7 @@ type CliHandler struct {
 
 // Handle cli request
 func (s *CliHandler) Handle(req *protocol.CliRequest, res *protocol.CliResponse) error {
-	logs.Info("Receiving req", req)
+	logs.Info("Received req", req)
 	// build timeout
 	if req.Timeout == 0 {
 		req.Timeout = common.DefaultTimeout
