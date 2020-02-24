@@ -27,7 +27,7 @@ import (
 )
 
 func TestJuniperSrx_Set(t *testing.T) {
-// 
+	//
 	Convey("set juniper srx cli commands", t, func() {
 		client, err := net.Dial("tcp", "localhost:8088")
 		So(
@@ -67,9 +67,10 @@ func TestJuniperSrx_Set(t *testing.T) {
 		)
 	})
 }
-// 
+
+//
 func TestJuniperSrx_Show(t *testing.T) {
-// 
+	//
 	Convey("show juniper srx configuration", t, func() {
 		client, err := net.Dial("tcp", "localhost:8088")
 		So(
@@ -113,9 +114,10 @@ func TestJuniperSrx_Show(t *testing.T) {
 		)
 	})
 }
-// 
+
+//
 func TestJuniperSsg_Set(t *testing.T) {
-// 
+	//
 	Convey("set juniper ssg cli commands", t, func() {
 		client, err := net.Dial("tcp", "localhost:8088")
 		So(
@@ -159,9 +161,10 @@ func TestJuniperSsg_Set(t *testing.T) {
 		)
 	})
 }
-// 
+
+//
 func TestJuniperSsg_show(t *testing.T) {
-// 
+	//
 	Convey("show juniper ssg cli commands", t, func() {
 		client, err := net.Dial("tcp", "localhost:8088")
 		So(
@@ -201,9 +204,10 @@ func TestJuniperSsg_show(t *testing.T) {
 		)
 	})
 }
-// 
+
+//
 func TestCiscoAsa_Show(t *testing.T) {
-// 
+	//
 	Convey("show cisco asa configuration", t, func() {
 		client, err := net.Dial("tcp", "localhost:8088")
 		So(
@@ -295,95 +299,97 @@ func TestCiscoAsa_Set(t *testing.T) {
 }
 
 func TestPaloalto_Set(t *testing.T) {
-// 
- 	Convey("set Paloalto cli commands", t, func() {
- 		client, err := net.Dial("tcp", "localhost:8088")
- 		So(
- 			err,
- 			ShouldBeNil,
- 		)
- 		// Synchronous call
- 		args := &protocol.CliRequest{
- 			Device:  "paloalto-set-test",
- 			Vendor:  "paloalto",
- 			Type:    "pan-os",
- 			Version: "8.1",
- 			Address: "192.168.1.231:22",
- 			Auth: protocol.Auth{
- 				Username: "admin",
- 				Password: "r00tme",
- 			},
- 			Commands: []string{
- 				`set deviceconfig system hostname PA-VM-1`,
- 				`commit`},
- 			Protocol: "ssh",
- 			Mode:     "configure",
- 			Timeout:  120, // commit
- 		}
- 		var reply protocol.CliResponse
- 		c := jsonrpc.NewClient(client)
- 		err = c.Call("CliHandler.Handle", args, &reply)
- 		So(
- 			err,
- 			ShouldBeNil,
- 		)
- 		So(
- 			reply.Retcode == common.OK,
- 			ShouldBeTrue,
- 		)
- 		So(
- 			len(reply.CmdsStd) == 2,
- 			ShouldBeTrue,
- 		)
- 	})
+	//
+	Convey("set Paloalto cli commands", t, func() {
+		client, err := net.Dial("tcp", "localhost:8088")
+		So(
+			err,
+			ShouldBeNil,
+		)
+		// Synchronous call
+		args := &protocol.CliRequest{
+			Device:  "paloalto-set-test",
+			Vendor:  "paloalto",
+			Type:    "pan-os",
+			Version: "8.1",
+			Address: "192.168.1.231:22",
+			Auth: protocol.Auth{
+				Username: "admin",
+				Password: "r00tme",
+			},
+			Commands: []string{
+				`set deviceconfig system hostname PA-VM-1`,
+				`commit`},
+			Protocol: "ssh",
+			Mode:     "configure",
+			Timeout:  120, // commit
+		}
+		var reply protocol.CliResponse
+		c := jsonrpc.NewClient(client)
+		err = c.Call("CliHandler.Handle", args, &reply)
+		So(
+			err,
+			ShouldBeNil,
+		)
+		So(
+			reply.Retcode == common.OK,
+			ShouldBeTrue,
+		)
+		So(
+			len(reply.CmdsStd) == 2,
+			ShouldBeTrue,
+		)
+	})
 }
-// 
+
+//
 func TestPaloalto_Show(t *testing.T) {
-// 
- 	Convey("show Paloalto cli commands", t, func() {
- 		client, err := net.Dial("tcp", "localhost:8088")
- 		So(
- 			err,
- 			ShouldBeNil,
- 		)
- 		// Synchronous call
- 		args := &protocol.CliRequest{
- 			Device:  "paloalto-show-test",
- 			Vendor:  "paloalto",
- 			Type:    "pan-os",
- 			Version: "8.1",
- 			Address: "192.168.1.231:22",
- 			Auth: protocol.Auth{
- 				Username: "admin",
- 				Password: "r00tme",
- 			},
- 			Commands: []string{
- 				`
+	//
+	Convey("show Paloalto cli commands", t, func() {
+		client, err := net.Dial("tcp", "localhost:8088")
+		So(
+			err,
+			ShouldBeNil,
+		)
+		// Synchronous call
+		args := &protocol.CliRequest{
+			Device:  "paloalto-show-test",
+			Vendor:  "paloalto",
+			Type:    "pan-os",
+			Version: "8.1",
+			Address: "192.168.1.231:22",
+			Auth: protocol.Auth{
+				Username: "admin",
+				Password: "r00tme",
+			},
+			Commands: []string{
+				`
  				show config running`},
- 			Protocol: "ssh",
- 			Mode:     "login",
- 			Timeout:  30,
- 		}
- 		var reply protocol.CliResponse
- 		c := jsonrpc.NewClient(client)
- 		err = c.Call("CliHandler.Handle", args, &reply)
- 		So(
- 			err,
- 			ShouldBeNil,
- 		)
- 		So(
- 			reply.Retcode == common.OK,
- 			ShouldBeTrue,
- 		)
- 		So(
- 			len(reply.CmdsStd) == 1,
- 			ShouldBeTrue,
- 		)
- 	})
+			Protocol: "ssh",
+			Mode:     "login",
+			Timeout:  30,
+		}
+		var reply protocol.CliResponse
+		c := jsonrpc.NewClient(client)
+		err = c.Call("CliHandler.Handle", args, &reply)
+		So(
+			err,
+			ShouldBeNil,
+		)
+		So(
+			reply.Retcode == common.OK,
+			ShouldBeTrue,
+		)
+		So(
+			len(reply.CmdsStd) == 1,
+			ShouldBeTrue,
+		)
+	})
 }
-// 
+
+//
 func TestUSG6000V2_Set(t *testing.T) {
-// 
+	//
 	Convey("set USG6000V2 cli commands", t, func() {
 		client, err := net.Dial("tcp", "localhost:8088")
 		So(
@@ -431,9 +437,10 @@ func TestUSG6000V2_Set(t *testing.T) {
 		)
 	})
 }
-// 
+
+//
 func TestUSG6000V2_Show(t *testing.T) {
-// 
+	//
 	Convey("Show USG6000V2 cli commands", t, func() {
 		client, err := net.Dial("tcp", "localhost:8088")
 		So(
@@ -475,9 +482,10 @@ func TestUSG6000V2_Show(t *testing.T) {
 		)
 	})
 }
-// 
+
+//
 func TestIos_Show(t *testing.T) {
-// 
+	//
 	Convey("show ios cli commands", t, func() {
 		client, err := net.Dial("tcp", "localhost:8088")
 		So(
@@ -498,10 +506,10 @@ func TestIos_Show(t *testing.T) {
 			Commands: []string{
 				`show version`,
 			},
-			Protocol: "ssh",
-			Mode:     "login_enable",
+			Protocol:  "ssh",
+			Mode:      "login_enable",
 			EnablePwd: "r00tme",
-			Timeout:  30,
+			Timeout:   30,
 		}
 		var reply protocol.CliResponse
 		c := jsonrpc.NewClient(client)
@@ -520,9 +528,10 @@ func TestIos_Show(t *testing.T) {
 		)
 	})
 }
-// 
+
+//
 func TestIos_Set(t *testing.T) {
-// 
+	//
 	Convey("set ios cli commands", t, func() {
 		client, err := net.Dial("tcp", "localhost:8088")
 		So(
@@ -564,9 +573,10 @@ func TestIos_Set(t *testing.T) {
 		)
 	})
 }
-// 
+
+//
 func TestNxos_Show(t *testing.T) {
-// 
+	//
 	Convey("show nxos cli commands", t, func() {
 		client, err := net.Dial("tcp", "localhost:8088")
 		So(
@@ -608,9 +618,10 @@ func TestNxos_Show(t *testing.T) {
 		)
 	})
 }
-// 
+
+//
 func TestNxos_Set(t *testing.T) {
-// 
+	//
 	Convey("set nxos cli commands", t, func() {
 		client, err := net.Dial("tcp", "localhost:8088")
 		So(
