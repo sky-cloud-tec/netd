@@ -108,10 +108,10 @@ func (s *opFortinet) RegisterMode(req *protocol.CliRequest) error {
 			``}
 		s.transitions[req.Mode+"->"+"login"] = []string{"end"}
 		// no matter global registered or not, register transition
-		s.transitions["global->"+req.Mode] = []string{"end", "config vdom\n\t" +
+		s.transitions["global->"+req.Mode] = []string{"end\nconfig vdom\n\t" +
 			"edit " + req.Mode +
 			``}
-		s.transitions[req.Mode+"->global"] = []string{"end", "config global"}
+		s.transitions[req.Mode+"->global"] = []string{"end\nconfig global"}
 	}
 	logs.Debug(req.LogPrefix, s)
 	return nil
