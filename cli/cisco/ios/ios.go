@@ -96,6 +96,7 @@ func (s *SwitchIos) GetStartMode() string {
 	return "login_or_login_enable"
 }
 
+// RegisterMode ...
 func (s *SwitchIos) RegisterMode(req *protocol.CliRequest) error {
 	return nil
 }
