@@ -88,6 +88,11 @@ func (s *Centos) GetStartMode() string {
 	return "login"
 }
 
+// RegisterMode ...
+func (s *Centos) RegisterMode(req *protocol.CliRequest) error {
+	return nil
+}
+
 //GetSSHInitializer Centos
 func (s *Centos) GetSSHInitializer() cli.SSHInitializer {
 	return func(c *ssh.Client, req *protocol.CliRequest) (io.Reader, io.WriteCloser, *ssh.Session, error) {

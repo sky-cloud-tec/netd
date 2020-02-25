@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"io"
 	"regexp"
+	"strings"
 
 	"github.com/sky-cloud-tec/netd/cli"
 	"github.com/sky-cloud-tec/netd/protocol"
@@ -84,19 +85,42 @@ func (s *opFortinet) GetLinebreak() string {
 	return s.lineBreak
 }
 
+func (s *opFortinet) RegisterMode(req *protocol.CliRequest) error {
+	if s.GetPrompts(req.Mode) != nil {
+		return nil
+	}
+	// no pattern for this mode
+	// try insert
+	logs.Info(req.LogPrefix, "registering pattern for mode", req.Mode)
+	if strings.EqualFold(req.Mode, "global") {
+		// global vdom
+		s.prompts[req.Mode] = []*regexp.Regexp{
+			regexp.MustCompile(`[[:alnum:]]{1,}[[:alnum:]-_]{0,} \(` + req.Mode + `\) # $`),
+		}
+		s.transitions["login->"+req.Mode] = []string{"config global"}
+		s.transitions[req.Mode+"->"+"login"] = []string{"end"}
+	} else {
+		s.prompts[req.Mode] = []*regexp.Regexp{
+			regexp.MustCompile(`[[:alnum:]]{1,}[[:alnum:]-_]{0,} \(` + req.Mode + `\) # $`),
+		}
+		s.transitions["login->"+req.Mode] = []string{"config vdom\n\t" +
+			"edit " + req.Mode +
+			``}
+		s.transitions[req.Mode+"->"+"login"] = []string{"end"}
+		// no matter global registered or not, register transition
+		s.transitions["global->"+req.Mode] = []string{"end", "config vdom\n\t" +
+			"edit " + req.Mode +
+			``}
+		s.transitions[req.Mode+"->global"] = []string{"end", "config global"}
+	}
+	logs.Debug(req.LogPrefix, s)
+	return nil
+}
+
 func (s *opFortinet) GetSSHInitializer() cli.SSHInitializer {
 	return func(c *ssh.Client, req *protocol.CliRequest) (io.Reader, io.WriteCloser, *ssh.Session, error) {
-		if s.GetPrompts(req.Mode) == nil {
-			// no pattern for this mode
-			// try insert
-			logs.Info(req.LogPrefix, "registering pattern for mode", req.Mode)
-			s.prompts[req.Mode] = []*regexp.Regexp{
-				regexp.MustCompile(`[[:alnum:]]{1,}[[:alnum:]-_]{0,} \(` + req.Mode + `\) # $`),
-			}
-			s.transitions["login->"+req.Mode] = []string{"config vdom\n\t" +
-				"edit " + req.Mode +
-				``}
-			s.transitions[req.Mode+"->"+"login"] = []string{"end"}
+		if err := s.RegisterMode(req); err != nil {
+			return nil, nil, nil, err
 		}
 		var err error
 		session, err := c.NewSession()

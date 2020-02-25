@@ -96,6 +96,10 @@ func (s *SwitchIos) GetStartMode() string {
 	return "login_or_login_enable"
 }
 
+func (s *SwitchIos) RegisterMode(req *protocol.CliRequest) error {
+	return nil
+}
+
 //GetSSHInitializer SwitchIos
 func (s *SwitchIos) GetSSHInitializer() cli.SSHInitializer {
 	return func(c *ssh.Client, req *protocol.CliRequest) (io.Reader, io.WriteCloser, *ssh.Session, error) {

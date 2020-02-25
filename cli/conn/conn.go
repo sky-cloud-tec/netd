@@ -438,18 +438,23 @@ func (s *CliConn) writeBuff(cmd string) (int, error) {
 func (s *CliConn) Exec() (map[string]string, error) {
 	// transit to target mode
 	if s.req.Mode != s.mode {
+		s.op.RegisterMode(s.req)
 		cmds := s.op.GetTransitions(s.mode, s.req.Mode)
 		// use target mode prompt
 		logs.Info(s.req.LogPrefix, s.mode, "-->", s.req.Mode)
+		// transition back when it fail
+		mt := s.mode
 		s.mode = s.req.Mode
 		for _, v := range cmds {
 			logs.Info(s.req.LogPrefix, "exec", "<", v, ">")
 			if _, err := s.writeBuff(v); err != nil {
 				logs.Error(s.req.LogPrefix, "write buff failed,", err)
+				s.mode = mt
 				return nil, fmt.Errorf("write buff failed, %s", err)
 			}
 			_, _, err := s.readBuff()
 			if err != nil {
+				s.mode = mt
 				logs.Error(s.req.LogPrefix, "readBuff failed,", err)
 				return nil, fmt.Errorf("readBuff failed, %s", err)
 			}
@@ -458,7 +463,7 @@ func (s *CliConn) Exec() (map[string]string, error) {
 	cmdstd := make(map[string]string, 0)
 	// do execute cli commands
 	for _, v := range s.req.Commands {
-		logs.Info(s.req.LogPrefix, "exec", "<", v, ">")
+		logs.Info(s.req.LogPrefix, "exec", "<", v, ">", "in", s.mode, "mode")
 		if _, err := s.writeBuff(v); err != nil {
 			logs.Error(s.req.LogPrefix, "write buff failed,", err)
 			return cmdstd, fmt.Errorf("write buff failed, %s", err)

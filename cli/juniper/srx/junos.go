@@ -97,6 +97,11 @@ func (s *opJunos) GetStartMode() string {
 	return "login"
 }
 
+// RegisterMode ...
+func (s *opJunos) RegisterMode(req *protocol.CliRequest) error {
+	return nil
+}
+
 func (s *opJunos) GetSSHInitializer() cli.SSHInitializer {
 	return func(c *ssh.Client, req *protocol.CliRequest) (io.Reader, io.WriteCloser, *ssh.Session, error) {
 		var err error

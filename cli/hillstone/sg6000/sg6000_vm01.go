@@ -87,6 +87,11 @@ func (s *opHillstone) GetStartMode() string {
 	return "login"
 }
 
+// RegisterMode ...
+func (s *opHillstone) RegisterMode(req *protocol.CliRequest) error {
+	return nil
+}
+
 func (s *opHillstone) GetSSHInitializer() cli.SSHInitializer {
 	return func(c *ssh.Client, req *protocol.CliRequest) (io.Reader, io.WriteCloser, *ssh.Session, error) {
 		var err error

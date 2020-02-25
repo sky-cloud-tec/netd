@@ -93,6 +93,11 @@ func (s *SwitchNxos) GetStartMode() string {
 	return "login"
 }
 
+// RegisterMode ...
+func (s *SwitchNxos) RegisterMode(req *protocol.CliRequest) error {
+	return nil
+}
+
 //GetSSHInitializer SwitchNxos
 func (s *SwitchNxos) GetSSHInitializer() cli.SSHInitializer {
 	return func(c *ssh.Client, req *protocol.CliRequest) (io.Reader, io.WriteCloser, *ssh.Session, error) {

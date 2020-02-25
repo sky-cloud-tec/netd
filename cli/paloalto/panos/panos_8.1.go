@@ -90,6 +90,11 @@ func (s *opPaloalto) GetStartMode() string {
 	return "login"
 }
 
+// RegisterMode ...
+func (s *opPaloalto) RegisterMode(req *protocol.CliRequest) error {
+	return nil
+}
+
 func (s *opPaloalto) GetSSHInitializer() cli.SSHInitializer {
 	return func(c *ssh.Client, req *protocol.CliRequest) (io.Reader, io.WriteCloser, *ssh.Session, error) {
 		var err error

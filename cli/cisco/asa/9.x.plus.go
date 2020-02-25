@@ -87,6 +87,10 @@ func (s *op9xPlus) GetStartMode() string {
 	return "login_or_login_enable"
 }
 
+func (s *op9xPlus) RegisterMode(req *protocol.CliRequest) error {
+	return nil
+}
+
 func (s *op9xPlus) GetSSHInitializer() cli.SSHInitializer {
 	return func(c *ssh.Client, req *protocol.CliRequest) (io.Reader, io.WriteCloser, *ssh.Session, error) {
 		var err error

@@ -33,6 +33,7 @@ type Operator interface {
 	GetSSHInitializer() SSHInitializer
 	GetLinebreak() string
 	GetStartMode() string
+	RegisterMode(*protocol.CliRequest) error
 }
 
 var (
