@@ -10,7 +10,7 @@ go build .
 
 #### Usages
 ```go
-	client, err := net.Dial("tcp", "localhost:8088")
+	client, err := net.Dial("tcp", "localhost:8188")
 	// Synchronous call
 	args := &protocol.CliRequest{
 		Device:  "juniper-test",

@@ -29,7 +29,7 @@ import (
 func TestJuniperSrx_Set(t *testing.T) {
 	//
 	Convey("set juniper srx cli commands", t, func() {
-		client, err := net.Dial("tcp", "localhost:8088")
+		client, err := net.Dial("tcp", "localhost:8188")
 		So(
 			err,
 			ShouldBeNil,
@@ -72,7 +72,7 @@ func TestJuniperSrx_Set(t *testing.T) {
 func TestJuniperSrx_Show(t *testing.T) {
 	//
 	Convey("show juniper srx configuration", t, func() {
-		client, err := net.Dial("tcp", "localhost:8088")
+		client, err := net.Dial("tcp", "localhost:8188")
 		So(
 			err,
 			ShouldBeNil,
@@ -119,7 +119,7 @@ func TestJuniperSrx_Show(t *testing.T) {
 func TestJuniperSsg_Set(t *testing.T) {
 	//
 	Convey("set juniper ssg cli commands", t, func() {
-		client, err := net.Dial("tcp", "localhost:8088")
+		client, err := net.Dial("tcp", "localhost:8188")
 		So(
 			err,
 			ShouldBeNil,
@@ -166,7 +166,7 @@ func TestJuniperSsg_Set(t *testing.T) {
 func TestJuniperSsg_show(t *testing.T) {
 	//
 	Convey("show juniper ssg cli commands", t, func() {
-		client, err := net.Dial("tcp", "localhost:8088")
+		client, err := net.Dial("tcp", "localhost:8188")
 		So(
 			err,
 			ShouldBeNil,
@@ -209,7 +209,7 @@ func TestJuniperSsg_show(t *testing.T) {
 func TestCiscoAsa_Show(t *testing.T) {
 	//
 	Convey("show cisco asa configuration", t, func() {
-		client, err := net.Dial("tcp", "localhost:8088")
+		client, err := net.Dial("tcp", "localhost:8188")
 		So(
 			err,
 			ShouldBeNil,
@@ -301,7 +301,7 @@ func TestCiscoAsa_Set(t *testing.T) {
 func TestPaloalto_Set(t *testing.T) {
 	//
 	Convey("set Paloalto cli commands", t, func() {
-		client, err := net.Dial("tcp", "localhost:8088")
+		client, err := net.Dial("tcp", "localhost:8188")
 		So(
 			err,
 			ShouldBeNil,
@@ -346,7 +346,7 @@ func TestPaloalto_Set(t *testing.T) {
 func TestPaloalto_Show(t *testing.T) {
 	//
 	Convey("show Paloalto cli commands", t, func() {
-		client, err := net.Dial("tcp", "localhost:8088")
+		client, err := net.Dial("tcp", "localhost:8188")
 		So(
 			err,
 			ShouldBeNil,
@@ -391,7 +391,7 @@ func TestPaloalto_Show(t *testing.T) {
 func TestUSG6000V2_Set(t *testing.T) {
 	//
 	Convey("set USG6000V2 cli commands", t, func() {
-		client, err := net.Dial("tcp", "localhost:8088")
+		client, err := net.Dial("tcp", "localhost:8188")
 		So(
 			err,
 			ShouldBeNil,
@@ -442,7 +442,7 @@ func TestUSG6000V2_Set(t *testing.T) {
 func TestUSG6000V2_Show(t *testing.T) {
 	//
 	Convey("Show USG6000V2 cli commands", t, func() {
-		client, err := net.Dial("tcp", "localhost:8088")
+		client, err := net.Dial("tcp", "localhost:8188")
 		So(
 			err,
 			ShouldBeNil,
@@ -487,7 +487,7 @@ func TestUSG6000V2_Show(t *testing.T) {
 func TestIos_Show(t *testing.T) {
 	//
 	Convey("show ios cli commands", t, func() {
-		client, err := net.Dial("tcp", "localhost:8088")
+		client, err := net.Dial("tcp", "localhost:8188")
 		So(
 			err,
 			ShouldBeNil,
@@ -533,7 +533,7 @@ func TestIos_Show(t *testing.T) {
 func TestIos_Set(t *testing.T) {
 	//
 	Convey("set ios cli commands", t, func() {
-		client, err := net.Dial("tcp", "localhost:8088")
+		client, err := net.Dial("tcp", "localhost:8188")
 		So(
 			err,
 			ShouldBeNil,
@@ -578,7 +578,7 @@ func TestIos_Set(t *testing.T) {
 func TestNxos_Show(t *testing.T) {
 	//
 	Convey("show nxos cli commands", t, func() {
-		client, err := net.Dial("tcp", "localhost:8088")
+		client, err := net.Dial("tcp", "localhost:8188")
 		So(
 			err,
 			ShouldBeNil,
@@ -623,7 +623,7 @@ func TestNxos_Show(t *testing.T) {
 func TestNxos_Set(t *testing.T) {
 	//
 	Convey("set nxos cli commands", t, func() {
-		client, err := net.Dial("tcp", "localhost:8088")
+		client, err := net.Dial("tcp", "localhost:8188")
 		So(
 			err,
 			ShouldBeNil,
@@ -667,7 +667,7 @@ func TestNxos_Set(t *testing.T) {
 func TestHillstone_show(t *testing.T) {
 
 	Convey("show hillstone cli commands", t, func() {
-		client, err := net.Dial("tcp", "localhost:8088")
+		client, err := net.Dial("tcp", "localhost:8188")
 		So(
 			err,
 			ShouldBeNil,
@@ -711,7 +711,7 @@ func TestHillstone_show(t *testing.T) {
 func TestHillstone_set(t *testing.T) {
 
 	Convey("set hillstone cli commands", t, func() {
-		client, err := net.Dial("tcp", "localhost:8088")
+		client, err := net.Dial("tcp", "localhost:8188")
 		So(
 			err,
 			ShouldBeNil,
@@ -755,7 +755,7 @@ func TestHillstone_set(t *testing.T) {
 func TestFortinet_set(t *testing.T) {
 
 	Convey("set fortinet cli commands", t, func() {
-		client, err := net.Dial("tcp", "localhost:8088")
+		client, err := net.Dial("tcp", "localhost:8188")
 		So(
 			err,
 			ShouldBeNil,
@@ -799,7 +799,7 @@ func TestFortinet_set(t *testing.T) {
 func TestFortinet_show(t *testing.T) {
 
 	Convey("show fortinet cli commands", t, func() {
-		client, err := net.Dial("tcp", "localhost:8088")
+		client, err := net.Dial("tcp", "localhost:8188")
 		So(
 			err,
 			ShouldBeNil,
