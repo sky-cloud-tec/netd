@@ -400,7 +400,7 @@ func TestUSG6000V2_Set(t *testing.T) {
 		args := &protocol.CliRequest{
 			Device:  "usg6000v2-set-test",
 			Vendor:  "huawei",
-			Type:    "usg6000v2",
+			Type:    "usg",
 			Version: "V500R005C10",
 			Address: "192.168.1.60:22",
 			Auth: protocol.Auth{
@@ -417,7 +417,7 @@ func TestUSG6000V2_Set(t *testing.T) {
 				quit`,
 			},
 			Protocol: "ssh",
-			Mode:     "systemView",
+			Mode:     "system_View",
 			Timeout:  30,
 		}
 		var reply protocol.CliResponse
@@ -477,7 +477,7 @@ func TestUSG6000V2_Show(t *testing.T) {
 			ShouldBeTrue,
 		)
 		So(
-			len(reply.CmdsStd) == 2,
+			len(reply.CmdsStd) == 1,
 			ShouldBeTrue,
 		)
 	})
@@ -754,7 +754,7 @@ func TestHillstone_set(t *testing.T) {
 
 func TestFortinet_set(t *testing.T) {
 
-	Convey("set fortinet cli commands", t, func() {
+	Convey("set fortinet cli commands in global domain", t, func() {
 		client, err := net.Dial("tcp", "localhost:8188")
 		So(
 			err,

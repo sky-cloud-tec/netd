@@ -22,6 +22,7 @@ import (
 
 	"github.com/sky-cloud-tec/netd/cli"
 	"github.com/sky-cloud-tec/netd/protocol"
+	"github.com/songtianyi/rrframework/logs"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -88,6 +89,7 @@ func (s *opFortinet) GetSSHInitializer() cli.SSHInitializer {
 		if s.GetPrompts(req.Mode) == nil {
 			// no pattern for this mode
 			// try insert
+			logs.Info(req.LogPrefix, "registering pattern for mode", req.Mode)
 			s.prompts[req.Mode] = []*regexp.Regexp{
 				regexp.MustCompile(`[[:alnum:]]{1,}[[:alnum:]-_]{0,} \(` + req.Mode + `\) # $`),
 			}
