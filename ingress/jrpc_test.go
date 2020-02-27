@@ -816,7 +816,7 @@ func TestFortinet_show(t *testing.T) {
 				Password: "r00tme",
 			},
 			Commands: []string{
-				`show system global`,
+				`show full-configuration`,
 			},
 			Protocol: "ssh",
 			Mode:     "login",

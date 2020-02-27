@@ -210,11 +210,16 @@ func (s *CliConn) init() error {
 					return err
 				}
 			} else if strings.EqualFold(s.req.Vendor, "fortinet") && strings.EqualFold(s.req.Type, "fortigate-VM64-KVM") {
-				if pts := s.op.GetPrompts(s.req.Mode); pts != nil {
-					//no vdom
-					if !strings.Contains(pts[0].String(), s.req.Mode) {
-						return s.closePage()
-					}
+				pts := s.op.GetPrompts(s.req.Mode)
+				if pts == nil {
+					return fmt.Errorf("mode %s not registered", s.req.Mode)
+				}
+				// close page
+				if !strings.Contains(pts[0].String(), s.req.Mode) {
+					//non vdom
+					s.closePage()
+				} else {
+					// vdom
 					logs.Debug(s.req.LogPrefix, "entering domain global...")
 					if _, err := s.writeBuff("config global"); err != nil {
 						return err
@@ -229,10 +234,6 @@ func (s *CliConn) init() error {
 					if _, _, err := s.readBuff(); err != nil {
 						return err
 					}
-				}
-			} else {
-				if err := s.closePage(); err != nil {
-					return err
 				}
 			}
 		}
