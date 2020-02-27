@@ -15,7 +15,8 @@ install:
 script:
     - "bash check.sh"
     - CGO_ENABLED=0 go build .
-
-after_success:
     - "bash cd.sh"
+
+#after_success:
+#    - "bash cd.sh"
 
