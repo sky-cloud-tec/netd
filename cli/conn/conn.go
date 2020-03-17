@@ -170,71 +170,86 @@ func (s *CliConn) init() error {
 		if err != nil {
 			return err
 		}
-		// read login prompt
-		_, prompt, err := s.readBuff()
-		if err != nil {
-			return fmt.Errorf("read after login failed, %s", err)
-		}
-		// enable cases
-		if s.mode == "login_or_login_enable" {
-			// check prompt
-			loginPrompts := s.op.GetPrompts("login")
-			if cli.Match(loginPrompts, prompt) {
-				s.mode = "login"
-				if s.mode != s.req.Mode {
-					// login is not the target mode, need transition
-					// enter privileged mode
-					if _, err := s.writeBuff("enable" + s.op.GetLinebreak() + s.req.EnablePwd); err != nil {
-						return fmt.Errorf("enter privileged mode err, %s", err)
-					}
-					s.mode = "login_enable"
-					if _, _, err := s.readBuff(); err != nil {
-						s.mode = "login"
-						return fmt.Errorf("readBuff after enable err, %s", err)
-					}
-					if err := s.closePage(); err != nil {
-						return err
-					}
+	}
+	// read login prompt
+	_, prompt, err := s.readBuff()
+	if err != nil {
+		return fmt.Errorf("read after login failed, %s", err)
+	}
+	// enable cases
+	if s.mode == "login_or_login_enable" {
+		// not sure what mode it is
+		// check prompt
+		loginPrompts := s.op.GetPrompts("login")
+		if cli.Match(loginPrompts, prompt) {
+			// in login, not enabled
+			// eventually, we'll exec cmds in privileged mode
+			s.mode = "login"
+			if s.mode != s.req.Mode {
+				// login is not the target mode, need transition
+				// enter privileged mode
+				if _, err := s.writeBuff("enable" + s.op.GetLinebreak() + s.req.EnablePwd); err != nil {
+					return fmt.Errorf("enter privileged mode err, %s", err)
 				}
-			}
-		} else {
-			if strings.EqualFold(s.req.Vendor, "Paloalto") && strings.EqualFold(s.req.Type, "PAN-OS") {
-				// set format
-				if s.req.Format != "" {
-					if _, err := s.writeBuff("set cli config-output-format " + s.req.Format); err != nil {
-						return err
-					}
+				s.mode = "login_enable"
+				if _, _, err := s.readBuff(); err != nil {
+					s.mode = "login"
+					return fmt.Errorf("readBuff after enable err, %s", err)
 				}
-				// close page
 				if err := s.closePage(); err != nil {
 					return err
 				}
-			} else if strings.EqualFold(s.req.Vendor, "fortinet") && strings.EqualFold(s.req.Type, "fortigate-VM64-KVM") {
-				pts := s.op.GetPrompts(s.req.Mode)
-				if pts == nil {
-					return fmt.Errorf("mode %s not registered", s.req.Mode)
+			} // login is what you want, no close page here
+		} else {
+			// already in privileged mode, close page
+			if err := s.closePage(); err != nil {
+				return err
+			}
+		}
+	} else { //
+		// special devices
+		if strings.EqualFold(s.req.Vendor, "Paloalto") && strings.EqualFold(s.req.Type, "PAN-OS") {
+			// set format
+			if s.req.Format != "" {
+				if _, err := s.writeBuff("set cli config-output-format " + s.req.Format); err != nil {
+					return err
 				}
-				// close page
-				if !strings.Contains(pts[0].String(), s.req.Mode) {
-					//non vdom
-					s.closePage()
-				} else {
-					// vdom
-					logs.Debug(s.req.LogPrefix, "entering domain global...")
-					if _, err := s.writeBuff("config global"); err != nil {
-						return err
-					}
-					if err := s.closePage(); err != nil {
-						return err
-					}
-					logs.Debug(s.req.LogPrefix, "exiting vdom global...")
-					if _, err := s.writeBuff("end"); err != nil {
-						return err
-					}
-					if _, _, err := s.readBuff(); err != nil {
-						return err
-					}
+			}
+			// close page
+			if err := s.closePage(); err != nil {
+				return err
+			}
+		} else if strings.EqualFold(s.req.Vendor, "fortinet") && strings.EqualFold(s.req.Type, "fortigate-VM64-KVM") {
+			pts := s.op.GetPrompts(s.req.Mode)
+			if pts == nil {
+				return fmt.Errorf("mode %s not registered", s.req.Mode)
+			}
+			// close page
+			if !strings.Contains(pts[0].String(), s.req.Mode) {
+				//non vdom
+				s.closePage()
+			} else {
+				// vdom
+				logs.Debug(s.req.LogPrefix, "entering domain global...")
+				if _, err := s.writeBuff("config global"); err != nil {
+					return err
 				}
+				if err := s.closePage(); err != nil {
+					return err
+				}
+				logs.Debug(s.req.LogPrefix, "exiting vdom global...")
+				if _, err := s.writeBuff("end"); err != nil {
+					return err
+				}
+				if _, _, err := s.readBuff(); err != nil {
+					return err
+				}
+			}
+		} else {
+			// for any other non special devices
+			// include cisco asa non login_or_login_enable mode
+			if err := s.closePage(); err != nil {
+				return err
 			}
 		}
 	}
@@ -244,6 +259,10 @@ func (s *CliConn) init() error {
 
 func (s *CliConn) closePage() error {
 	if strings.EqualFold(s.req.Vendor, "cisco") && (strings.EqualFold(s.req.Type, "asa") || strings.EqualFold(s.req.Type, "asav")) {
+		// login mode no close page
+		if s.mode == "login" {
+			return nil
+		}
 		// ===config or normal both ok===
 		// set terminal pager
 		if _, err := s.writeBuff("terminal pager 0"); err != nil {
@@ -254,6 +273,9 @@ func (s *CliConn) closePage() error {
 			return err
 		}
 	} else if strings.EqualFold(s.req.Vendor, "cisco") && strings.EqualFold(s.req.Type, "ios") {
+		if s.mode == "login" {
+			return nil
+		}
 		if _, err := s.writeBuff("terminal length 0"); err != nil {
 			return err
 		}
@@ -392,7 +414,7 @@ outside:
 		// not match
 		// check buf size is large enough
 		if cap(buf) == n {
-			// buf full, it proves that maybe lots of more content out there
+			// buf full, it proves that maybe there are lots of more content out there
 			// enlarge buf
 			buf = make([]byte, 2*n)
 		}
