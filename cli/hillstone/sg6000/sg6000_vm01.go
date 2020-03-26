@@ -54,7 +54,7 @@ func createOpHillstone() cli.Operator {
 		errs: []*regexp.Regexp{
 			regexp.MustCompile(`\^-+incomplete command`),
 			regexp.MustCompile(`\^-+unrecognized keyword\s+`),
-			regexp.MustCompile(`^Error:\s+`),
+			regexp.MustCompile(`^Error:[\s\S]+`),
 		},
 		lineBeak: "\n",
 	}
