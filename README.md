@@ -19,8 +19,8 @@ go build .
 		Version: "6.0",
 		Address: "192.168.1.252:22",
 		Auth: protocol.Auth{
-			Username: "xx",
-			Password: "xx",
+			Username: "xxx",
+			Password: "xxx",
 		},
 		Commands: []string{"set security address-book global address WS-100.2.2.46_32 wildcard-address 100.2.2.46/255.255.255.255"},
 		Protocol: "ssh",
