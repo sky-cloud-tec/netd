@@ -196,13 +196,13 @@ func (s *CliConn) init() error {
 					s.mode = "login"
 					return fmt.Errorf("readBuff after enable err, %s", err)
 				}
-				if err := s.closePage(); err != nil {
+				if err := s.closePage(true); err != nil {
 					return err
 				}
 			} // login is what you want, no close page here
 		} else {
 			// already in privileged mode, close page
-			if err := s.closePage(); err != nil {
+			if err := s.closePage(true); err != nil {
 				return err
 			}
 		}
@@ -216,7 +216,7 @@ func (s *CliConn) init() error {
 				}
 			}
 			// close page
-			if err := s.closePage(); err != nil {
+			if err := s.closePage(true); err != nil {
 				return err
 			}
 		} else if strings.EqualFold(s.req.Vendor, "fortinet") && strings.EqualFold(s.req.Type, "fortigate-VM64-KVM") {
@@ -227,14 +227,14 @@ func (s *CliConn) init() error {
 			// close page
 			if !strings.Contains(pts[0].String(), s.req.Mode) {
 				//non vdom
-				s.closePage()
+				s.closePage(true)
 			} else {
 				// vdom
 				logs.Debug(s.req.LogPrefix, "entering domain global...")
 				if _, err := s.writeBuff("config global"); err != nil {
 					return err
 				}
-				if err := s.closePage(); err != nil {
+				if err := s.closePage(false); err != nil {
 					return err
 				}
 				logs.Debug(s.req.LogPrefix, "exiting vdom global...")
@@ -248,7 +248,7 @@ func (s *CliConn) init() error {
 		} else {
 			// for any other non special devices
 			// include cisco asa non login_or_login_enable mode
-			if err := s.closePage(); err != nil {
+			if err := s.closePage(true); err != nil {
 				return err
 			}
 		}
@@ -257,7 +257,7 @@ func (s *CliConn) init() error {
 	return nil
 }
 
-func (s *CliConn) closePage() error {
+func (s *CliConn) closePage(drain bool) error {
 	if strings.EqualFold(s.req.Vendor, "cisco") && (strings.EqualFold(s.req.Type, "asa") || strings.EqualFold(s.req.Type, "asav")) {
 		// login mode no close page
 		if s.mode == "login" {
@@ -294,6 +294,9 @@ func (s *CliConn) closePage() error {
 		if _, err := s.writeBuff("config system console\n\tset output standard\nend"); err != nil {
 			return err
 		}
+	}
+	if !drain {
+		return nil
 	}
 	if _, _, err := s.readBuff(); err != nil {
 		return err
