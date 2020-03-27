@@ -52,7 +52,7 @@ func createopUsg6000V() cli.Operator {
 			"system_View": {systemViewPrompt},
 		},
 		errs: []*regexp.Regexp{
-			regexp.MustCompile("^ ?Error: ?"),
+			regexp.MustCompile(`^ ?Error:[\s\S]*`),
 		},
 		lineBeak: "\n",
 	}
