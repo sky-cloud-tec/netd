@@ -295,6 +295,9 @@ func (s *CliConn) closePage() error {
 			return err
 		}
 	}
+	if _, _, err := s.readBuff(); err != nil {
+		return err
+	}
 	return nil
 }
 
