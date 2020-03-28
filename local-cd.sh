@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -o errexit -o nounset
+CGO_ENABLE=0 GOOS=linux GOARCH=amd64 go build .
 TRAVIS_BRANCH=master
 if [ "$TRAVIS_BRANCH" != "master" ]
 then 
