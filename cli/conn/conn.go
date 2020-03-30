@@ -214,6 +214,9 @@ func (s *CliConn) init() error {
 				if _, err := s.writeBuff("set cli config-output-format " + s.req.Format); err != nil {
 					return err
 				}
+				if _, _, err := s.readBuff(); err != nil {
+					return err
+				}
 			}
 			// close page
 			if err := s.closePage(true); err != nil {
@@ -497,6 +500,10 @@ func (s *CliConn) Exec() (map[string]string, error) {
 			}
 		}
 	}
+	if err := s.beforeExec(); err != nil {
+		logs.Error(s.req.LogPrefix, "beforeExec error", err)
+		return nil, fmt.Errorf("beforeExec error, %s", err)
+	}
 	cmdstd := make(map[string]string, 0)
 	// do execute cli commands
 	for _, v := range s.req.Commands {
@@ -513,4 +520,19 @@ func (s *CliConn) Exec() (map[string]string, error) {
 		cmdstd[v] = ret
 	}
 	return cmdstd, nil
+}
+
+func (s *CliConn) beforeExec() error {
+	if strings.EqualFold(s.req.Vendor, "Paloalto") && strings.EqualFold(s.req.Type, "PAN-OS") {
+		// set format
+		if s.req.Format != "" {
+			if _, err := s.writeBuff("set cli config-output-format " + s.req.Format); err != nil {
+				return err
+			}
+			if _, _, err := s.readBuff(); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
