@@ -57,6 +57,8 @@ type CliConn struct {
 	session *ssh.Session   // ssh session
 	r       io.Reader      // ssh session stdout
 	w       io.WriteCloser // ssh session stdin
+
+	formatSet bool
 }
 
 // Acquire cli conn
@@ -208,21 +210,7 @@ func (s *CliConn) init() error {
 		}
 	} else { //
 		// special devices
-		if strings.EqualFold(s.req.Vendor, "Paloalto") && strings.EqualFold(s.req.Type, "PAN-OS") {
-			// set format
-			if s.req.Format != "" {
-				if _, err := s.writeBuff("set cli config-output-format " + s.req.Format); err != nil {
-					return err
-				}
-				if _, _, err := s.readBuff(); err != nil {
-					return err
-				}
-			}
-			// close page
-			if err := s.closePage(true); err != nil {
-				return err
-			}
-		} else if strings.EqualFold(s.req.Vendor, "fortinet") && strings.EqualFold(s.req.Type, "fortigate-VM64-KVM") {
+		if strings.EqualFold(s.req.Vendor, "fortinet") && strings.EqualFold(s.req.Type, "fortigate-VM64-KVM") {
 			pts := s.op.GetPrompts(s.req.Mode)
 			if pts == nil {
 				return fmt.Errorf("mode %s not registered", s.req.Mode)
@@ -476,6 +464,10 @@ func (s *CliConn) writeBuff(cmd string) (int, error) {
 
 // Exec execute cli cmds
 func (s *CliConn) Exec() (map[string]string, error) {
+	if err := s.beforeExec(); err != nil {
+		logs.Error(s.req.LogPrefix, "beforeTransition error", err)
+		return nil, fmt.Errorf("beforeTransition error, %s", err)
+	}
 	// transit to target mode
 	if s.req.Mode != s.mode {
 		s.op.RegisterMode(s.req)
@@ -523,16 +515,61 @@ func (s *CliConn) Exec() (map[string]string, error) {
 }
 
 func (s *CliConn) beforeExec() error {
+	if s.req.Format == "" || s.formatSet {
+		return nil
+	}
 	if strings.EqualFold(s.req.Vendor, "Paloalto") && strings.EqualFold(s.req.Type, "PAN-OS") {
 		// set format
-		if s.req.Format != "" {
-			if _, err := s.writeBuff("set cli config-output-format " + s.req.Format); err != nil {
+		// only for pa device
+		mode := s.mode
+		if s.mode != "login" {
+			// transition to login first
+			if _, err := s.writeBuff("exit"); err != nil {
 				return err
 			}
+			s.mode = "login"
 			if _, _, err := s.readBuff(); err != nil {
+				s.mode = mode
 				return err
 			}
 		}
+		// set format
+		if _, err := s.writeBuff("set cli config-output-format " + s.req.Format); err != nil {
+			return err
+		}
+		if _, _, err := s.readBuff(); err != nil {
+			return err
+		}
+		if mode != "login" {
+			// transition back
+			if _, err := s.writeBuff("configure"); err != nil {
+				return err
+			}
+			s.mode = mode
+			if _, _, err := s.readBuff(); err != nil {
+				s.mode = "login"
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (s *CliConn) beforeTransition() error {
+	if s.req.Format == "" {
+		return nil
+	}
+	// if current in login mode
+	if s.mode == "login" &&
+		strings.EqualFold(s.req.Vendor, "Paloalto") && strings.EqualFold(s.req.Type, "PAN-OS") {
+		// set format
+		if _, err := s.writeBuff("set cli config-output-format " + s.req.Format); err != nil {
+			return err
+		}
+		if _, _, err := s.readBuff(); err != nil {
+			return err
+		}
+		s.formatSet = true
 	}
 	return nil
 }
