@@ -259,12 +259,11 @@ func (s *CliConn) closePage(drain bool) error {
 		if _, err := s.writeBuff("terminal pager 0"); err != nil {
 			return err
 		}
+		if _, _, err1 := s.readBuff(); err1 != nil {
+			return err1
+		}
 		// set page lines
 		if _, err := s.writeBuff("terminal pager lines 0"); err != nil {
-			// read last command output
-			if _, _, err1 := s.readBuff(); err != nil {
-				return err1
-			}
 			return err
 		}
 	} else if strings.EqualFold(s.req.Vendor, "cisco") && strings.EqualFold(s.req.Type, "ios") {
