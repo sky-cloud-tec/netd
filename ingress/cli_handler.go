@@ -43,10 +43,14 @@ import (
 
 // CliHandler run cli commands and return result to caller
 type CliHandler struct {
+	req *protocol.CliRequest
 }
 
 // Handle cli request
 func (s *CliHandler) Handle(req *protocol.CliRequest, res *protocol.CliResponse) error {
+	if req.Session == "" {
+		req.Session = rrutils.NewV4().String()
+	}
 	logs.Info("Received req", req)
 	// build timeout
 	if req.Timeout == 0 {
@@ -60,15 +64,14 @@ func (s *CliHandler) Handle(req *protocol.CliRequest, res *protocol.CliResponse)
 		req.LogPrefix = "[ " + req.Device + " ]"
 	}
 
-	if req.Session == "" {
-		req.Session = rrutils.NewV4().String()
-	}
+	s.req = req
+
 	ch := make(chan error, 1)
 
 	go func() {
 		req.LogPrefix = req.LogPrefix + " [ " + req.Session + " ] "
 		logs.Info(req.LogPrefix, "==========START==========")
-		ch <- doHandle(req, res)
+		ch <- s.doHandle(req, res)
 		logs.Info(req.LogPrefix, "==========END==========")
 	}()
 
@@ -77,19 +80,19 @@ func (s *CliHandler) Handle(req *protocol.CliRequest, res *protocol.CliResponse)
 	case res := <-ch:
 		return res
 	case <-time.After(req.Timeout):
-		*res = makeCliErrRes(common.ErrTimeout, "handle req timeout")
+		*res = s.makeCliErrRes(common.ErrTimeout, "handle req timeout")
 	}
 	return nil
 }
 
-func doHandle(req *protocol.CliRequest, res *protocol.CliResponse) error {
+func (s *CliHandler) doHandle(req *protocol.CliRequest, res *protocol.CliResponse) error {
 	// build device operator type
 	t := strings.Join([]string{req.Vendor, req.Type, req.Version}, ".")
 	// get operator by type
 	op := cli.OperatorManagerInstance.Get(t)
 	if op == nil {
 		logs.Error(req.LogPrefix, "no operator match", t)
-		*res = makeCliErrRes(common.ErrNoOpFound, "no operator match "+t)
+		*res = s.makeCliErrRes(common.ErrNoOpFound, "no operator match "+t)
 		return nil
 	}
 	// acquire cli connection, it could be blocked here for concurrency
@@ -97,14 +100,14 @@ func doHandle(req *protocol.CliRequest, res *protocol.CliResponse) error {
 	defer conn.Release(req)
 	if err != nil {
 		logs.Error(req.LogPrefix, "new operator fail,", err)
-		*res = makeCliErrRes(common.ErrAcquireConn, "acquire cli conn fail, "+err.Error())
+		*res = s.makeCliErrRes(common.ErrAcquireConn, "acquire cli conn fail, "+err.Error())
 		return nil
 	}
 	// execute cli commands
 	out, err := c.Exec()
 	if err != nil {
 		logs.Error(req.LogPrefix, "exec error,", err)
-		*res = makeCliErrRes(common.ErrCliExec, "exec cli cmds fail, "+err.Error())
+		*res = s.makeCliErrRes(common.ErrCliExec, "exec cli cmds fail, "+err.Error())
 		return nil
 	}
 	// make reponse
@@ -117,6 +120,6 @@ func doHandle(req *protocol.CliRequest, res *protocol.CliResponse) error {
 	return nil
 }
 
-func makeCliErrRes(code int, msg string) protocol.CliResponse {
-	return protocol.CliResponse{Retcode: code, Message: msg, CmdsStd: nil}
+func (s *CliHandler) makeCliErrRes(code int, msg string) protocol.CliResponse {
+	return protocol.CliResponse{Retcode: code, Message: msg, Device: s.req.Device, CmdsStd: nil}
 }
