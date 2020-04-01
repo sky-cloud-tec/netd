@@ -55,7 +55,7 @@ func createOp9xPlus() cli.Operator {
 			"configure_terminal":    {configTerminalPrompt},
 		},
 		errs: []*regexp.Regexp{
-			regexp.MustCompile("^ERROR: "),
+			regexp.MustCompile("^ERROR: .*$"),
 		},
 		lineBeak: "\n",
 	}
