@@ -47,4 +47,21 @@ func TestConnDial(t *testing.T) {
 			ShouldNotBeNil,
 		)
 	})
+
+}
+
+func TestBreakline(t *testing.T) {
+	Convey("test break line", t, func() {
+		cmd := "config terminal\n"
+		found := false
+		for _, c := range cmd {
+			if c == '\n' {
+				found = true
+			}
+		}
+		So(
+			found,
+			ShouldBeTrue,
+		)
+	})
 }

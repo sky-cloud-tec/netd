@@ -458,6 +458,9 @@ func (s *CliConn) readBuff() (string, string, error) {
 }
 
 func (s *CliConn) writeBuff(cmd string) (int, error) {
+	if len(cmd) > 0 && cmd[len(cmd)-1] == '\n' {
+		return s.write([]byte(cmd))
+	}
 	return s.write([]byte(cmd + s.op.GetLinebreak()))
 }
 
