@@ -225,10 +225,11 @@ func TestCiscoAsa_Show(t *testing.T) {
 				Username: "admin",
 				Password: "r00tme",
 			},
-			Commands: []string{"show running-config"},
-			Protocol: "ssh",
-			Mode:     "login_enable",
-			Timeout:  30,
+			Commands:  []string{"show running-config"},
+			Protocol:  "ssh",
+			Mode:      "login_enable",
+			EnablePwd: "",
+			Timeout:   30,
 		}
 		var reply protocol.CliResponse
 		c := jsonrpc.NewClient(client)

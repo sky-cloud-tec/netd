@@ -190,7 +190,7 @@ func (s *CliConn) init() error {
 			if s.mode != s.req.Mode {
 				// login is not the target mode, need transition
 				// enter privileged mode
-				if _, err := s.writeBuff("enable" + s.op.GetLinebreak() + s.req.EnablePwd); err != nil {
+				if _, err := s.writeBuff("enable\r" + s.req.EnablePwd); err != nil {
 					return fmt.Errorf("enter privileged mode err, %s", err)
 				}
 				s.mode = "login_enable"

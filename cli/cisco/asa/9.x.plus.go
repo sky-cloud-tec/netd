@@ -57,7 +57,7 @@ func createOp9xPlus() cli.Operator {
 		errs: []*regexp.Regexp{
 			regexp.MustCompile("^ERROR: .*$"),
 		},
-		lineBeak: "\n",
+		lineBeak: "\r\n",
 	}
 }
 
