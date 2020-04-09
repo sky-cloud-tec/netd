@@ -446,8 +446,8 @@ func (s *CliConn) readBuff() (string, string, error) {
 			for scanner.Scan() {
 				matches := s.anyPatternMatches(scanner.Text(), s.op.GetErrPatterns())
 				if len(matches) > 0 {
-					logs.Info(s.req.LogPrefix, "err pattern matched,", matches)
-					return "", res.prompt, fmt.Errorf("err pattern matched, %s", matches)
+					logs.Info(s.req.LogPrefix, "err pattern matched,", res.ret)
+					return "", res.prompt, fmt.Errorf("err pattern matched, %s", res.ret)
 				}
 			}
 		}
