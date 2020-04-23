@@ -2,5 +2,6 @@ netd
 netd.exe
 .DS_Store
 netd*.log
+.idea
 .vscode
 ingress/debug.test
