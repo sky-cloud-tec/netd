@@ -862,7 +862,7 @@ func TestTopSec_show(t *testing.T) {
 				Password: "Admin@123",
 			},
 			Commands: []string{
-				"show nostop",
+				`show nostop`,
 			},
 			Protocol: "ssh",
 			Mode:     "login",
