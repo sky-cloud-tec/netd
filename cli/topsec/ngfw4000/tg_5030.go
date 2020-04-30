@@ -43,7 +43,7 @@ func createOpTopSec() cli.Operator {
 	return &opTopSec{
 		transitions: map[string][]string{},
 		prompts: map[string][]*regexp.Regexp{
-			"login":               {loginPrompt,loginPrompt2},
+			"login": {loginPrompt, loginPrompt2},
 		},
 		errs: []*regexp.Regexp{
 			regexp.MustCompile("^error:"),
