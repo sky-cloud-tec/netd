@@ -16,6 +16,7 @@
 package ingress
 
 import (
+	"fmt"
 	"net"
 	"net/rpc/jsonrpc"
 	"testing"
@@ -119,6 +120,7 @@ func TestJuniperSrx_Show(t *testing.T) {
 func TestJuniperSsg_Set(t *testing.T) {
 	//
 	Convey("set juniper ssg cli commands", t, func() {
+
 		client, err := net.Dial("tcp", "localhost:8188")
 		So(
 			err,
@@ -838,5 +840,50 @@ func TestFortinet_show(t *testing.T) {
 			len(reply.CmdsStd) == 1,
 			ShouldBeTrue,
 		)
+	})
+}
+
+func TestTopSec_show(t *testing.T) {
+
+	Convey("show topsec cli commands", t, func() {
+		client, err := net.Dial("tcp", "localhost:8188")
+		So(
+			err,
+			ShouldBeNil,
+		)
+		// Synchronous call
+		args := &protocol.CliRequest{
+			Device:  "topsec-show-test",
+			Vendor:  "topsec",
+			Type:    "NGFW4000",
+			Version: "TG5030",
+			Address: "192.168.1.208:22",
+			Auth: protocol.Auth{
+				Username: "admin",
+				Password: "Admin@123",
+			},
+			Commands: []string{
+				`show nostop`,
+			},
+			Protocol: "ssh",
+			Mode:     "login",
+			Timeout:  30,
+		}
+		var reply protocol.CliResponse
+		c := jsonrpc.NewClient(client)
+		err = c.Call("CliHandler.Handle", args, &reply)
+		So(
+			err,
+			ShouldBeNil,
+		)
+		So(
+			reply.Retcode == common.OK,
+			ShouldBeTrue,
+		)
+		So(
+			len(reply.CmdsStd) == 1,
+			ShouldBeTrue,
+		)
+		fmt.Print(reply.CmdsStd)
 	})
 }

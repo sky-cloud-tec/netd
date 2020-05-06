@@ -35,6 +35,7 @@ import (
 	_ "github.com/sky-cloud-tec/netd/cli/juniper/ssg"        // load juniper ssg
 	_ "github.com/sky-cloud-tec/netd/cli/linux/centos"       // load linux centos
 	_ "github.com/sky-cloud-tec/netd/cli/paloalto/panos"     // load paloalto panos
+	_ "github.com/sky-cloud-tec/netd/cli/topsec/ngfw4000"     // load topsec ngfw4000
 
 	"github.com/sky-cloud-tec/netd/common"
 	"github.com/sky-cloud-tec/netd/protocol"
