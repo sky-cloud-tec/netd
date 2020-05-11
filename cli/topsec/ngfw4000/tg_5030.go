@@ -38,8 +38,8 @@ type opTopSec struct {
 }
 
 func createOpTopSec() cli.Operator {
-	loginPrompt := regexp.MustCompile("[[:alnum:]]{1,}(-_[[:alnum:]]+){0,}# $")
-	loginPrompt2 := regexp.MustCompile("[[:alnum:]]{1,}(-_[[:alnum:]]+){0,}% $")
+	loginPrompt := regexp.MustCompile("[[:alnum:]]{1,}[-_[:alnum:]]{0,}# $")
+	loginPrompt2 := regexp.MustCompile("[[:alnum:]]{1,}[-_[:alnum:]]{0,}% $")
 	return &opTopSec{
 		transitions: map[string][]string{},
 		prompts: map[string][]*regexp.Regexp{
