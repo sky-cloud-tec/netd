@@ -10,4 +10,5 @@ require (
 	github.com/urfave/cli v1.22.2
 	github.com/ziutek/telnet v0.0.0-20180329124119-c3b780dc415b
 	golang.org/x/crypto v0.0.0-20191128160524-b544559bb6d1
+	golang.org/x/text v0.3.0
 )

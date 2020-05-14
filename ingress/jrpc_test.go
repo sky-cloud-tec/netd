@@ -859,11 +859,11 @@ func TestTopSec_show(t *testing.T) {
 			Version: "TG5030",
 			Address: "192.168.1.208:22",
 			Auth: protocol.Auth{
-				Username: "admin",
-				Password: "Admin@123",
+				Username: "superman",
+				Password: "multisync88",
 			},
 			Commands: []string{
-				`show nostop`,
+				`show`,
 			},
 			Protocol: "ssh",
 			Mode:     "login",
