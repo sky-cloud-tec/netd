@@ -142,6 +142,7 @@ func (s *CliConn) heartbeat() {
 			select {
 			case <-tick:
 				// try
+				logs.Debug(s.req.LogPrefix, "semas", semas)
 				logs.Info(s.req.LogPrefix, "Acquiring heartbeat sema...")
 				semas[s.req.Address] <- struct{}{}
 				logs.Info(s.req.LogPrefix, "heartbeat sema acquired")
@@ -304,6 +305,7 @@ func (s *CliConn) closePage(drain bool) error {
 
 // Close cli conn
 func (s *CliConn) Close() error {
+	logs.Info(s.req.LogPrefix, "closing conn ...")
 	delete(conns, s.req.Address)
 	if s.t == common.TELNETConn {
 		if s.conn == nil {
