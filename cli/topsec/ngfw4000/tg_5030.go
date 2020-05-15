@@ -46,7 +46,7 @@ func createOpTopSec() cli.Operator {
 			"login": {loginPrompt, loginPrompt2},
 		},
 		errs: []*regexp.Regexp{
-			regexp.MustCompile("^error:"),
+			regexp.MustCompile("^error"),
 		},
 		lineBeak: "\n",
 	}
