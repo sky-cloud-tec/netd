@@ -42,6 +42,20 @@ var (
 func init() {
 	conns = make(map[string]*CliConn, 0)
 	semas = make(map[string]chan struct{}, 0)
+	go func() {
+		dick := time.Tick(15 * time.Second)
+		for {
+			select {
+			case <-dick:
+				ms := make([]string, 0)
+				for k, v := range semas {
+					ms = append(ms, fmt.Sprintf("%s:%d", k, len(v)))
+				}
+				logs.Debug("semas", strings.Join(ms, ","))
+				logs.Debug("conns", conns)
+			}
+		}
+	}()
 }
 
 // CliConn cli connection
@@ -138,7 +152,6 @@ func newCliConn(req *protocol.CliRequest, op cli.Operator) (*CliConn, error) {
 func (s *CliConn) heartbeat() {
 	go func() {
 		tick := time.Tick(30 * time.Second)
-		dick := time.Tick(10 * time.Second)
 		for {
 			select {
 			case <-tick:
@@ -160,13 +173,6 @@ func (s *CliConn) heartbeat() {
 				}
 				// OK
 				Release(s.req)
-			case <-dick:
-				ms := make([]string, 0)
-				for k, v := range semas {
-					ms = append(ms, fmt.Sprintf("%s:%d", k, len(v)))
-				}
-				logs.Debug(s.req.LogPrefix, "semas", strings.Join(ms, ","))
-				logs.Debug(s.req.LogPrefix, "conns", conns)
 			}
 		}
 	}()
