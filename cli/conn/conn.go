@@ -43,7 +43,7 @@ func init() {
 	conns = make(map[string]*CliConn, 0)
 	semas = make(map[string]chan struct{}, 0)
 	go func() {
-		dick := time.Tick(15 * time.Second)
+		dick := time.Tick(15 * time.Hour)
 		for {
 			select {
 			case <-dick:

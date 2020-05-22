@@ -31,10 +31,11 @@ func init() {
 }
 
 type opTopSec struct {
-	lineBeak    string // \r\n \n
-	transitions map[string][]string
-	prompts     map[string][]*regexp.Regexp
-	errs        []*regexp.Regexp
+	lineBeak     string // \r\n \n
+	transitions  map[string][]string
+	prompts      map[string][]*regexp.Regexp
+	errs         []*regexp.Regexp
+	encodingType string
 }
 
 func createOpTopSec() cli.Operator {
@@ -48,7 +49,8 @@ func createOpTopSec() cli.Operator {
 		errs: []*regexp.Regexp{
 			regexp.MustCompile("^error"),
 		},
-		lineBeak: "\n",
+		lineBeak:     "\n",
+		encodingType: "GBK",
 	}
 }
 
@@ -57,6 +59,10 @@ func (s *opTopSec) GetPrompts(k string) []*regexp.Regexp {
 		return v
 	}
 	return nil
+}
+
+func (s *opTopSec) GetEncoding() string {
+	return s.encodingType
 }
 
 func (s *opTopSec) GetTransitions(c, t string) []string {
