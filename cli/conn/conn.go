@@ -161,13 +161,17 @@ func (s *CliConn) heartbeat() {
 				logs.Info(s.req.LogPrefix, "heartbeat sema acquired")
 				if _, err := s.writeBuff(""); err != nil {
 					logs.Critical(s.req.LogPrefix, "heartbeat error,", err)
-					s.Close()
+					if err1 := s.Close(); err1 != nil {
+						logs.Debug(s.req.LogPrefix, err1)
+					}
 					Release(s.req)
 					return
 				}
 				if _, _, err := s.readBuff(); err != nil {
 					logs.Critical(s.req.LogPrefix, "heartbeat error,", err)
-					s.Close()
+					if err1 := s.Close(); err1 != nil {
+						logs.Debug(s.req.LogPrefix, err1)
+					}
 					Release(s.req)
 					return
 				}
