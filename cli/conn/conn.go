@@ -162,7 +162,7 @@ func (s *CliConn) heartbeat() {
 				if _, err := s.writeBuff(""); err != nil {
 					logs.Critical(s.req.LogPrefix, "heartbeat error,", err)
 					if err1 := s.Close(); err1 != nil {
-						logs.Debug(s.req.LogPrefix, err1)
+						logs.Error(s.req.LogPrefix, "close conn err", err1)
 					}
 					Release(s.req)
 					return
@@ -170,7 +170,7 @@ func (s *CliConn) heartbeat() {
 				if _, _, err := s.readBuff(); err != nil {
 					logs.Critical(s.req.LogPrefix, "heartbeat error,", err)
 					if err1 := s.Close(); err1 != nil {
-						logs.Debug(s.req.LogPrefix, err1)
+						logs.Error(s.req.LogPrefix, "close conn err", err1)
 					}
 					Release(s.req)
 					return
@@ -333,7 +333,7 @@ func (s *CliConn) Close() error {
 	}
 	if s.session != nil {
 		if err := s.session.Close(); err != nil {
-			return err
+			logs.Critical(s.req.LogPrefix, "close session err", err)
 		}
 	} else {
 		logs.Notice(s.req.LogPrefix, "ssh session nil when close")
