@@ -887,3 +887,48 @@ func TestTopSec_show(t *testing.T) {
 		fmt.Print(reply.CmdsStd)
 	})
 }
+
+func TestTianyuanJuniper_show(t *testing.T) {
+
+	Convey("show tianyuan juniper conf", t, func() {
+		client, err := net.Dial("tcp", "localhost:8188")
+		So(
+			err,
+			ShouldBeNil,
+		)
+		// Synchronous call
+		args := &protocol.CliRequest{
+			Device:  "tianyuan-juniper-show-test",
+			Vendor:  "juniper",
+			Type:    "srx",
+			Version: "6.0",
+			Address: "192.168.2.102:22",
+			Auth: protocol.Auth{
+				Username: "test",
+				Password: "test123",
+			},
+			Commands: []string{
+				`show configuration | no-more`,
+			},
+			Protocol: "ssh",
+			Mode:     "login",
+			Timeout:  30,
+		}
+		var reply protocol.CliResponse
+		c := jsonrpc.NewClient(client)
+		err = c.Call("CliHandler.Handle", args, &reply)
+		So(
+			err,
+			ShouldBeNil,
+		)
+		So(
+			reply.Retcode == common.OK,
+			ShouldBeTrue,
+		)
+		So(
+			len(reply.CmdsStd) == 1,
+			ShouldBeTrue,
+		)
+		fmt.Print(reply.CmdsStd)
+	})
+}
