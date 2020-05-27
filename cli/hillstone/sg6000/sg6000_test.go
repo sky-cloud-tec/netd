@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-package asa
+package sg6000
 
 import (
 	"testing"
@@ -25,13 +25,9 @@ import (
 func TestAsaOp(t *testing.T) {
 
 	Convey("asa op", t, func() {
-		op := createOp9xPlus()
+		op := createOpHillstone()
 		So(
-			cli.Match(op.GetPrompts("login"), "asaNAT> "),
-			ShouldBeTrue,
-		)
-		So(
-			cli.Match(op.GetPrompts("login"), "TFTF-ASA5512x> "),
+			cli.Match(op.GetPrompts("login"), "TFTF-E1700-1(M)# "),
 			ShouldBeTrue,
 		)
 	})
