@@ -38,8 +38,8 @@ type opHillstone struct {
 }
 
 func createOpHillstone() cli.Operator {
-	loginPrompt := regexp.MustCompile(`[[:alnum:]._-~]+(\([[:alnum:]]+\))?# ?$`)
-	configurePrompt := regexp.MustCompile(`[[:alnum:]._-~]+(\([[:alnum:]]+\))?\(config\)# ?$`)
+	loginPrompt := regexp.MustCompile(`[[:alnum:]._\-~]+(\([[:alnum:]]+\))?# ?$`)
+	configurePrompt := regexp.MustCompile(`[[:alnum:]._\-~]+(\([[:alnum:]]+\))?\(config\)# ?$`)
 
 	return &opHillstone{
 		transitions: map[string][]string{
