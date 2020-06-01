@@ -38,8 +38,8 @@ type opUsg6000V struct {
 }
 
 func createopUsg6000V() cli.Operator {
-	loginPrompt := regexp.MustCompile("<[[:alnum:]]{1,}[[:digit:]]{1,}[[:alnum:]]{1,}>$")
-	systemViewPrompt := regexp.MustCompile(`[[[:alnum:]]{1,}[[:digit:]]{1,}[[:alnum:]]{1,}]$`)
+	loginPrompt := regexp.MustCompile("<[-_[:alnum:][:digit:]]{0,}>$")
+	systemViewPrompt := regexp.MustCompile(`\[[-_[:alnum:][:digit:]]{0,}]$`)
 	return &opUsg6000V{
 		// mode transition
 		// login -> systemView

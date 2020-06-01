@@ -29,6 +29,7 @@ import (
 	"github.com/sky-cloud-tec/netd/cli/conn"
 	_ "github.com/sky-cloud-tec/netd/cli/dptech/fw1000"      // load dptech fw1000
 	_ "github.com/sky-cloud-tec/netd/cli/fortinet/fortigate" // load fortinet fortigate
+	_ "github.com/sky-cloud-tec/netd/cli/h3c/secpath"        // load h3c secpath
 	_ "github.com/sky-cloud-tec/netd/cli/hillstone/sg6000"   // load hillstone SG6000
 	_ "github.com/sky-cloud-tec/netd/cli/huawei/usg"         // load huawei USG
 	_ "github.com/sky-cloud-tec/netd/cli/juniper/srx"        // load cisco asa

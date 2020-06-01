@@ -536,10 +536,10 @@ func (s *CliConn) Exec() (map[string]string, error) {
 }
 
 func (s *CliConn) beforeExec() error {
-	if s.req.Format == "" || s.formatSet {
-		return nil
-	}
 	if strings.EqualFold(s.req.Vendor, "Paloalto") && strings.EqualFold(s.req.Type, "PAN-OS") {
+		if s.req.Format == "" || s.formatSet {
+			return nil
+		}
 		// set format
 		// only for pa device
 		mode := s.mode
@@ -561,9 +561,43 @@ func (s *CliConn) beforeExec() error {
 		if _, _, err := s.readBuff(); err != nil {
 			return err
 		}
+		// login
 		if mode != "login" {
 			// transition back
 			if _, err := s.writeBuff("configure"); err != nil {
+				return err
+			}
+			s.mode = mode
+			if _, _, err := s.readBuff(); err != nil {
+				s.mode = "login"
+				return err
+			}
+		}
+	} else if strings.EqualFold(s.req.Vendor, "H3C") && strings.EqualFold(s.req.Type, "SecPath") {
+		// set terminal page
+		// only for h3c device
+		mode := s.mode
+		if s.mode != "login" {
+			// transition to login first
+			if _, err := s.writeBuff("return"); err != nil {
+				return err
+			}
+			s.mode = "login"
+			if _, _, err := s.readBuff(); err != nil {
+				s.mode = mode
+				return err
+			}
+		}
+		// set console
+		if _, err := s.writeBuff("screen-length disable"); err != nil {
+			return err
+		}
+		if _, _, err := s.readBuff(); err != nil {
+			return err
+		}
+		if mode != "login" {
+			// transition back
+			if _, err := s.writeBuff("system-view"); err != nil {
 				return err
 			}
 			s.mode = mode
@@ -577,12 +611,13 @@ func (s *CliConn) beforeExec() error {
 }
 
 func (s *CliConn) beforeTransition() error {
-	if s.req.Format == "" {
-		return nil
-	}
+
 	// if current in login mode
 	if s.mode == "login" &&
 		strings.EqualFold(s.req.Vendor, "Paloalto") && strings.EqualFold(s.req.Type, "PAN-OS") {
+		if s.req.Format == "" {
+			return nil
+		}
 		// set format
 		if _, err := s.writeBuff("set cli config-output-format " + s.req.Format); err != nil {
 			return err
@@ -591,6 +626,16 @@ func (s *CliConn) beforeTransition() error {
 			return err
 		}
 		s.formatSet = true
+	} else if s.mode == "login" &&
+		strings.EqualFold(s.req.Vendor, "H3C") && strings.EqualFold(s.req.Type, "SecPath") {
+		// set console
+		if _, err := s.writeBuff("screen-length disable"); err != nil {
+			return err
+		}
+		if _, _, err := s.readBuff(); err != nil {
+			return err
+		}
 	}
+
 	return nil
 }

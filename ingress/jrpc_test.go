@@ -405,10 +405,10 @@ func TestUSG6000V2_Set(t *testing.T) {
 			Vendor:  "huawei",
 			Type:    "usg",
 			Version: "V500R005C10",
-			Address: "192.168.1.60:22",
+			Address: "192.168.1.205:22",
 			Auth: protocol.Auth{
 				Username: "admin",
-				Password: "admin@123",
+				Password: "Admin@r00tme",
 			},
 			Commands: []string{
 				`security-policy
@@ -930,5 +930,97 @@ func TestTianyuanJuniper_show(t *testing.T) {
 			ShouldBeTrue,
 		)
 		fmt.Print(reply.CmdsStd)
+	})
+}
+
+//
+func TestSecPathFW2000_Set(t *testing.T) {
+	//
+	Convey("set SecPathFW2000 cli commands", t, func() {
+		client, err := net.Dial("tcp", "localhost:8188")
+		So(
+			err,
+			ShouldBeNil,
+		)
+		// Synchronous call
+		args := &protocol.CliRequest{
+			Device:  "SecPathFW2000-set-test",
+			Vendor:  "h3c",
+			Type:    "secpath",
+			Version: "FW2000",
+			Address: "192.168.1.203:22",
+			Auth: protocol.Auth{
+				Username: "admin",
+				Password: "r00tme",
+			},
+			Commands: []string{
+				`object-group ip address Host_172.16.203.2
+                 network host address 172.16.203.2
+				 quit`,
+			},
+			Protocol: "ssh",
+			Mode:     "system_View",
+			Timeout:  30,
+		}
+		var reply protocol.CliResponse
+		c := jsonrpc.NewClient(client)
+		err = c.Call("CliHandler.Handle", args, &reply)
+		So(
+			err,
+			ShouldBeNil,
+		)
+		So(
+			reply.Retcode == common.OK,
+			ShouldBeTrue,
+		)
+		So(
+			len(reply.CmdsStd) == 1,
+			ShouldBeTrue,
+		)
+	})
+}
+
+//
+func TestSecPathFW2000_Show(t *testing.T) {
+	//
+	Convey("set SecPathFW2000 cli commands", t, func() {
+		client, err := net.Dial("tcp", "localhost:8188")
+		So(
+			err,
+			ShouldBeNil,
+		)
+		// Synchronous call
+		args := &protocol.CliRequest{
+			Device:  "SecPathFW2000-set-test",
+			Vendor:  "H3C",
+			Type:    "SecPath",
+			Version: "FW2000",
+			Address: "192.168.1.203:22",
+			Auth: protocol.Auth{
+				Username: "admin",
+				Password: "r00tme",
+			},
+			Commands: []string{
+				`display current-configuration `,
+			},
+			Protocol: "ssh",
+			Mode:     "login",
+			Timeout:  30,
+		}
+		var reply protocol.CliResponse
+		c := jsonrpc.NewClient(client)
+		err = c.Call("CliHandler.Handle", args, &reply)
+		So(
+			err,
+			ShouldBeNil,
+		)
+		So(
+			reply.Retcode == common.OK,
+			ShouldBeTrue,
+		)
+		So(
+			len(reply.CmdsStd) == 1,
+			ShouldBeTrue,
+		)
 	})
 }
