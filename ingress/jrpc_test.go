@@ -799,6 +799,58 @@ func TestFortinet_set(t *testing.T) {
 	})
 }
 
+func TestFortinet_exceed_policy_num_err(t *testing.T) {
+
+	Convey("set policy id > limit", t, func() {
+		client, err := net.Dial("tcp", "localhost:8188")
+		So(
+			err,
+			ShouldBeNil,
+		)
+		// Synchronous call
+		args := &protocol.CliRequest{
+			Device:  "fortinet-policy-max-id-test",
+			Vendor:  "fortinet",
+			Type:    "FortiGate-VM64-KVM",
+			Version: "v5.6.x",
+			Address: "192.168.1.239:22",
+			Auth: protocol.Auth{
+				Username: "admin",
+				Password: "r00tme",
+			},
+			Commands: []string{
+				`config firewall policy
+				edit "501"
+					set name "port1_2_trust_49c3a"
+					set srcintf "port1"
+					set dstintf "trust"
+					set srcaddr "Net-192.168.1.34_32"
+					set dstaddr "WS-172.16.10.34_32"
+					set service "TCP-2154"
+					set action accept
+					set schedule "always"
+					set comments "create by NAP 25e107b0-6334-4cc1-9d2e-b1b0bafeab2a"
+				next
+			end`,
+			},
+			Protocol: "ssh",
+			Mode:     "login",
+			Timeout:  30,
+		}
+		var reply protocol.CliResponse
+		c := jsonrpc.NewClient(client)
+		err = c.Call("CliHandler.Handle", args, &reply)
+		So(
+			err,
+			ShouldBeNil,
+		)
+		So(
+			reply.Retcode == common.OK,
+			ShouldBeFalse,
+		)
+	})
+}
+
 func TestFortinet_show(t *testing.T) {
 
 	Convey("show fortinet cli commands", t, func() {
