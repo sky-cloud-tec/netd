@@ -13,6 +13,7 @@ func init() {
 	// register H3C SecPath fw2000
 	cli.OperatorManagerInstance.Register(`(?i)h3c\.secpath\..*`, createOpH3C())
 }
+
 type opH3C struct {
 	lineBeak     string // \r\n \n
 	transitions  map[string][]string
@@ -20,7 +21,6 @@ type opH3C struct {
 	errs         []*regexp.Regexp
 	encodingType string
 }
-
 
 func createOpH3C() cli.Operator {
 	loginPrompt := regexp.MustCompile("<[-_[:alnum:][:digit:]]{0,}>$")
