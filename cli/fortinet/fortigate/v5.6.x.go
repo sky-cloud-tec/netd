@@ -47,9 +47,11 @@ func createOpfortinet() cli.Operator {
 		},
 		errs: []*regexp.Regexp{
 			regexp.MustCompile("^Unknown action 0$"),
+			regexp.MustCompile(" # Unknown action 0$"),
 			regexp.MustCompile("^command parse error"),
 			regexp.MustCompile("^value parse error"),
 			regexp.MustCompile("^Command fail. Return code"),
+			regexp.MustCompile(" # Command fail. Return code"),
 			regexp.MustCompile("^please use 'end' to return to root shell"),
 			regexp.MustCompile("^entry not found in datasource"),
 			regexp.MustCompile("^node_check_object fail"),
