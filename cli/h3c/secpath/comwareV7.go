@@ -10,11 +10,11 @@ import (
 )
 
 func init() {
-	// register H3C SecPath fw2000
-	cli.OperatorManagerInstance.Register(`(?i)h3c\.secpath\..*`, createOpH3C())
+	// register H3C SecPath comwareV7
+	cli.OperatorManagerInstance.Register(`(?i)h3c\.secpath\..*`, createOpH3CV7())
 }
 
-type opH3C struct {
+type opH3CV7 struct {
 	lineBeak     string // \r\n \n
 	transitions  map[string][]string
 	prompts      map[string][]*regexp.Regexp
@@ -22,11 +22,11 @@ type opH3C struct {
 	encodingType string
 }
 
-func createOpH3C() cli.Operator {
+func createOpH3CV7() cli.Operator {
 	loginPrompt := regexp.MustCompile("<[-_[:alnum:][:digit:]]{0,}>$")
 	systemViewPrompt := regexp.MustCompile(`\[[-_[:alnum:][:digit:]]{0,}]$`)
 
-	return &opH3C{
+	return &opH3CV7{
 		transitions: map[string][]string{
 			"login->system_View": {"system-view"},
 			"system_View->login": {"quit"},
@@ -43,18 +43,18 @@ func createOpH3C() cli.Operator {
 	}
 }
 
-func (s *opH3C) GetPrompts(k string) []*regexp.Regexp {
+func (s *opH3CV7) GetPrompts(k string) []*regexp.Regexp {
 	if v, ok := s.prompts[k]; ok {
 		return v
 	}
 	return nil
 }
 
-func (s *opH3C) GetEncoding() string {
+func (s *opH3CV7) GetEncoding() string {
 	return s.encodingType
 }
 
-func (s *opH3C) GetTransitions(c, t string) []string {
+func (s *opH3CV7) GetTransitions(c, t string) []string {
 	k := c + "->" + t
 	if v, ok := s.transitions[k]; ok {
 		return v
@@ -62,24 +62,24 @@ func (s *opH3C) GetTransitions(c, t string) []string {
 	return nil
 }
 
-func (s *opH3C) GetErrPatterns() []*regexp.Regexp {
+func (s *opH3CV7) GetErrPatterns() []*regexp.Regexp {
 	return s.errs
 }
 
-func (s *opH3C) GetLinebreak() string {
+func (s *opH3CV7) GetLinebreak() string {
 	return s.lineBeak
 }
 
-func (s *opH3C) GetStartMode() string {
+func (s *opH3CV7) GetStartMode() string {
 	return "login"
 }
 
 // RegisterMode ...
-func (s *opH3C) RegisterMode(req *protocol.CliRequest) error {
+func (s *opH3CV7) RegisterMode(req *protocol.CliRequest) error {
 	return nil
 }
 
-func (s *opH3C) GetSSHInitializer() cli.SSHInitializer {
+func (s *opH3CV7) GetSSHInitializer() cli.SSHInitializer {
 	return func(c *ssh.Client, req *protocol.CliRequest) (io.Reader, io.WriteCloser, *ssh.Session, error) {
 		var err error
 		session, err := c.NewSession()
