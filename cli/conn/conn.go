@@ -438,7 +438,7 @@ outside:
 					// print origin encoding
 					logs.Info(dr, s.op.GetEncoding())
 				}
-				// convert, even detect error
+				// convert, even if detect error
 				u8buf, err := common.ConvToUTF8(s.op.GetEncoding(), rbuf[:beginIdx])
 				if err != nil {
 					logs.Error(s.req.LogPrefix, "conv to utf8 error", err)
