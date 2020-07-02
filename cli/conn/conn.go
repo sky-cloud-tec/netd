@@ -436,7 +436,7 @@ outside:
 					logs.Error(s.req.LogPrefix, "detect origin encoding error,", err)
 				} else {
 					// print origin encoding
-					logs.Info(dr, s.op.GetEncoding())
+					logs.Info(s.req.LogPrefix, "detected encoding", dr, "predefined encoding", s.op.GetEncoding())
 				}
 				// convert, even if detect error
 				u8buf, err := common.ConvToUTF8(s.op.GetEncoding(), rbuf[:beginIdx])
@@ -444,10 +444,10 @@ outside:
 					logs.Error(s.req.LogPrefix, "conv to utf8 error", err)
 				} else {
 					// conv ok, compare size then log
-					logs.Info(len(rbuf[:beginIdx]), len(u8buf))
+					logs.Info(s.req.LogPrefix, "origin size", len(rbuf[:beginIdx]), "converted size", len(u8buf))
 					// dectect again
 					dr, err = d.DetectBest(u8buf)
-					logs.Info(s.req.LogPrefix, dr, err)
+					logs.Info(s.req.LogPrefix, "detected encoding", dr, err)
 				}
 				// use converted content
 				// don't worry, if not converted, original byte slice will be retured
