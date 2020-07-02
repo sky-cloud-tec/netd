@@ -18,6 +18,7 @@ package common
 import (
 	"bytes"
 	"github.com/songtianyi/rrframework/logs"
+	"golang.org/x/text/encoding/ianaindex"
 	"golang.org/x/text/encoding/simplifiedchinese"
 	"golang.org/x/text/transform"
 	"io/ioutil"
@@ -51,6 +52,22 @@ func Utf8ToGbk(s []byte) ([]byte, error) {
 	d, e := ioutil.ReadAll(reader)
 	if e != nil {
 		return nil, e
+	}
+	return d, nil
+}
+
+func ConvToUTF8(src string, b []byte) ([]byte, error) {
+	if src == "" || src == "UTF-8" || src == "utf-8" {
+		return b, nil
+	}
+	e, err := ianaindex.MIB.Encoding(src)
+	if err != nil {
+		return b, err
+	}
+	reader := transform.NewReader(bytes.NewReader(b), e.NewDecoder())
+	d, err := ioutil.ReadAll(reader)
+	if err != nil {
+		return b, err
 	}
 	return d, nil
 }
