@@ -32,10 +32,11 @@ func init() {
 
 //Centos struct
 type Centos struct {
-	lineBeak    string // \n
-	transitions map[string][]string
-	prompts     map[string][]*regexp.Regexp
-	errs        []*regexp.Regexp
+	lineBeak     string // \n
+	transitions  map[string][]string
+	prompts      map[string][]*regexp.Regexp
+	errs         []*regexp.Regexp
+	encodingType string
 }
 
 func createCentos() cli.Operator {
@@ -52,7 +53,8 @@ func createCentos() cli.Operator {
 			regexp.MustCompile(".*No such file or directory.* "),
 			regexp.MustCompile(".*invalid option.*"),
 		},
-		lineBeak: "\n",
+		lineBeak:     "\n",
+		encodingType: "",
 	}
 }
 
@@ -62,6 +64,10 @@ func (s *Centos) GetPrompts(k string) []*regexp.Regexp {
 		return v
 	}
 	return nil
+}
+
+func (s *Centos) GetEncoding() string {
+	return s.encodingType
 }
 
 //GetTransitions Centos

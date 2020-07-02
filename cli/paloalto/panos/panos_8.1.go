@@ -31,10 +31,11 @@ func init() {
 }
 
 type opPaloalto struct {
-	lineBeak    string // \r\n \n
-	transitions map[string][]string
-	prompts     map[string][]*regexp.Regexp
-	errs        []*regexp.Regexp
+	lineBeak     string // \r\n \n
+	transitions  map[string][]string
+	prompts      map[string][]*regexp.Regexp
+	errs         []*regexp.Regexp
+	encodingType string
 }
 
 func createOpPaloalto() cli.Operator {
@@ -59,7 +60,8 @@ func createOpPaloalto() cli.Operator {
 			regexp.MustCompile("^Validation Error:"),
 			regexp.MustCompile(`^Unknown command:\s+`),
 		},
-		lineBeak: "\n",
+		lineBeak:     "\n",
+		encodingType: "", // unknown yet
 	}
 }
 
@@ -68,6 +70,10 @@ func (s *opPaloalto) GetPrompts(k string) []*regexp.Regexp {
 		return v
 	}
 	return nil
+}
+
+func (s *opPaloalto) GetEncoding() string {
+	return s.encodingType
 }
 
 func (s *opPaloalto) GetTransitions(c, t string) []string {

@@ -72,6 +72,10 @@ func (s *SwitchIos) GetPrompts(k string) []*regexp.Regexp {
 	return nil
 }
 
+func (s *SwitchIos) GetEncoding() string {
+	return ""
+}
+
 //GetTransitions SwitchIos
 func (s *SwitchIos) GetTransitions(c, t string) []string {
 	k := c + "->" + t

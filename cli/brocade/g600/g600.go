@@ -58,6 +58,11 @@ func (s *opG600Switch) GetPrompts(k string) []*regexp.Regexp {
 	}
 	return nil
 }
+
+func (s *opG600Switch) GetEncoding() string {
+	return ""
+}
+
 func (s *opG600Switch) GetTransitions(c, t string) []string {
 	k := c + "->" + t
 	if v, ok := s.transitions[k]; ok {

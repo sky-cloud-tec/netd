@@ -67,6 +67,10 @@ func (s *opHillstone) GetPrompts(k string) []*regexp.Regexp {
 	return nil
 }
 
+func (s *opHillstone) GetEncoding() string {
+	return ""
+}
+
 func (s *opHillstone) GetTransitions(c, t string) []string {
 	k := c + "->" + t
 	if v, ok := s.transitions[k]; ok {

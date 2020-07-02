@@ -39,7 +39,7 @@ func createOpH3CV7() cli.Operator {
 			regexp.MustCompile("^ % "),
 		},
 		lineBeak:     "\n",
-		encodingType: "GBK",
+		encodingType: "GB18030",
 	}
 }
 

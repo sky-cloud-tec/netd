@@ -85,6 +85,10 @@ func (s *opUsg6000V) GetStartMode() string {
 	return "login"
 }
 
+func (s *opUsg6000V) GetEncoding() string {
+	return ""
+}
+
 // RegisterMode ...
 func (s *opUsg6000V) RegisterMode(req *protocol.CliRequest) error {
 	return nil

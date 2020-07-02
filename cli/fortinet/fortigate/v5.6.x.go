@@ -75,6 +75,10 @@ func (s *opFortinet) GetTransitions(c, t string) []string {
 	return nil
 }
 
+func (s *opFortinet) GetEncoding() string {
+	return ""
+}
+
 func (s *opFortinet) GetErrPatterns() []*regexp.Regexp {
 	return s.errs
 }

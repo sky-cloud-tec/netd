@@ -34,6 +34,7 @@ type Operator interface {
 	GetLinebreak() string
 	GetStartMode() string
 	RegisterMode(*protocol.CliRequest) error
+	GetEncoding() string
 }
 
 var (

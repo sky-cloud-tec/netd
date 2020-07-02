@@ -65,6 +65,10 @@ func (s *opFW1000) GetPrompts(k string) []*regexp.Regexp {
 	return nil
 }
 
+func (s *opFW1000) GetEncoding() string {
+	return ""
+}
+
 func (s *opFW1000) GetTransitions(c, t string) []string {
 	k := c + "->" + t
 	if v, ok := s.transitions[k]; ok {

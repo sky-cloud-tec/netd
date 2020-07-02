@@ -85,6 +85,10 @@ func (s *opJunos) GetTransitions(c, t string) []string {
 	return nil
 }
 
+func (s *opJunos) GetEncoding() string {
+	return ""
+}
+
 func (s *opJunos) GetErrPatterns() []*regexp.Regexp {
 	return s.errs
 }

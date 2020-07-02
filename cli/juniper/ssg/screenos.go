@@ -83,6 +83,10 @@ func (s *opScreenOS) GetStartMode() string {
 	return "login"
 }
 
+func (s *opScreenOS) GetEncoding() string {
+	return ""
+}
+
 // RegisterMode ...
 func (s *opScreenOS) RegisterMode(req *protocol.CliRequest) error {
 	return nil

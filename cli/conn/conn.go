@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/saintfish/chardet"
 	"github.com/sky-cloud-tec/netd/cli"
 	"github.com/sky-cloud-tec/netd/protocol"
 	"github.com/songtianyi/rrframework/logs"
@@ -429,7 +430,30 @@ outside:
 				// newline not include
 				lastLine = string(rbuf[beginIdx+1:])
 				// \n not include but \r maybe include in windows linebreak
-				waitingString = string(rbuf[:beginIdx])
+				d := chardet.NewTextDetector()
+				dr, err := d.DetectBest(rbuf[:beginIdx])
+				if err != nil {
+					logs.Error(s.req.LogPrefix, "detect origin encoding error,", err)
+				} else {
+					// print origin encoding
+					logs.Info(dr, s.op.GetEncoding())
+				}
+				// convert, even detect error
+				u8buf, err := common.ConvToUTF8(s.op.GetEncoding(), rbuf[:beginIdx])
+				if err != nil {
+					logs.Error(s.req.LogPrefix, "conv to utf8 error", err)
+				} else {
+					// conv ok, compare size then log
+					logs.Info(len(rbuf[:beginIdx]), len(u8buf))
+					// dectect again
+					dr, err = d.DetectBest(u8buf)
+					logs.Info(s.req.LogPrefix, dr, err)
+				}
+				// use converted content
+				// don't worry, if not converted, original byte slice will be retured
+				waitingString = string(u8buf)
+				// simple dos2unix for utf-8 string
+				waitingString = strings.Replace(waitingString, "\r\n", "\n", -1)
 			}
 			// break the out loop
 			break outside
