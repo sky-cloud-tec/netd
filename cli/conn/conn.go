@@ -452,8 +452,6 @@ outside:
 				// use converted content
 				// don't worry, if not converted, original byte slice will be retured
 				waitingString = string(u8buf)
-				// simple dos2unix for utf-8 string
-				waitingString = strings.Replace(waitingString, "\r\n", "\n", -1)
 			}
 			// break the out loop
 			break outside
