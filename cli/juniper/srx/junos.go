@@ -40,6 +40,8 @@ type opJunos struct {
 func createOpJunos() cli.Operator {
 	loginPrompt := regexp.MustCompile("[[:alnum:]_]{1,}[.]{0,1}[[:alnum:]_-]{0,}@[[:alnum:]._-]+> $")
 	configPrompt := regexp.MustCompile("[[:alnum:]_]{1,}[.]{0,1}[[:alnum:]_-]{0,}@[[:alnum:]._-]+# $")
+	loginPromptWithoutHostname := regexp.MustCompile("[[:alnum:]_]{1,}[.]{0,1}[[:alnum:]_-]{0,}> $")
+	configPromptWithoutHostname := regexp.MustCompile("[[:alnum:]_]{1,}[.]{0,1}[[:alnum:]_-]{0,}# $")
 	return &opJunos{
 		// mode transition
 		// login -> configure_private
@@ -54,10 +56,10 @@ func createOpJunos() cli.Operator {
 			"configure->login":           {"exit"},
 		},
 		prompts: map[string][]*regexp.Regexp{
-			"login":               {loginPrompt},
-			"configure":           {configPrompt},
-			"configure_private":   {configPrompt},
-			"configure_exclusive": {configPrompt},
+			"login":               {loginPrompt, loginPromptWithoutHostname},
+			"configure":           {configPrompt, configPromptWithoutHostname},
+			"configure_private":   {configPrompt, configPromptWithoutHostname},
+			"configure_exclusive": {configPrompt, configPromptWithoutHostname},
 		},
 		errs: []*regexp.Regexp{
 			regexp.MustCompile("^syntax error\\.$"),
