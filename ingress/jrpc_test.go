@@ -445,7 +445,7 @@ func TestUSG6000V2_Set(t *testing.T) {
 func TestUSG6000V2_Show(t *testing.T) {
 	//
 	Convey("Show USG6000V2 cli commands", t, func() {
-		client, err := net.Dial("tcp", "localhost:8188")
+		client, err := net.Dial("tcp", "192.168.1.225:8188")
 		So(
 			err,
 			ShouldBeNil,
@@ -456,16 +456,20 @@ func TestUSG6000V2_Show(t *testing.T) {
 			Vendor:  "huawei",
 			Type:    "usg",
 			Version: "usg6000v2",
-			Address: "192.168.1.60:22",
+			Address: "192.168.1.205:22",
 			Auth: protocol.Auth{
 				Username: "admin",
 				Password: "admin@123",
 			},
 			Commands: []string{
-				`display security-policy rule policy_test`,
+				//`display security-policy rule policy_test`,
+				`user-interface console 0
+				screen-length 0
+				quit`,
+				`display current-configuration`,
 			},
 			Protocol: "ssh",
-			Mode:     "login",
+			Mode:     "system_View",
 			Timeout:  30,
 		}
 		var reply protocol.CliResponse
@@ -479,8 +483,9 @@ func TestUSG6000V2_Show(t *testing.T) {
 			reply.Retcode == common.OK,
 			ShouldBeTrue,
 		)
+		fmt.Println(reply.CmdsStd)
 		So(
-			len(reply.CmdsStd) == 1,
+			len(reply.CmdsStd) == 2,
 			ShouldBeTrue,
 		)
 	})
