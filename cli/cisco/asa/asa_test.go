@@ -34,5 +34,9 @@ func TestAsaOp(t *testing.T) {
 			cli.Match(op.GetPrompts("login"), "TFTF-ASA5512x> "),
 			ShouldBeTrue,
 		)
+		So(
+			cli.Match(op.GetPrompts("login_enable"), "TFTF-ASA5512x# "),
+			ShouldBeTrue,
+		)
 	})
 }
