@@ -459,7 +459,7 @@ func TestUSG6000V2_Show(t *testing.T) {
 			Address: "192.168.1.205:22",
 			Auth: protocol.Auth{
 				Username: "admin",
-				Password: "admin@123",
+				Password: "Admin@r00tme",
 			},
 			Commands: []string{
 				//`display security-policy rule policy_test`,
