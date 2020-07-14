@@ -30,4 +30,6 @@ const (
 	ErrCliExec = 1003
 	// ErrTimeout timeout error
 	ErrTimeout = 1005
+	// ErrNoMode mode not specified error
+	ErrNoMode = 1006
 )

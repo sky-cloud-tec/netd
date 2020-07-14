@@ -54,6 +54,11 @@ func (s *CliHandler) Handle(req *protocol.CliRequest, res *protocol.CliResponse)
 		req.Session = rrutils.NewV4().String()
 	}
 	logs.Info("Received req", req)
+	if req.Mode == "" {
+		logs.Error("mode not specified")
+		*res = s.makeCliErrRes(common.ErrNoMode, "mode not specified")
+		return nil
+	}
 	// build timeout
 	if req.Timeout == 0 {
 		req.Timeout = common.DefaultTimeout
