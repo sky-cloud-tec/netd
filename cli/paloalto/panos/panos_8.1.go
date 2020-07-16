@@ -76,6 +76,10 @@ func (s *opPaloalto) GetEncoding() string {
 	return s.encodingType
 }
 
+func (s *opPaloalto) GetExcludes() []*regexp.Regexp {
+	return nil
+}
+
 func (s *opPaloalto) GetTransitions(c, t string) []string {
 	k := c + "->" + t
 	if v, ok := s.transitions[k]; ok {

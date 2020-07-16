@@ -67,6 +67,11 @@ func (s *op9xPlus) GetPrompts(k string) []*regexp.Regexp {
 	}
 	return nil
 }
+
+func (s *op9xPlus) GetExcludes() []*regexp.Regexp {
+	return nil
+}
+
 func (s *op9xPlus) GetTransitions(c, t string) []string {
 	k := c + "->" + t
 	if v, ok := s.transitions[k]; ok {

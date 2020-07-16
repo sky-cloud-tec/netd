@@ -79,6 +79,10 @@ func (s *opFortinet) GetEncoding() string {
 	return ""
 }
 
+func (s *opFortinet) GetExcludes() []*regexp.Regexp {
+	return nil
+}
+
 func (s *opFortinet) GetErrPatterns() []*regexp.Regexp {
 	return s.errs
 }

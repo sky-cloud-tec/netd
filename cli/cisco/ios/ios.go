@@ -76,6 +76,10 @@ func (s *SwitchIos) GetEncoding() string {
 	return ""
 }
 
+func (s *SwitchIos) GetExcludes() []*regexp.Regexp {
+	return nil
+}
+
 //GetTransitions SwitchIos
 func (s *SwitchIos) GetTransitions(c, t string) []string {
 	k := c + "->" + t

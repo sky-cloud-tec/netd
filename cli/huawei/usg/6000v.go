@@ -35,11 +35,14 @@ type opUsg6000V struct {
 	transitions map[string][]string
 	prompts     map[string][]*regexp.Regexp
 	errs        []*regexp.Regexp
+	excludes    []*regexp.Regexp
 }
 
 func createopUsg6000V() cli.Operator {
 	loginPrompt := regexp.MustCompile("<[-_[:alnum:][:digit:]]{0,}>$")
 	systemViewPrompt := regexp.MustCompile(`\[[-_[:alnum:][:digit:]]{0,}]$`)
+	// exclude [xxx-ui-console0] <xxx-ui-console0>
+	promptExclude := regexp.MustCompile("-ui-console[0-9](]|>)")
 	return &opUsg6000V{
 		// mode transition
 		// login -> systemView
@@ -51,6 +54,7 @@ func createopUsg6000V() cli.Operator {
 			"login":       {loginPrompt},
 			"system_View": {systemViewPrompt},
 		},
+		excludes: []*regexp.Regexp{promptExclude},
 		errs: []*regexp.Regexp{
 			regexp.MustCompile(`^ ?Error:[\s\S]*`),
 		},
@@ -87,6 +91,10 @@ func (s *opUsg6000V) GetStartMode() string {
 
 func (s *opUsg6000V) GetEncoding() string {
 	return ""
+}
+
+func (s *opUsg6000V) GetExcludes() []*regexp.Regexp {
+	return s.excludes
 }
 
 // RegisterMode ...

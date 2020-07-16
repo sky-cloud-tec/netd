@@ -102,6 +102,10 @@ func (s *SwitchNxos) GetEncoding() string {
 	return ""
 }
 
+func (s *SwitchNxos) GetExcludes() []*regexp.Regexp {
+	return nil
+}
+
 //GetSSHInitializer SwitchNxos
 func (s *SwitchNxos) GetSSHInitializer() cli.SSHInitializer {
 	return func(c *ssh.Client, req *protocol.CliRequest) (io.Reader, io.WriteCloser, *ssh.Session, error) {

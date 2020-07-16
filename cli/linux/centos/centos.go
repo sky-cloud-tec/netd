@@ -70,6 +70,10 @@ func (s *Centos) GetEncoding() string {
 	return s.encodingType
 }
 
+func (s *Centos) GetExcludes() []*regexp.Regexp {
+	return nil
+}
+
 //GetTransitions Centos
 func (s *Centos) GetTransitions(c, t string) []string {
 	k := c + "->" + t

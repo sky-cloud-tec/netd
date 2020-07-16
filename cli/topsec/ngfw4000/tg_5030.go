@@ -61,6 +61,10 @@ func (s *opTopSec) GetPrompts(k string) []*regexp.Regexp {
 	return nil
 }
 
+func (s *opTopSec) GetExcludes() []*regexp.Regexp {
+	return nil
+}
+
 func (s *opTopSec) GetEncoding() string {
 	return s.encodingType
 }

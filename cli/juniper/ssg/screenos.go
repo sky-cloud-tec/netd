@@ -87,6 +87,10 @@ func (s *opScreenOS) GetEncoding() string {
 	return ""
 }
 
+func (s *opScreenOS) GetExcludes() []*regexp.Regexp {
+	return nil
+}
+
 // RegisterMode ...
 func (s *opScreenOS) RegisterMode(req *protocol.CliRequest) error {
 	return nil

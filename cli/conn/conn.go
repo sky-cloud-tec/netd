@@ -420,7 +420,8 @@ outside:
 		}
 		// test
 		matches := s.anyPatternMatches(testee, s.op.GetPrompts(s.mode))
-		if len(matches) > 0 {
+
+		if len(matches) > 0 && !cli.Match(s.op.GetExcludes(), testee) {
 			// test pass
 			logs.Info(s.req.LogPrefix, "prompt matched", s.mode, ":", matches)
 			// ignore prompt and break

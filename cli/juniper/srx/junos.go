@@ -91,6 +91,10 @@ func (s *opJunos) GetEncoding() string {
 	return ""
 }
 
+func (s *opJunos) GetExcludes() []*regexp.Regexp {
+	return nil
+}
+
 func (s *opJunos) GetErrPatterns() []*regexp.Regexp {
 	return s.errs
 }

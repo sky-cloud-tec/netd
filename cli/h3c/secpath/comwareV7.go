@@ -66,6 +66,10 @@ func (s *opH3CV7) GetErrPatterns() []*regexp.Regexp {
 	return s.errs
 }
 
+func (s *opH3CV7) GetExcludes() []*regexp.Regexp {
+	return nil
+}
+
 func (s *opH3CV7) GetLinebreak() string {
 	return s.lineBeak
 }

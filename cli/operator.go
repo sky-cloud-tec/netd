@@ -35,6 +35,7 @@ type Operator interface {
 	GetStartMode() string
 	RegisterMode(*protocol.CliRequest) error
 	GetEncoding() string
+	GetExcludes() []*regexp.Regexp
 }
 
 var (
