@@ -307,6 +307,11 @@ func (s *CliConn) closePage(drain bool) error {
 		if _, err := s.writeBuff("config system console\n\tset output standard\nend"); err != nil {
 			return err
 		}
+	} else if strings.EqualFold(s.req.Vendor, "H3C") && strings.EqualFold(s.req.Type, "SecPath") {
+		// set console
+		if _, err := s.writeBuff("screen-length disable"); err != nil {
+			return err
+		}
 	} else {
 		// we did not write any commands to these devices
 		// so no need to readBuff
@@ -509,8 +514,8 @@ func (s *CliConn) writeBuff(cmd string) (int, error) {
 // Exec execute cli cmds
 func (s *CliConn) Exec() (map[string]string, error) {
 	if err := s.beforeExec(); err != nil {
-		logs.Error(s.req.LogPrefix, "beforeTransition error", err)
-		return nil, fmt.Errorf("beforeTransition error, %s", err)
+		logs.Error(s.req.LogPrefix, "beforeExec error", err)
+		return nil, fmt.Errorf("beforeExec error, %s", err)
 	}
 	// transit to target mode
 	if s.req.Mode != s.mode {
@@ -602,39 +607,6 @@ func (s *CliConn) beforeExec() error {
 				return err
 			}
 		}
-	} else if strings.EqualFold(s.req.Vendor, "H3C") && strings.EqualFold(s.req.Type, "SecPath") {
-		// set terminal page
-		// only for h3c device
-		mode := s.mode
-		if s.mode != "login" {
-			// transition to login first
-			if _, err := s.writeBuff("return"); err != nil {
-				return err
-			}
-			s.mode = "login"
-			if _, _, err := s.readBuff(); err != nil {
-				s.mode = mode
-				return err
-			}
-		}
-		// set console
-		if _, err := s.writeBuff("screen-length disable"); err != nil {
-			return err
-		}
-		if _, _, err := s.readBuff(); err != nil {
-			return err
-		}
-		if mode != "login" {
-			// transition back
-			if _, err := s.writeBuff("system-view"); err != nil {
-				return err
-			}
-			s.mode = mode
-			if _, _, err := s.readBuff(); err != nil {
-				s.mode = "login"
-				return err
-			}
-		}
 	} else if strings.EqualFold(s.req.Vendor, "cisco") {
 		// enable case
 		if !strings.EqualFold(s.req.Mode, "login") && strings.EqualFold(s.mode, "login") {
@@ -658,35 +630,5 @@ func (s *CliConn) beforeExec() error {
 			}
 		}
 	}
-	return nil
-}
-
-func (s *CliConn) beforeTransition() error {
-
-	// if current in login mode
-	if s.mode == "login" &&
-		strings.EqualFold(s.req.Vendor, "Paloalto") && strings.EqualFold(s.req.Type, "PAN-OS") {
-		if s.req.Format == "" {
-			return nil
-		}
-		// set format
-		if _, err := s.writeBuff("set cli config-output-format " + s.req.Format); err != nil {
-			return err
-		}
-		if _, _, err := s.readBuff(); err != nil {
-			return err
-		}
-		s.formatSet = true
-	} else if s.mode == "login" &&
-		strings.EqualFold(s.req.Vendor, "H3C") && strings.EqualFold(s.req.Type, "SecPath") {
-		// set console
-		if _, err := s.writeBuff("screen-length disable"); err != nil {
-			return err
-		}
-		if _, _, err := s.readBuff(); err != nil {
-			return err
-		}
-	}
-
 	return nil
 }
