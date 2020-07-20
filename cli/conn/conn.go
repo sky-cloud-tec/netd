@@ -518,6 +518,12 @@ func (s *CliConn) Exec() (map[string]string, error) {
 		cmds := s.op.GetTransitions(s.mode, s.req.Mode)
 		// use target mode prompt
 		logs.Info(s.req.LogPrefix, s.mode, "-->", s.req.Mode)
+		if cmds == nil {
+			// unexpected case
+			// no transitions found
+			// please note, if no need to do something, use empty slice instead of nil
+			return nil, fmt.Errorf("unexpected case, no transtions found for %s --> %s", s.mode, s.req.Mode)
+		}
 		// transition back when it fail
 		mt := s.mode
 		s.mode = s.req.Mode
@@ -626,6 +632,28 @@ func (s *CliConn) beforeExec() error {
 			s.mode = mode
 			if _, _, err := s.readBuff(); err != nil {
 				s.mode = "login"
+				return err
+			}
+		}
+	} else if strings.EqualFold(s.req.Vendor, "cisco") {
+		// enable case
+		if !strings.EqualFold(s.req.Mode, "login") && strings.EqualFold(s.mode, "login") {
+			// target mode is enable or config
+			// and current mode is login
+			// so need enable
+
+			// enter privileged mode
+			if _, err := s.writeBuff("enable\r" + s.req.EnablePwd); err != nil {
+				return fmt.Errorf("enter privileged mode err, %s", err)
+			}
+			s.mode = "login_enable"
+			if _, _, err := s.readBuff(); err != nil {
+				// rollback
+				s.mode = "login"
+				return fmt.Errorf("readBuff after enable err, %s", err)
+			}
+			// close page when entering privileged mode
+			if err := s.closePage(true); err != nil {
 				return err
 			}
 		}

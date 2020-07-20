@@ -255,6 +255,45 @@ func TestCiscoAsa_Show(t *testing.T) {
 	})
 }
 
+func TestCiscoAsa_Connect(t *testing.T) {
+	//
+	Convey("test connect", t, func() {
+		client, err := net.Dial("tcp", "localhost:8188")
+		So(
+			err,
+			ShouldBeNil,
+		)
+		// Synchronous call
+		args := &protocol.CliRequest{
+			Device:  "cisco-asa-show-test",
+			Vendor:  "cisco",
+			Type:    "asa",
+			Version: "9.6(x)",
+			Address: "192.168.1.238:22",
+			Auth: protocol.Auth{
+				Username: "admin",
+				Password: "r00tme",
+			},
+			Commands:  []string{},
+			Protocol:  "ssh",
+			Mode:      "login",
+			EnablePwd: "",
+			Timeout:   30,
+		}
+		var reply protocol.CliResponse
+		c := jsonrpc.NewClient(client)
+		err = c.Call("CliHandler.Handle", args, &reply)
+		So(
+			err,
+			ShouldBeNil,
+		)
+		So(
+			reply.Retcode == common.OK,
+			ShouldBeTrue,
+		)
+	})
+}
+
 func TestCiscoAsa_Set(t *testing.T) {
 
 	Convey("set cisco asa configuration", t, func() {
@@ -445,7 +484,7 @@ func TestUSG6000V2_Set(t *testing.T) {
 func TestUSG6000V2_Show(t *testing.T) {
 	//
 	Convey("Show USG6000V2 cli commands", t, func() {
-		client, err := net.Dial("tcp", "192.168.1.225:8188")
+		client, err := net.Dial("tcp", "192.168.1.228:8188")
 		So(
 			err,
 			ShouldBeNil,
