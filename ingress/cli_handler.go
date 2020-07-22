@@ -53,6 +53,11 @@ func (s *CliHandler) Handle(req *protocol.CliRequest, res *protocol.CliResponse)
 	if req.Session == "" {
 		req.Session = rrutils.NewV4().String()
 	}
+	// hide credential info
+	// keep replaced length,
+	// so we can check the length of cred string which passed in is valid or not
+	req.Auth.Username = strings.Repeat("*", len(req.Auth.Username))
+	req.Auth.Password = strings.Repeat("*", len(req.Auth.Password))
 	logs.Info("Received req", req)
 	if req.Mode == "" {
 		logs.Error("mode not specified")
