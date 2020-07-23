@@ -527,7 +527,7 @@ func (s *CliConn) Exec() (map[string]string, error) {
 			// unexpected case
 			// no transitions found
 			// please note, if no need to do something, use empty slice instead of nil
-			return nil, fmt.Errorf("unexpected case, no transtions found for %s --> %s", s.mode, s.req.Mode)
+			return nil, fmt.Errorf("unexpected case, no transition found for %s --> %s", s.mode, s.req.Mode)
 		}
 		// transition back when it fail
 		mt := s.mode
