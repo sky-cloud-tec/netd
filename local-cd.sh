@@ -10,8 +10,10 @@ then
 fi
 
 rev=$(git rev-parse --short HEAD)
+num=$(git rev-list --count master)
+name=hub.sky-cloud.net/nap2/netd:${TRAVIS_BRANCH}_build-${rev}-${num}
 docker login -u docker-image-builder  http://hub.sky-cloud.net
-docker build -t hub.sky-cloud.net/nap2/netd:${TRAVIS_BRANCH}_build-${rev} .
-docker push hub.sky-cloud.net/nap2/netd:${TRAVIS_BRANCH}_build-${rev}
+docker build -t ${name} .
+docker push ${name}
 
 
