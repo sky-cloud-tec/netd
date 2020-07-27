@@ -56,9 +56,11 @@ func (s *CliHandler) Handle(req *protocol.CliRequest, res *protocol.CliResponse)
 	// hide credential info
 	// keep replaced length,
 	// so we can check the length of cred string which passed in is valid or not
-	req.Auth.Username = strings.Repeat("*", len(req.Auth.Username))
-	req.Auth.Password = strings.Repeat("*", len(req.Auth.Password))
-	logs.Info("Received req", req)
+	pr := *req
+	pr.Auth.Username = strings.Repeat("*", len(pr.Auth.Username))
+	pr.Auth.Password = strings.Repeat("*", len(pr.Auth.Password))
+	pr.EnablePwd = strings.Repeat("*", len(pr.EnablePwd))
+	logs.Info("Received req", pr)
 	if req.Mode == "" {
 		logs.Error("mode not specified")
 		*res = s.makeCliErrRes(common.ErrNoMode, "mode not specified")
