@@ -247,7 +247,7 @@ func (s *CliConn) init() error {
 				if err := s.closePage(false); err != nil {
 					return err
 				}
-				logs.Debug(s.req.LogPrefix, "exiting vdom global...")
+				logs.Debug(s.req.LogPrefix, "exiting domain global...")
 				if _, err := s.writeBuff("end"); err != nil {
 					return err
 				}
@@ -527,7 +527,7 @@ func (s *CliConn) Exec() (map[string]string, error) {
 			// unexpected case
 			// no transitions found
 			// please note, if no need to do something, use empty slice instead of nil
-			logs.Critical(fmt.Sprintf("unexpected case, no transition found for %s --> %s", s.mode, s.req.Mode))
+			return nil, fmt.Errorf("unexpected case, no transition found for %s --> %s", s.mode, s.req.Mode)
 		}
 		// transition back when it fail
 		mt := s.mode

@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"io"
 	"regexp"
-	"strings"
 
 	"github.com/sky-cloud-tec/netd/cli"
 	"github.com/sky-cloud-tec/netd/protocol"
@@ -95,6 +94,46 @@ func (s *opFortinet) GetLinebreak() string {
 	return s.lineBreak
 }
 
+func (s *opFortinet) registerTransition(src, dst string) {
+	k := src + "->" + dst
+
+	// x -> login
+	if src != "login" && dst == "login" {
+		// dst is login
+		// just end from current mode
+		s.transitions[k] = []string{"end"}
+		return
+	}
+
+	// login -> global
+	if src == "login" && dst == "global" {
+		s.transitions[k] = []string{"config global"}
+		return
+	}
+
+	// login -> vdom
+	if src == "login" && dst != "login" { // != global
+		// login to vdom
+		s.transitions[k] = []string{"config vdom\n\t" +
+			"edit " + dst +
+			``}
+		return
+	}
+
+	// global -> vdom == global -> login -> vdom
+	if src == "global" && dst != "global" { // != login
+		s.transitions[k] = []string{"end\nconfig vdom\n\t" +
+			"edit " + dst +
+			``}
+		return
+	}
+	// vdom -> global == vdom -> login -> global
+	if src != "global" && dst == "global" {
+		s.transitions[k] = []string{"end\nconfig global"}
+		return
+	}
+}
+
 func (s *opFortinet) RegisterMode(req *protocol.CliRequest) error {
 	if s.GetPrompts(req.Mode) != nil {
 		return nil
@@ -102,26 +141,14 @@ func (s *opFortinet) RegisterMode(req *protocol.CliRequest) error {
 	// no pattern for this mode
 	// try insert
 	logs.Info(req.LogPrefix, "registering pattern for mode", req.Mode)
-	if strings.EqualFold(req.Mode, "global") {
-		// global vdom
-		s.prompts[req.Mode] = []*regexp.Regexp{
-			regexp.MustCompile(`[[:alnum:]]{1,}[[:alnum:]-_]{0,} \(` + req.Mode + `\) # $`),
-		}
-		s.transitions["login->"+req.Mode] = []string{"config global"}
-		s.transitions[req.Mode+"->"+"login"] = []string{"end"}
-	} else {
-		s.prompts[req.Mode] = []*regexp.Regexp{
-			regexp.MustCompile(`[[:alnum:]]{1,}[[:alnum:]-_]{0,} \(` + req.Mode + `\) # $`),
-		}
-		s.transitions["login->"+req.Mode] = []string{"config vdom\n\t" +
-			"edit " + req.Mode +
-			``}
-		s.transitions[req.Mode+"->"+"login"] = []string{"end"}
-		// no matter global registered or not, register transition
-		s.transitions["global->"+req.Mode] = []string{"end\nconfig vdom\n\t" +
-			"edit " + req.Mode +
-			``}
-		s.transitions[req.Mode+"->global"] = []string{"end\nconfig global"}
+	s.prompts[req.Mode] = []*regexp.Regexp{
+		regexp.MustCompile(`[[:alnum:]]{1,}[[:alnum:]-_]{0,} \(` + req.Mode + `\) # $`),
+	}
+	// register transtions
+	// some else vdom/global mode may have been registered, but no transition made
+	for k := range s.prompts {
+		s.registerTransition(k, req.Mode)
+		s.registerTransition(req.Mode, k)
 	}
 	logs.Debug(req.LogPrefix, s)
 	return nil
