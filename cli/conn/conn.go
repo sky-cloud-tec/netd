@@ -197,6 +197,7 @@ func (s *CliConn) init() error {
 	if err != nil {
 		return fmt.Errorf("read after login failed, %s", err)
 	}
+	logs.Info(s.req.LogPrefix, "first prompt fetched", prompt)
 	// enable cases
 	if s.mode == "login_or_login_enable" {
 		// not sure what mode it is
@@ -223,6 +224,7 @@ func (s *CliConn) init() error {
 			} // login is what you want, no close page here
 		} else {
 			// already in privileged mode, close page
+			s.mode = "login_enable"
 			if err := s.closePage(true); err != nil {
 				return err
 			}
