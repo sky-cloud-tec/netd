@@ -72,10 +72,12 @@ func (s *SwitchIos) GetPrompts(k string) []*regexp.Regexp {
 	return nil
 }
 
+// GetEncoding return device encoding type as string
 func (s *SwitchIos) GetEncoding() string {
 	return ""
 }
 
+// GetExcludes return excluded prommpt pattern
 func (s *SwitchIos) GetExcludes() []*regexp.Regexp {
 	return nil
 }

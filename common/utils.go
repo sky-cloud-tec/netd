@@ -38,6 +38,7 @@ var (
 	}
 )
 
+// GbkToUtf8 transfrom gbk byte to utf8 byte
 func GbkToUtf8(s []byte) ([]byte, error) {
 	reader := transform.NewReader(bytes.NewReader(s), simplifiedchinese.GBK.NewDecoder())
 	d, e := ioutil.ReadAll(reader)
@@ -47,6 +48,7 @@ func GbkToUtf8(s []byte) ([]byte, error) {
 	return d, nil
 }
 
+// Utf8ToGbk transform utf8 byte to gbk byte
 func Utf8ToGbk(s []byte) ([]byte, error) {
 	reader := transform.NewReader(bytes.NewReader(s), simplifiedchinese.GBK.NewEncoder())
 	d, e := ioutil.ReadAll(reader)
@@ -56,6 +58,7 @@ func Utf8ToGbk(s []byte) ([]byte, error) {
 	return d, nil
 }
 
+// ConvToUTF8 convert any encoding type byte to utf8 byte
 func ConvToUTF8(src string, b []byte) ([]byte, error) {
 	if src == "" || src == "UTF-8" || src == "utf-8" {
 		return b, nil

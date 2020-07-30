@@ -98,10 +98,12 @@ func (s *SwitchNxos) RegisterMode(req *protocol.CliRequest) error {
 	return nil
 }
 
+// GetEncoding return device encoding type as string
 func (s *SwitchNxos) GetEncoding() string {
 	return ""
 }
 
+// GetExcludes return excluded prommpt pattern
 func (s *SwitchNxos) GetExcludes() []*regexp.Regexp {
 	return nil
 }

@@ -66,10 +66,12 @@ func (s *Centos) GetPrompts(k string) []*regexp.Regexp {
 	return nil
 }
 
+// GetEncoding return device encoding type as string
 func (s *Centos) GetEncoding() string {
 	return s.encodingType
 }
 
+// GetExcludes return excluded prommpt pattern
 func (s *Centos) GetExcludes() []*regexp.Regexp {
 	return nil
 }
