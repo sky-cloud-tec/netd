@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-package dptech
+package fw1000
 
 import (
 	"fmt"
@@ -27,7 +27,7 @@ import (
 
 func init() {
 	// register dptech fw1000
-	cli.OperatorManagerInstance.Register(`(?i)dptech\.fw1000\..*`, createopFW1000())
+	cli.OperatorManagerInstance.Register(`(?i)dptech\.fw1000\..*`, createOpFW1000())
 }
 
 type opFW1000 struct {
@@ -37,9 +37,9 @@ type opFW1000 struct {
 	errs        []*regexp.Regexp
 }
 
-func createopFW1000() cli.Operator {
-	loginPrompt := regexp.MustCompile("<[[:alnum:]-_.]+>")
-	configurePrompt := regexp.MustCompile(`[[[:alnum:]-_.]+]`)
+func createOpFW1000() cli.Operator {
+	loginPrompt := regexp.MustCompile(`<[[:alnum:]\-_.]+>`)
+	configurePrompt := regexp.MustCompile(`[[[:alnum:]\-_.]+]`)
 	return &opFW1000{
 		// mode transition
 		// login -> configure
