@@ -1,3 +1,18 @@
+// NetD makes network device operations easy.
+// Copyright (C) 2019  sky-cloud.net
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 package main
 
 import (
@@ -54,7 +69,7 @@ func jrpcHandler(c *cli.Context) error {
 func main() {
 	app := cli.NewApp()
 	app.Usage = `NetD make network device operations easy!
-	It's a dammon app which allow you to run cli commands through grpc, amqp etc.`
+	It's a dammon app which allow you to run cli commands through grpc, amqp(not support yet) etc.`
 	app.Version = "2.0.0"
 	app.Compiled = time.Now()
 	app.Authors = []cli.Author{
@@ -73,7 +88,7 @@ func main() {
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "address, addr",
-					Value: "0.0.0.0:8188",
+					Value: "0.0.0.0:8188", // default port 8188
 					Usage: "jprc listen address",
 				},
 			},
@@ -95,7 +110,7 @@ func main() {
 		},
 		cli.IntFlag{
 			Name:        "maxsize, ms",
-			Value:       10240000,
+			Value:       10240000, // default log file max size 10M
 			Usage:       "log file max size",
 			Destination: &appConfig.logCfg.MaxSize,
 		},
