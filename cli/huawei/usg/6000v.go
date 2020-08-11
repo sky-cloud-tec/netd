@@ -42,7 +42,9 @@ func createopUsg6000V() cli.Operator {
 	loginPrompt := regexp.MustCompile("<[-_[:alnum:][:digit:]]{0,}>$")
 	systemViewPrompt := regexp.MustCompile(`\[[-_[:alnum:][:digit:]]{0,}]$`)
 	// exclude [xxx-ui-console0] <xxx-ui-console0>
-	promptExclude := regexp.MustCompile("-ui-console[0-9](]|>)")
+	promptExclude := regexp.MustCompile("-ui-console[0-9]")
+	promptExclude1 := regexp.MustCompile("-ui-vty[0-9]")
+	promptExclude2 := regexp.MustCompile("-policy-security")
 	return &opUsg6000V{
 		// mode transition
 		// login -> systemView
@@ -54,7 +56,7 @@ func createopUsg6000V() cli.Operator {
 			"login":       {loginPrompt},
 			"system_View": {systemViewPrompt},
 		},
-		excludes: []*regexp.Regexp{promptExclude},
+		excludes: []*regexp.Regexp{promptExclude, promptExclude1, promptExclude2},
 		errs: []*regexp.Regexp{
 			regexp.MustCompile(`^ ?Error:[\s\S]*`),
 		},

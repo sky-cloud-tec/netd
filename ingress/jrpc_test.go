@@ -451,12 +451,12 @@ func TestUSG6000V2_Set(t *testing.T) {
 			},
 			Commands: []string{
 				`security-policy
-				rule name policy_test
-				destination-address 10.1.1.1 24
-				destination-address 3000::1 32
-				destination-address geo-location BeiJing
-				quit
-				quit`,
+				  rule name policy_test
+				    destination-address 10.1.1.1 24
+				    destination-address 3000::1 32
+				    destination-address geo-location BeiJing
+				    quit
+				  quit`,
 			},
 			Protocol: "ssh",
 			Mode:     "system_View",
@@ -484,7 +484,7 @@ func TestUSG6000V2_Set(t *testing.T) {
 func TestUSG6000V2_Show(t *testing.T) {
 	//
 	Convey("Show USG6000V2 cli commands", t, func() {
-		client, err := net.Dial("tcp", "192.168.1.228:8188")
+		client, err := net.Dial("tcp", "localhost:8188")
 		So(
 			err,
 			ShouldBeNil,
@@ -502,9 +502,6 @@ func TestUSG6000V2_Show(t *testing.T) {
 			},
 			Commands: []string{
 				//`display security-policy rule policy_test`,
-				`user-interface console 0
-				screen-length 0
-				quit`,
 				`display current-configuration`,
 			},
 			Protocol: "ssh",
@@ -522,9 +519,9 @@ func TestUSG6000V2_Show(t *testing.T) {
 			reply.Retcode == common.OK,
 			ShouldBeTrue,
 		)
-		fmt.Println(reply.CmdsStd)
+		//fmt.Println(reply.CmdsStd)
 		So(
-			len(reply.CmdsStd) == 2,
+			len(reply.CmdsStd) == 1,
 			ShouldBeTrue,
 		)
 	})

@@ -314,6 +314,34 @@ func (s *CliConn) closePage(drain bool) error {
 		if _, err := s.writeBuff("screen-length disable"); err != nil {
 			return err
 		}
+	} else if strings.EqualFold(s.req.Vendor, "huawei") {
+		if s.mode == "login" {
+			// current in login mode
+			// enter system view
+			s.mode = "system_View"
+			if _, err := s.writeBuff("system-view"); err != nil {
+				// rollback
+				s.mode = "login"
+				return err
+			}
+			// drain output
+			if _, _, err := s.readBuff(); err != nil {
+				return err
+			}
+			// after disable more scren, no need to transition back to login mode
+			// it wiil be done automaticaly before execute commands
+		}
+		// now in system view
+		cmd := "user-interface current\nscreen-length 0"
+		if strings.HasPrefix(strings.ToLower(s.req.Type), "usg6") {
+			cmd += " temporary"
+		}
+		// quit from ui config
+		cmd += "\nquit"
+		if _, err := s.writeBuff(cmd); err != nil {
+			return err
+		}
+		// drain output. see following lines
 	} else {
 		// we did not write any commands to these devices
 		// so no need to readBuff
