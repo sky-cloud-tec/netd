@@ -93,10 +93,18 @@ func Acquire(req *protocol.CliRequest, op cli.Operator) (*CliConn, error) {
 	}
 	// if cli conn already created
 	if v, ok := conns[req.Address]; ok {
-		v.req = req
-		v.op = op
-		logs.Info(req.LogPrefix, "cli conn exist")
-		return v, nil
+		if v.req.Auth.Username == req.Auth.Username {
+			// same user
+			// user conn before
+			v.req = req
+			v.op = op
+			logs.Info(req.LogPrefix, "cli conn exist")
+			return v, nil
+		}
+		// new user
+		logs.Info(req.LogPrefix, "change username", v.req.Auth.Username, "-->", req.Auth.Username)
+		// close old conn
+		v.Close()
 	}
 	c, err := newCliConn(req, op)
 	if err != nil {
