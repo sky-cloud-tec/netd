@@ -102,7 +102,7 @@ func Acquire(req *protocol.CliRequest, op cli.Operator) (*CliConn, error) {
 			return v, nil
 		}
 		// new user
-		logs.Info(req.LogPrefix, "change username", v.req.Auth.Username, "-->", req.Auth.Username)
+		logs.Info(req.LogPrefix, "drop", v.req.Auth.Username, "pick", req.Auth.Username)
 		// close old conn
 		v.Close()
 	}
