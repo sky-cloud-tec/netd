@@ -97,8 +97,15 @@ func (s *opFortinet) GetLinebreak() string {
 func (s *opFortinet) registerTransition(src, dst string) {
 	k := src + "->" + dst
 
-	// x -> login
-	if src != "login" && dst == "login" {
+	if src == dst {
+		// do nothing
+		s.transitions[k] = []string{}
+		return
+	}
+
+	// vdom -> login
+	// global -> login
+	if dst == "login" {
 		// dst is login
 		// just end from current mode
 		s.transitions[k] = []string{"end"}
@@ -112,7 +119,7 @@ func (s *opFortinet) registerTransition(src, dst string) {
 	}
 
 	// login -> vdom
-	if src == "login" && dst != "login" { // != global
+	if src == "login" { // dst not login and not global
 		// login to vdom
 		s.transitions[k] = []string{"config vdom\n\t" +
 			"edit " + dst +
@@ -120,18 +127,13 @@ func (s *opFortinet) registerTransition(src, dst string) {
 		return
 	}
 
-	// global -> vdom == global -> login -> vdom
-	if src == "global" && dst != "global" { // != login
-		s.transitions[k] = []string{"end\nconfig vdom\n\t" +
-			"edit " + dst +
-			``}
-		return
-	}
 	// vdom -> global == vdom -> login -> global
-	if src != "global" && dst == "global" {
+	if dst == "global" {
 		s.transitions[k] = []string{"end\nconfig global"}
 		return
 	}
+
+	// global -> vdom == global -> login -> vdom
 	// vdomA -> vdomB == vdomA -> login -> vdomB
 	s.transitions[k] = []string{"end\nconfig vdom\n\t" +
 		"edit " + dst +
