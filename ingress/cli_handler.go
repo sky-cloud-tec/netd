@@ -120,7 +120,7 @@ func (s *CliHandler) doHandle(req *protocol.CliRequest, res *protocol.CliRespons
 	// execute cli commands
 	out, err := c.Exec()
 	if err != nil {
-		logs.Error(req.LogPrefix, "exec error,", err)
+		logs.Error(req.LogPrefix, "exec error:", err)
 		*res = s.makeCliErrRes(common.ErrCliExec, "exec cli cmds fail, "+err.Error())
 		return nil
 	}

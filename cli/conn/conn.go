@@ -145,8 +145,8 @@ func newCliConn(req *protocol.CliRequest, op cli.Operator) (*CliConn, error) {
 		sshConfig.KeyExchanges = append(sshConfig.KeyExchanges, []string{"diffie-hellman-group-exchange-sha1", "diffie-hellman-group1-sha1", "diffie-hellman-group-exchange-sha256"}...)
 		client, err := ssh.Dial("tcp", req.Address, sshConfig)
 		if err != nil {
-			logs.Error(req.LogPrefix, "dial", req.Address, "error", err)
-			return nil, fmt.Errorf("dial %s error, %s", req.Address, err)
+			logs.Error(req.LogPrefix, "dial", req.Address, "error:", err)
+			return nil, fmt.Errorf("dial %s error: %s", req.Address, err)
 		}
 		c := &CliConn{t: common.SSHConn, client: client, req: req, op: op, mode: op.GetStartMode()}
 		if err := c.init(); err != nil {
@@ -157,7 +157,7 @@ func newCliConn(req *protocol.CliRequest, op cli.Operator) (*CliConn, error) {
 	} else if strings.ToLower(req.Protocol) == "telnet" {
 		conn, err := telnet.DialTimeout("tcp", req.Address, 5*time.Second)
 		if err != nil {
-			return nil, fmt.Errorf("dial %s error, %s", req.Address, err)
+			return nil, fmt.Errorf("dial %s error: %s", req.Address, err)
 		}
 		c := &CliConn{t: common.TELNETConn, conn: conn, req: req, op: op, mode: op.GetStartMode()}
 		return c, nil
@@ -176,7 +176,7 @@ func (s *CliConn) heartbeat() {
 				semas[s.req.Address] <- struct{}{}
 				logs.Info(s.req.LogPrefix, "heartbeat sema acquired")
 				if _, err := s.writeBuff(""); err != nil {
-					logs.Critical(s.req.LogPrefix, "heartbeat error,", err)
+					logs.Critical(s.req.LogPrefix, "heartbeat error:", err)
 					if err1 := s.Close(); err1 != nil {
 						logs.Error(s.req.LogPrefix, "close conn err", err1)
 					}
@@ -184,7 +184,7 @@ func (s *CliConn) heartbeat() {
 					return
 				}
 				if _, _, err := s.readBuff(); err != nil {
-					logs.Critical(s.req.LogPrefix, "heartbeat error,", err)
+					logs.Critical(s.req.LogPrefix, "heartbeat error:", err)
 					if err1 := s.Close(); err1 != nil {
 						logs.Error(s.req.LogPrefix, "close conn err", err1)
 					}
@@ -210,7 +210,7 @@ func (s *CliConn) init() error {
 	// read login prompt
 	_, prompt, err := s.readBuff()
 	if err != nil {
-		return fmt.Errorf("read after login failed, %s", err)
+		return fmt.Errorf("read after login failed: %s", err)
 	}
 	logs.Info(s.req.LogPrefix, "first prompt fetched", prompt)
 	// enable cases
@@ -439,7 +439,7 @@ outside:
 		n, err := s.read(buf) //this reads the ssh/telnet terminal
 		if err != nil {
 			// something wrong
-			logs.Error(s.req.LogPrefix, "io.Reader read error,", err)
+			logs.Error(s.req.LogPrefix, "io.Reader read error:", err)
 			errRes = err
 			break
 		}
@@ -484,7 +484,7 @@ outside:
 				d := chardet.NewTextDetector()
 				dr, err := d.DetectBest(rbuf[:beginIdx])
 				if err != nil {
-					logs.Error(s.req.LogPrefix, "detect origin encoding error,", err)
+					logs.Error(s.req.LogPrefix, "detect origin encoding error:", err)
 				} else {
 					// print origin encoding
 					logs.Debug(s.req.LogPrefix, "detected encoding", dr, "predefined encoding", s.op.GetEncoding())
@@ -492,7 +492,7 @@ outside:
 				// convert, even if detect error
 				u8buf, err := common.ConvToUTF8(s.op.GetEncoding(), rbuf[:beginIdx])
 				if err != nil {
-					logs.Error(s.req.LogPrefix, "conv to utf8 error", err)
+					logs.Error(s.req.LogPrefix, "conv to utf8 error:", err)
 				} else {
 					// conv ok, compare size then log
 					logs.Debug(s.req.LogPrefix, "origin size", len(rbuf[:beginIdx]), "converted size", len(u8buf))
@@ -559,8 +559,8 @@ func (s *CliConn) writeBuff(cmd string) (int, error) {
 // Exec execute cli cmds
 func (s *CliConn) Exec() (map[string]string, error) {
 	if err := s.beforeExec(); err != nil {
-		logs.Error(s.req.LogPrefix, "beforeExec error", err)
-		return nil, fmt.Errorf("beforeExec error, %s", err)
+		logs.Error(s.req.LogPrefix, "beforeExec error:", err)
+		return nil, fmt.Errorf("beforeExec error: %s", err)
 	}
 	// transit to target mode
 	if s.req.Mode != s.mode {
@@ -580,34 +580,34 @@ func (s *CliConn) Exec() (map[string]string, error) {
 		for _, v := range cmds {
 			logs.Info(s.req.LogPrefix, "exec", "<", v, ">")
 			if _, err := s.writeBuff(v); err != nil {
-				logs.Error(s.req.LogPrefix, "write buff failed,", err)
+				logs.Error(s.req.LogPrefix, "write buff failed:", err)
 				s.mode = mt
-				return nil, fmt.Errorf("write buff failed, %s", err)
+				return nil, fmt.Errorf("write buff failed: %s", err)
 			}
 			_, _, err := s.readBuff()
 			if err != nil {
 				s.mode = mt
-				logs.Error(s.req.LogPrefix, "readBuff failed,", err)
-				return nil, fmt.Errorf("readBuff failed, %s", err)
+				logs.Error(s.req.LogPrefix, "readBuff failed:", err)
+				return nil, fmt.Errorf("readBuff failed: %s", err)
 			}
 		}
 	}
 	if err := s.beforeExec(); err != nil {
-		logs.Error(s.req.LogPrefix, "beforeExec error", err)
-		return nil, fmt.Errorf("beforeExec error, %s", err)
+		logs.Error(s.req.LogPrefix, "beforeExec error:", err)
+		return nil, fmt.Errorf("beforeExec error: %s", err)
 	}
 	cmdstd := make(map[string]string, 0)
 	// do execute cli commands
 	for _, v := range s.req.Commands {
 		logs.Info(s.req.LogPrefix, "exec", "<", v, ">", "in", s.mode, "mode")
 		if _, err := s.writeBuff(v); err != nil {
-			logs.Error(s.req.LogPrefix, "write buff failed,", err)
-			return cmdstd, fmt.Errorf("write buff failed, %s", err)
+			logs.Error(s.req.LogPrefix, "write buff failed:", err)
+			return cmdstd, fmt.Errorf("write buff failed: %s", err)
 		}
 		ret, _, err := s.readBuff()
 		if err != nil {
-			logs.Error(s.req.LogPrefix, "readBuff failed,", err)
-			return cmdstd, fmt.Errorf("readBuff failed, %s", err)
+			logs.Error(s.req.LogPrefix, "readBuff failed:", err)
+			return cmdstd, fmt.Errorf("readBuff failed: %s", err)
 		}
 		cmdstd[v] = ret
 	}
