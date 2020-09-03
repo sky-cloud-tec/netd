@@ -132,6 +132,11 @@ func (s *opFortinet) registerTransition(src, dst string) {
 		s.transitions[k] = []string{"end\nconfig global"}
 		return
 	}
+	// vdomA -> vdomB == vdomA -> login -> vdomB
+	s.transitions[k] = []string{"end\nconfig vdom\n\t" +
+		"edit " + dst +
+		``}
+	return
 }
 
 func (s *opFortinet) RegisterMode(req *protocol.CliRequest) error {
@@ -145,7 +150,7 @@ func (s *opFortinet) RegisterMode(req *protocol.CliRequest) error {
 		regexp.MustCompile(`[[:alnum:]]{1,}[[:alnum:]-_]{0,} \(` + req.Mode + `\) # $`),
 	}
 	// register transtions
-	// some else vdom/global mode may have been registered, but no transition made
+	// someelse vdom/global mode may have been registered, but no transition made
 	for k := range s.prompts {
 		s.registerTransition(k, req.Mode)
 		s.registerTransition(req.Mode, k)
