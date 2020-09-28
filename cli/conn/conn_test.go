@@ -21,6 +21,7 @@ import (
 	"time"
 
 	. "github.com/smartystreets/goconvey/convey"
+	"github.com/ziutek/telnet"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -36,7 +37,7 @@ func TestConnDial(t *testing.T) {
 		sshConfig.SetDefaults()
 		sshConfig.Ciphers = append(sshConfig.Ciphers, []string{"aes128-cbc", "3des-cbc"}...)
 		sshConfig.KeyExchanges = append(sshConfig.KeyExchanges, []string{"diffie-hellman-group-exchange-sha1", "diffie-hellman-group1-sha1", "diffie-hellman-group-exchange-sha256"}...)
-		client, err := ssh.Dial("tcp", "10.88.88.229:22", sshConfig)
+		client, err := ssh.Dial("tcp", "192.168.1.114:22", sshConfig)
 		fmt.Println(err, client)
 		So(
 			err,
@@ -46,8 +47,32 @@ func TestConnDial(t *testing.T) {
 			client,
 			ShouldNotBeNil,
 		)
+		client.Close()
 	})
 
+}
+
+func TestTelnetDial(t *testing.T) {
+	Convey("dial with telnet", t, func() {
+
+		addr := "192.168.1.177:23"
+		type Auth struct {
+			Username string
+			Password string
+		}
+		auth := Auth{Username: "hwtel", Password: "lablab@123"}
+		conn, err := telnet.DialTimeout("tcp", addr, 5*time.Second)
+		So(
+			err,
+			ShouldBeNil,
+		)
+		_, err = conn.Write([]byte(auth.Username + "\r" + auth.Password))
+		So(
+			err,
+			ShouldBeNil,
+		)
+		conn.Close()
+	})
 }
 
 func TestBreakline(t *testing.T) {

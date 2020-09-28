@@ -22,6 +22,7 @@ import (
 
 	"github.com/sky-cloud-tec/netd/cli"
 	"github.com/sky-cloud-tec/netd/protocol"
+	"github.com/ziutek/telnet"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -127,5 +128,14 @@ func (s *opUsg6000V) GetSSHInitializer() cli.SSHInitializer {
 			return nil, nil, nil, fmt.Errorf("create shell failed, %s", err)
 		}
 		return r, w, session, nil
+	}
+}
+
+func (s *opUsg6000V) GetTelnetInitializer() cli.TELNETInitializer {
+	return func(c *telnet.Conn, req *protocol.CliRequest) error {
+		if _, err := c.Write([]byte(req.Auth.Username + "\r" + req.Auth.Password)); err != nil {
+			return fmt.Errorf("auth error %s", err)
+		}
+		return nil
 	}
 }

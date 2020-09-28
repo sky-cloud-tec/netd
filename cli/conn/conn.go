@@ -159,7 +159,25 @@ func newCliConn(req *protocol.CliRequest, op cli.Operator) (*CliConn, error) {
 		if err != nil {
 			return nil, fmt.Errorf("dial %s error: %s", req.Address, err)
 		}
+		e := regexp.MustCompile("Error: ")
+		p := regexp.MustCompile("Username:$")
+		_, err = cli.ReadStringUntilError(conn, p, e)
+		if err != nil {
+			return nil, fmt.Errorf("telnet ReadStringUntil error: %s", err)
+		}
+		conn.Write([]byte(req.Auth.Username + "\r"))
+		p = regexp.MustCompile("Password:$")
+		_, err = cli.ReadStringUntilError(conn, p, e)
+		if err != nil {
+			return nil, fmt.Errorf("telnet ReadStringUntil error: %s", err)
+		}
+		conn.Write([]byte(req.Auth.Password + "\r"))
+
 		c := &CliConn{t: common.TELNETConn, conn: conn, req: req, op: op, mode: op.GetStartMode()}
+		if err := c.init(); err != nil {
+			c.Close()
+			return nil, err
+		}
 		return c, nil
 	}
 	return nil, fmt.Errorf("protocol %s not support", req.Protocol)
@@ -206,6 +224,8 @@ func (s *CliConn) init() error {
 		if err != nil {
 			return err
 		}
+	} else if s.t == common.TELNETConn {
+		// do nothing
 	}
 	// read login prompt
 	_, prompt, err := s.readBuff()
@@ -218,7 +238,7 @@ func (s *CliConn) init() error {
 		// not sure what mode it is
 		// check prompt
 		loginPrompts := s.op.GetPrompts("login")
-		if cli.Match(loginPrompts, prompt) {
+		if cli.AnyMatch(loginPrompts, prompt) {
 			// in login, not enabled
 			// eventually, we'll exec cmds in privileged mode
 			s.mode = "login"
@@ -416,8 +436,8 @@ type readBuffOut struct {
 	prompt string
 }
 
-// AnyPatternMatches return matched string slice if any pattern fullfil
-func (s *CliConn) anyPatternMatches(t string, patterns []*regexp.Regexp) []string {
+// anyMatch return matched string slice if any pattern fullfil
+func (s *CliConn) anyMatch(t string, patterns []*regexp.Regexp) []string {
 	for _, v := range patterns {
 		matches := v.FindStringSubmatch(t)
 		if len(matches) != 0 {
@@ -469,9 +489,9 @@ outside:
 			break outside
 		}
 		// test
-		matches := s.anyPatternMatches(testee, s.op.GetPrompts(s.mode))
+		matches := s.anyMatch(testee, s.op.GetPrompts(s.mode))
 
-		if len(matches) > 0 && !cli.Match(s.op.GetExcludes(), testee) {
+		if len(matches) > 0 && !cli.AnyMatch(s.op.GetExcludes(), testee) {
 			// test pass
 			logs.Info(s.req.LogPrefix, "prompt matched", s.mode, ":", matches)
 			// ignore prompt and break
@@ -536,7 +556,7 @@ func (s *CliConn) readBuff() (string, string, error) {
 		if res.err == nil {
 			scanner := bufio.NewScanner(strings.NewReader(res.ret))
 			for scanner.Scan() {
-				matches := s.anyPatternMatches(scanner.Text(), s.op.GetErrPatterns())
+				matches := s.anyMatch(scanner.Text(), s.op.GetErrPatterns())
 				if len(matches) > 0 {
 					logs.Info(s.req.LogPrefix, "err pattern matched,", res.ret)
 					return "", res.prompt, fmt.Errorf("err pattern matched, %s", res.ret)

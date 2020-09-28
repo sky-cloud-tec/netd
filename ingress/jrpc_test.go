@@ -527,6 +527,96 @@ func TestUSG6000V2_Show(t *testing.T) {
 	})
 }
 
+func TestUSG5500_Telnet_Show_OK(t *testing.T) {
+	//
+	Convey("Show USG6000V2 cli commands by telnet", t, func() {
+		client, err := net.Dial("tcp", "localhost:8188")
+		So(
+			err,
+			ShouldBeNil,
+		)
+		// Synchronous call
+		args := &protocol.CliRequest{
+			Device:  "usg5500-show-test",
+			Vendor:  "huawei",
+			Type:    "usg",
+			Version: "usg5500",
+			Address: "192.168.1.177:23",
+			Auth: protocol.Auth{
+				Username: "hwtel",
+				Password: "lablab@123",
+			},
+			Commands: []string{
+				`display current-configuration`,
+			},
+			Protocol: "telnet",
+			Mode:     "system_View",
+			Timeout:  30,
+		}
+		var reply protocol.CliResponse
+		c := jsonrpc.NewClient(client)
+		err = c.Call("CliHandler.Handle", args, &reply)
+		So(
+			err,
+			ShouldBeNil,
+		)
+		So(
+			reply.Retcode == common.OK,
+			ShouldBeTrue,
+		)
+		//fmt.Println(reply.CmdsStd)
+		So(
+			len(reply.CmdsStd) == 1,
+			ShouldBeTrue,
+		)
+	})
+}
+
+func TestUSG5500_Telnet_Show_NOT_OK(t *testing.T) {
+	//
+	Convey("Show USG6000V2 cli commands by telnet", t, func() {
+		client, err := net.Dial("tcp", "localhost:8188")
+		So(
+			err,
+			ShouldBeNil,
+		)
+		// Synchronous call
+		args := &protocol.CliRequest{
+			Device:  "usg5500-show-test",
+			Vendor:  "huawei",
+			Type:    "usg",
+			Version: "usg5500",
+			Address: "192.168.1.177:23",
+			Auth: protocol.Auth{
+				Username: "admin",
+				Password: "lablab@123",
+			},
+			Commands: []string{
+				`display current-configuration`,
+			},
+			Protocol: "telnet",
+			Mode:     "system_View",
+			Timeout:  30,
+		}
+		var reply protocol.CliResponse
+		c := jsonrpc.NewClient(client)
+		err = c.Call("CliHandler.Handle", args, &reply)
+		So(
+			err,
+			ShouldBeNil,
+		)
+		So(
+			reply.Retcode == common.OK,
+			ShouldBeTrue,
+		)
+		//fmt.Println(reply.CmdsStd)
+		So(
+			len(reply.CmdsStd) == 1,
+			ShouldBeTrue,
+		)
+	})
+}
+
 //
 func TestIos_Show(t *testing.T) {
 	//

@@ -22,6 +22,7 @@ import (
 
 	"github.com/sky-cloud-tec/netd/protocol"
 	"github.com/songtianyi/rrframework/logs"
+	"github.com/ziutek/telnet"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -43,8 +44,11 @@ var (
 	OperatorManagerInstance *OperatorManager
 )
 
-// SSHInitializer ssh init func generator
+// SSHInitializer ssh session init func
 type SSHInitializer func(*ssh.Client, *protocol.CliRequest) (io.Reader, io.WriteCloser, *ssh.Session, error)
+
+// TELNETInitializer telnet conn init func
+type TELNETInitializer func(*telnet.Conn, *protocol.CliRequest) error
 
 func init() {
 	OperatorManagerInstance = &OperatorManager{
