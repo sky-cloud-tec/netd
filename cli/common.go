@@ -115,5 +115,16 @@ func ReadStringUntilError(r io.Reader, p *regexp.Regexp, e *regexp.Regexp) (stri
 		}
 	}
 	return wbuf.String(), errRes
+}
 
+// IsSymmetricalMore return true if the string input matches symmetrical More pattern
+func IsSymmetricalMore(s string) bool {
+	// --More--
+	// <--- More --->
+	more := regexp.MustCompile(`([<\-]+) ?(M|m)ore ?([>\-]+)`)
+	matches := more.FindStringSubmatch(s)
+	if len(matches) != 4 {
+		return false
+	}
+	return len(matches[1]) == len(matches[3])
 }

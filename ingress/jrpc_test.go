@@ -248,8 +248,9 @@ func TestCiscoAsa_Show(t *testing.T) {
 			reply.CmdsStd,
 			ShouldNotBeNil,
 		)
+		fmt.Println(reply.CmdsStd)
 		So(
-			len(reply.CmdsStd) == 1,
+			len(reply.CmdsStd) == 2,
 			ShouldBeTrue,
 		)
 	})

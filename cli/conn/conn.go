@@ -480,14 +480,33 @@ outside:
 
 		// reverse traversal
 		// traverse lastline
-		var beginIdx int
+		var lineBeginAt int
 		for i := wbuf.Len() - 1; i >= 0; i-- {
 			if rbuf[i] == '\n' || rbuf[i] == '\r' {
-				beginIdx = i
+				lineBeginAt = i
 				break
 			}
 		}
-		testee := string(rbuf[beginIdx:])
+		testee := string(rbuf[lineBeginAt:])
+
+		// check --More--
+		// there are several cases when you check
+		// --More
+		// --More-$
+		// --More--$
+		// but we assumming that the More pattern must be IsSymmetricalMore
+		if cli.IsSymmetricalMore(testee) {
+			// remove these bytes from wbuf
+			// DO NOT EAT LINEBREAK
+			wbuf.Truncate(lineBeginAt + 1)
+			// press enter
+			if _, err := s.writeBuff(""); err != nil {
+				logs.Error(s.req.LogPrefix, "press enter error:", err)
+				errRes = err
+				break
+			}
+		}
+
 		// check prompt patterns
 		if s.op.GetPrompts(s.mode) == nil {
 			logs.Error(s.req.LogPrefix, "no patterns for mode", s.mode)
@@ -501,14 +520,14 @@ outside:
 			// test pass
 			logs.Info(s.req.LogPrefix, "prompt matched", s.mode, ":", matches)
 			// ignore prompt and break
-			if beginIdx == 0 {
+			if lineBeginAt == 0 {
 				lastLine = testee
 			} else {
 				// newline not include
-				lastLine = string(rbuf[beginIdx+1:])
+				lastLine = string(rbuf[lineBeginAt+1:])
 				// \n not include but \r maybe include in windows linebreak
 				d := chardet.NewTextDetector()
-				dr, err := d.DetectBest(rbuf[:beginIdx])
+				dr, err := d.DetectBest(rbuf[:lineBeginAt])
 				if err != nil {
 					logs.Error(s.req.LogPrefix, "detect origin encoding error:", err)
 				} else {
@@ -516,12 +535,12 @@ outside:
 					logs.Debug(s.req.LogPrefix, "detected encoding", dr, "predefined encoding", s.op.GetEncoding())
 				}
 				// convert, even if detect error
-				u8buf, err := common.ConvToUTF8(s.op.GetEncoding(), rbuf[:beginIdx])
+				u8buf, err := common.ConvToUTF8(s.op.GetEncoding(), rbuf[:lineBeginAt])
 				if err != nil {
 					logs.Error(s.req.LogPrefix, "conv to utf8 error:", err)
 				} else {
 					// conv ok, compare size then log
-					logs.Debug(s.req.LogPrefix, "origin size", len(rbuf[:beginIdx]), "converted size", len(u8buf))
+					logs.Debug(s.req.LogPrefix, "origin size", len(rbuf[:lineBeginAt]), "converted size", len(u8buf))
 					// dectect again
 					dr, err = d.DetectBest(u8buf)
 					logs.Debug(s.req.LogPrefix, "detected encoding", dr, err)
