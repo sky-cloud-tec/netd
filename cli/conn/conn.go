@@ -74,6 +74,7 @@ type CliConn struct {
 	w       io.WriteCloser // ssh session stdin
 
 	formatSet bool
+	closed    bool // to indicate cli conn closed or not
 }
 
 // Acquire cli conn
@@ -190,6 +191,9 @@ func (s *CliConn) heartbeat() {
 			select {
 			case <-tick:
 				// try
+				if s.closed {
+					break
+				}
 				logs.Info(s.req.LogPrefix, "Acquiring heartbeat sema...")
 				semas[s.req.Address] <- struct{}{}
 				logs.Info(s.req.LogPrefix, "heartbeat sema acquired")
@@ -395,6 +399,7 @@ func (s *CliConn) closePage(drain bool) error {
 func (s *CliConn) Close() error {
 	logs.Info(s.req.LogPrefix, "closing conn ...")
 	delete(conns, s.req.Address)
+	s.closed = true
 	if s.t == common.TELNETConn {
 		if s.conn == nil {
 			logs.Info(s.req.LogPrefix, "telnet conn nil when close")
@@ -402,6 +407,7 @@ func (s *CliConn) Close() error {
 		}
 		return s.conn.Close()
 	}
+	// ssh conn
 	if s.session != nil {
 		if err := s.session.Close(); err != nil {
 			logs.Critical(s.req.LogPrefix, "close session err", err)
