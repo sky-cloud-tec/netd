@@ -1,6 +1,10 @@
 FROM hub.sky-cloud.net/cicd/alpine:alpine
 MAINTAINER songtianyi@sky-cloud.net
 
+ENV LOG_LEVEL DEBUG
+ENV LOG_FILE /var/log/netd/netd.log
+ENV ADDR 0.0.0.0:8188
+
 ADD netd /usr/bin/
 RUN mkdir -p /var/log/netd
 
