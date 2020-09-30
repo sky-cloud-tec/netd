@@ -27,7 +27,7 @@ import (
 
 func init() {
 	// register topsec NGFW4000 tg5030
-	cli.OperatorManagerInstance.Register(`(?i)topsec\.NGFW4000\..*`, createOpTopSec())
+	cli.OperatorManagerInstance.Register(`(?i)topsec\.NGFW4000(\-UF)?\..*`, createOpTopSec())
 }
 
 type opTopSec struct {
