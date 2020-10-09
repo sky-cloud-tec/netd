@@ -27,7 +27,7 @@ func TestAsaOp(t *testing.T) {
 	Convey("asa op", t, func() {
 		op := createOpHillstone()
 		So(
-			cli.Match(op.GetPrompts("login"), "TFTF-E1700-1(M)# "),
+			cli.AnyMatch(op.GetPrompts("login"), "TFTF-E1700-1(M)# "),
 			ShouldBeTrue,
 		)
 	})

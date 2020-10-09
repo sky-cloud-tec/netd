@@ -27,23 +27,23 @@ func TestAsaOp(t *testing.T) {
 	Convey("asa op", t, func() {
 		op := createOp9xPlus()
 		So(
-			cli.Match(op.GetPrompts("login"), "asaNAT> "),
+			cli.AnyMatch(op.GetPrompts("login"), "asaNAT> "),
 			ShouldBeTrue,
 		)
 		So(
-			cli.Match(op.GetPrompts("login"), "TFTF-ASA5512x> "),
+			cli.AnyMatch(op.GetPrompts("login"), "TFTF-ASA5512x> "),
 			ShouldBeTrue,
 		)
 		So(
-			cli.Match(op.GetPrompts("login_enable"), "TFTF-ASA5512x# "),
+			cli.AnyMatch(op.GetPrompts("login_enable"), "TFTF-ASA5512x# "),
 			ShouldBeTrue,
 		)
 		So(
-			cli.Match(op.GetPrompts("login_enable"), "KG-2G-TS-Study-Demo-FW-A-A4-34U# "),
+			cli.AnyMatch(op.GetPrompts("login_enable"), "KG-2G-TS-Study-Demo-FW-A-A4-34U# "),
 			ShouldBeTrue,
 		)
 		So(
-			cli.Match(op.GetPrompts("login"), "KG-2G-TS-Study-Demo-FW-A-A4-34U# "),
+			cli.AnyMatch(op.GetPrompts("login"), "KG-2G-TS-Study-Demo-FW-A-A4-34U# "),
 			ShouldBeFalse,
 		)
 	})

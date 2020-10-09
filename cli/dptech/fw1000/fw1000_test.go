@@ -27,11 +27,11 @@ func TestFw1000Op(t *testing.T) {
 	Convey("dptech op", t, func() {
 		op := createOpFW1000()
 		So(
-			cli.Match(op.GetPrompts("login"), "<KY-TS-FW-DP8000-B2-A>"),
+			cli.AnyMatch(op.GetPrompts("login"), "<KY-TS-FW-DP8000-B2-A>"),
 			ShouldBeTrue,
 		)
 		So(
-			cli.Match(op.GetPrompts("configure"), "[KY-TS-FW-DP8000-B2-A]"),
+			cli.AnyMatch(op.GetPrompts("configure"), "[KY-TS-FW-DP8000-B2-A]"),
 			ShouldBeTrue,
 		)
 	})

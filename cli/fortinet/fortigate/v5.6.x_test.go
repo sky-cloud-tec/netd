@@ -27,11 +27,11 @@ func TestFortinetOp(t *testing.T) {
 	Convey("fortinet op", t, func() {
 		op := createOpfortinet()
 		So(
-			cli.Match(op.GetErrPatterns(), `Command fail. Return code -361`),
+			cli.AnyMatch(op.GetErrPatterns(), `Command fail. Return code -361`),
 			ShouldBeTrue,
 		)
 		So(
-			cli.Match(op.GetErrPatterns(), `forti239 (policy) # Command fail. Return code -361
+			cli.AnyMatch(op.GetErrPatterns(), `forti239 (policy) # Command fail. Return code -361
 
 			forti239 (policy) # Unknown action 0
 			

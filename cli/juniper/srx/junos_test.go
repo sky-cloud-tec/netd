@@ -27,11 +27,11 @@ func TestJunosOp(t *testing.T) {
 	Convey("srx op", t, func() {
 		op := createOpJunos()
 		So(
-			cli.Match(op.GetPrompts("login"), "admin@hostname> "),
+			cli.AnyMatch(op.GetPrompts("login"), "admin@hostname> "),
 			ShouldBeTrue,
 		)
 		So(
-			cli.Match(op.GetPrompts("configure"), "admin# "),
+			cli.AnyMatch(op.GetPrompts("configure"), "admin# "),
 			ShouldBeTrue,
 		)
 	})

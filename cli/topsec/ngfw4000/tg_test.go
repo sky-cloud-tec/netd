@@ -27,19 +27,19 @@ func TestTgOp(t *testing.T) {
 	Convey("tg op", t, func() {
 		op := createOpTopSec()
 		So(
-			cli.Match(op.GetPrompts("login"), "WG002_OACLD_FW_02% "),
+			cli.AnyMatch(op.GetPrompts("login"), "WG002_OACLD_FW_02% "),
 			ShouldBeTrue,
 		)
 		So(
-			cli.Match(op.GetPrompts("login"), "TopsecOS_208# "),
+			cli.AnyMatch(op.GetPrompts("login"), "TopsecOS_208# "),
 			ShouldBeTrue,
 		)
 		So(
-			cli.Match(op.GetPrompts("login"), "TopsecOS# "),
+			cli.AnyMatch(op.GetPrompts("login"), "TopsecOS# "),
 			ShouldBeTrue,
 		)
 		So(
-			cli.Match(op.GetPrompts("login"), "TopsecOS% "),
+			cli.AnyMatch(op.GetPrompts("login"), "TopsecOS% "),
 			ShouldBeTrue,
 		)
 	})
