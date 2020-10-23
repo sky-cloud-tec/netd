@@ -530,24 +530,29 @@ outside:
 				dr, err := d.DetectBest(rbuf[:lineBeginAt])
 				if err != nil {
 					logs.Error(s.req.LogPrefix, "detect origin encoding error:", err)
-				} else {
-					// print origin encoding
-					logs.Debug(s.req.LogPrefix, "detected encoding", dr, "predefined encoding", s.op.GetEncoding())
 				}
-				// convert, even if detect error
-				u8buf, err := common.ConvToUTF8(s.op.GetEncoding(), rbuf[:lineBeginAt])
-				if err != nil {
-					logs.Error(s.req.LogPrefix, "conv to utf8 error:", err)
+				// print origin encoding
+				logs.Debug(s.req.LogPrefix, "detected encoding", dr, "predefined encoding", s.op.GetEncoding())
+
+				if dr != nil && dr.Charset != "UTF-8" && dr.Confidence > 90 {
+					// convert, even if detect error
+					// if not converted, original byte slice will be retured
+					u8buf, err := common.ConvToUTF8(s.op.GetEncoding(), rbuf[:lineBeginAt])
+					if err != nil {
+						logs.Error(s.req.LogPrefix, "conv to utf8 error:", err)
+						waitingString = string(rbuf[:lineBeginAt])
+					} else {
+						// conv ok, compare size then log
+						logs.Debug(s.req.LogPrefix, "origin size", len(rbuf[:lineBeginAt]), "converted size", len(u8buf))
+						// dectect again
+						dr, err = d.DetectBest(u8buf)
+						logs.Debug(s.req.LogPrefix, "detected encoding", dr, err)
+						// use converted content
+						waitingString = string(u8buf)
+					}
 				} else {
-					// conv ok, compare size then log
-					logs.Debug(s.req.LogPrefix, "origin size", len(rbuf[:lineBeginAt]), "converted size", len(u8buf))
-					// dectect again
-					dr, err = d.DetectBest(u8buf)
-					logs.Debug(s.req.LogPrefix, "detected encoding", dr, err)
+					waitingString = string(rbuf[:lineBeginAt])
 				}
-				// use converted content
-				// don't worry, if not converted, original byte slice will be retured
-				waitingString = string(u8buf)
 			}
 			// break the out loop
 			break outside
