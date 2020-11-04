@@ -1167,7 +1167,7 @@ func TestSecPathFW2000_Set(t *testing.T) {
 //
 func TestSecPathFW2000_Show(t *testing.T) {
 	//
-	Convey("set SecPathFW2000 cli commands", t, func() {
+	Convey("show SecPathFW2000 config", t, func() {
 		client, err := net.Dial("tcp", "localhost:8188")
 		So(
 			err,

@@ -494,7 +494,7 @@ outside:
 		// --More
 		// --More-$
 		// --More--$
-		// but we assumming that the More pattern must be IsSymmetricalMore
+		// but we assumming that the More pattern must be symmetrical
 		if cli.IsSymmetricalMore(testee) {
 			// remove these bytes from wbuf
 			// DO NOT EAT LINEBREAK
@@ -503,7 +503,7 @@ outside:
 			if _, err := s.writeBuff(""); err != nil {
 				logs.Error(s.req.LogPrefix, "press enter error:", err)
 				errRes = err
-				break
+				break outside
 			}
 		}
 
@@ -534,24 +534,25 @@ outside:
 				// print origin encoding
 				logs.Debug(s.req.LogPrefix, "detected encoding", dr, "predefined encoding", s.op.GetEncoding())
 
+				encoding := s.op.GetEncoding()
 				if dr != nil && dr.Charset != "UTF-8" && dr.Confidence > 90 {
-					// convert, even if detect error
-					// if not converted, original byte slice will be retured
-					u8buf, err := common.ConvToUTF8(s.op.GetEncoding(), rbuf[:lineBeginAt])
-					if err != nil {
-						logs.Error(s.req.LogPrefix, "conv to utf8 error:", err)
-						waitingString = string(rbuf[:lineBeginAt])
-					} else {
-						// conv ok, compare size then log
-						logs.Debug(s.req.LogPrefix, "origin size", len(rbuf[:lineBeginAt]), "converted size", len(u8buf))
-						// dectect again
-						dr, err = d.DetectBest(u8buf)
-						logs.Debug(s.req.LogPrefix, "detected encoding", dr, err)
-						// use converted content
-						waitingString = string(u8buf)
-					}
-				} else {
+					// predefined encoding may set wrong
+					encoding = dr.Charset
+				}
+				// convert, even if detect error
+				// if not converted, original byte slice will be retured
+				u8buf, err := common.ConvToUTF8(encoding, rbuf[:lineBeginAt])
+				if err != nil {
+					logs.Error(s.req.LogPrefix, "conv to utf8 error:", err)
 					waitingString = string(rbuf[:lineBeginAt])
+				} else {
+					// conv ok, compare size then log
+					logs.Debug(s.req.LogPrefix, "origin size", len(rbuf[:lineBeginAt]), "converted size", len(u8buf))
+					// dectect again
+					dr, err = d.DetectBest(u8buf)
+					logs.Debug(s.req.LogPrefix, "detected encoding after converting", dr, err)
+					// use converted content
+					waitingString = string(u8buf)
 				}
 			}
 			// break the out loop

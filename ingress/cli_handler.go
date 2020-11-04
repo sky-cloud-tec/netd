@@ -19,8 +19,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/songtianyi/rrframework/utils"
-
 	"github.com/sky-cloud-tec/netd/cli"
 	_ "github.com/sky-cloud-tec/netd/cli/brocade/g600" //  load linux centos
 	_ "github.com/sky-cloud-tec/netd/cli/cisco/asa"    // load juniper srx
@@ -38,6 +36,7 @@ import (
 	_ "github.com/sky-cloud-tec/netd/cli/paloalto/panos"     // load paloalto panos
 	_ "github.com/sky-cloud-tec/netd/cli/topsec/ngfw4000"    // load topsec ngfw4000
 
+	"github.com/rs/xid"
 	"github.com/sky-cloud-tec/netd/common"
 	"github.com/sky-cloud-tec/netd/protocol"
 	"github.com/songtianyi/rrframework/logs"
@@ -51,7 +50,7 @@ type CliHandler struct {
 // Handle cli request
 func (s *CliHandler) Handle(req *protocol.CliRequest, res *protocol.CliResponse) error {
 	if req.Session == "" {
-		req.Session = rrutils.NewV4().String()
+		req.Session = xid.New().String()
 	}
 	// hide credential info
 	// keep replaced length,
