@@ -27,6 +27,10 @@ func TestAsaOp(t *testing.T) {
 	Convey("usg op", t, func() {
 		op := createopUsg6000V()
 		So(
+			cli.AnyMatch(op.GetPrompts("login"), "HRP_M<BH-MgtFw-1>"),
+			ShouldBeTrue,
+		)
+		So(
 			cli.AnyMatch(op.GetPrompts("login"), "HRP_A<NF-MgtFW-1-(227.33-A-B02)>"),
 			ShouldBeTrue,
 		)

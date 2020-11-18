@@ -372,9 +372,6 @@ func (s *CliConn) closePage(drain bool) error {
 		}
 		// now in system view
 		cmd := "user-interface current\nscreen-length 0"
-		if strings.HasPrefix(strings.ToLower(s.req.Type), "usg6") {
-			cmd += " temporary"
-		}
 		// quit from ui config
 		cmd += "\nquit"
 		if _, err := s.writeBuff(cmd); err != nil {
