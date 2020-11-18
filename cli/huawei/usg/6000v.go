@@ -40,8 +40,8 @@ type opUsg6000V struct {
 }
 
 func createopUsg6000V() cli.Operator {
-	loginPrompt := regexp.MustCompile("<[-_[:alnum:][:digit:]]{0,}>$")
-	systemViewPrompt := regexp.MustCompile(`\[[-_[:alnum:][:digit:]]{0,}]$`)
+	loginPrompt := regexp.MustCompile("<.{0,246}>$")
+	systemViewPrompt := regexp.MustCompile(`\[.{0,246}]$`)
 	// exclude [xxx-ui-console0] <xxx-ui-console0>
 	promptExclude := regexp.MustCompile("-ui-console[0-9]")
 	promptExclude1 := regexp.MustCompile("-ui-vty[0-9]")
