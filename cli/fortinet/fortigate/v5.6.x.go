@@ -38,7 +38,7 @@ func init() {
 }
 
 func createOpfortinet() cli.Operator {
-	loginPrompt := regexp.MustCompile(`[[:alnum:]]{1,}[[:alnum:]-_]{0,} # $`)
+	loginPrompt := regexp.MustCompile(`[[:alnum:]]{1,}[[:alnum:]-_]{0,} (#|\$) $`)
 	return &opFortinet{
 		transitions: map[string][]string{},
 		prompts: map[string][]*regexp.Regexp{
