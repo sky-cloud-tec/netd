@@ -84,6 +84,14 @@ func (s *op9xPlus) GetErrPatterns() []*regexp.Regexp {
 	return s.errs
 }
 
+func (s *op9xPlus) SetPrompts(k string, regs []*regexp.Regexp) {
+	s.prompts[k] = regs
+}
+
+func (s *op9xPlus) SetErrPatterns(regs []*regexp.Regexp) {
+	s.errs = regs
+}
+
 func (s *op9xPlus) GetLinebreak() string {
 	return s.lineBeak
 }

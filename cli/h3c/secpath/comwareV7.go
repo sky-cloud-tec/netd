@@ -65,6 +65,14 @@ func (s *opH3CV7) GetPrompts(k string) []*regexp.Regexp {
 	return nil
 }
 
+func (s *opH3CV7) SetPrompts(k string, regs []*regexp.Regexp) {
+	s.prompts[k] = regs
+}
+
+func (s *opH3CV7) SetErrPatterns(regs []*regexp.Regexp) {
+	s.errs = regs
+}
+
 func (s *opH3CV7) GetEncoding() string {
 	return s.encodingType
 }

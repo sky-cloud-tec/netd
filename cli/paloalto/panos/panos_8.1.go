@@ -71,6 +71,13 @@ func (s *opPaloalto) GetPrompts(k string) []*regexp.Regexp {
 	}
 	return nil
 }
+func (s *opPaloalto) SetPrompts(k string, regs []*regexp.Regexp) {
+	s.prompts[k] = regs
+}
+
+func (s *opPaloalto) SetErrPatterns(regs []*regexp.Regexp) {
+	s.errs = regs
+}
 
 func (s *opPaloalto) GetEncoding() string {
 	return s.encodingType

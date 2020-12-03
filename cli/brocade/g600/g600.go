@@ -59,6 +59,14 @@ func (s *opG600Switch) GetPrompts(k string) []*regexp.Regexp {
 	return nil
 }
 
+func (s *opG600Switch) SetPrompts(k string, regs []*regexp.Regexp) {
+	s.prompts[k] = regs
+}
+
+func (s *opG600Switch) SetErrPatterns(regs []*regexp.Regexp) {
+	s.errs = regs
+}
+
 func (s *opG600Switch) GetEncoding() string {
 	return ""
 }

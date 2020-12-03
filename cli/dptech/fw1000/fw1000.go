@@ -64,6 +64,13 @@ func (s *opFW1000) GetPrompts(k string) []*regexp.Regexp {
 	}
 	return nil
 }
+func (s *opFW1000) SetPrompts(k string, regs []*regexp.Regexp) {
+	s.prompts[k] = regs
+}
+
+func (s *opFW1000) SetErrPatterns(regs []*regexp.Regexp) {
+	s.errs = regs
+}
 
 func (s *opFW1000) GetEncoding() string {
 	return ""

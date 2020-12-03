@@ -61,6 +61,14 @@ func (s *opTopSec) GetPrompts(k string) []*regexp.Regexp {
 	return nil
 }
 
+func (s *opTopSec) SetPrompts(k string, regs []*regexp.Regexp) {
+	s.prompts[k] = regs
+}
+
+func (s *opTopSec) SetErrPatterns(regs []*regexp.Regexp) {
+	s.errs = regs
+}
+
 func (s *opTopSec) GetExcludes() []*regexp.Regexp {
 	return nil
 }

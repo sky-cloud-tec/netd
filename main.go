@@ -22,6 +22,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/sky-cloud-tec/netd/api/routers"
 	"github.com/sky-cloud-tec/netd/common"
 	"github.com/sky-cloud-tec/netd/ingress"
 
@@ -57,6 +58,11 @@ func jrpcHandler(c *cli.Context) error {
 	if err := initLogger(); err != nil {
 		return err
 	}
+	go func() {
+		if err := routers.SetupRouter(c.String("api-addr")).Run(c.String("api-addr")); err != nil {
+			panic(err)
+		}
+	}()
 	// init jrpc
 	jrpc, _ := ingress.NewJrpc(c.String("addr"))
 	jrpc.Register(new(ingress.CliHandler))
@@ -91,7 +97,17 @@ func main() {
 					Value: "0.0.0.0:8188", // default port 8188
 					Usage: "jprc listen address",
 				},
+				cli.StringFlag{
+					Name:  "api-address, api-addr",
+					Value: "0.0.0.0:8189",
+					Usage: "api listen address",
+				},
 			},
+		},
+		{
+			Name:    "hotfix",
+			Aliases: []string{"hotfix"},
+			Usage:   "Run hotfix cli to fix regex patterns online\n\t\t\tplease note, fixed pattern will lost when netd restart.",
 		},
 	}
 

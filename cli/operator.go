@@ -30,7 +30,9 @@ import (
 type Operator interface {
 	GetTransitions(c, t string) []string
 	GetPrompts(m string) []*regexp.Regexp
+	SetPrompts(string, []*regexp.Regexp)
 	GetErrPatterns() []*regexp.Regexp
+	SetErrPatterns([]*regexp.Regexp)
 	GetSSHInitializer() SSHInitializer
 	GetLinebreak() string
 	GetStartMode() string

@@ -69,6 +69,14 @@ func (s *SwitchNxos) GetPrompts(k string) []*regexp.Regexp {
 	return nil
 }
 
+func (s *SwitchNxos) SetPrompts(k string, regs []*regexp.Regexp) {
+	s.prompts[k] = regs
+}
+
+func (s *SwitchNxos) SetErrPatterns(regs []*regexp.Regexp) {
+	s.errs = regs
+}
+
 //GetTransitions SwitchNxos
 func (s *SwitchNxos) GetTransitions(c, t string) []string {
 	k := c + "->" + t

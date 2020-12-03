@@ -66,6 +66,14 @@ func (s *opFortinet) GetPrompts(k string) []*regexp.Regexp {
 	return nil
 }
 
+func (s *opFortinet) SetPrompts(k string, regs []*regexp.Regexp) {
+	s.prompts[k] = regs
+}
+
+func (s *opFortinet) SetErrPatterns(regs []*regexp.Regexp) {
+	s.errs = regs
+}
+
 func (s *opFortinet) GetTransitions(c, t string) []string {
 	k := c + "->" + t
 	if v, ok := s.transitions[k]; ok {

@@ -72,6 +72,14 @@ func (s *opUsg6000V) GetPrompts(k string) []*regexp.Regexp {
 	return nil
 }
 
+func (s *opUsg6000V) SetPrompts(k string, regs []*regexp.Regexp) {
+	s.prompts[k] = regs
+}
+
+func (s *opUsg6000V) SetErrPatterns(regs []*regexp.Regexp) {
+	s.errs = regs
+}
+
 func (s *opUsg6000V) GetTransitions(c, t string) []string {
 	k := c + "->" + t
 	if v, ok := s.transitions[k]; ok {

@@ -72,6 +72,14 @@ func (s *SwitchIos) GetPrompts(k string) []*regexp.Regexp {
 	return nil
 }
 
+func (s *SwitchIos) SetPrompts(k string, regs []*regexp.Regexp) {
+	s.prompts[k] = regs
+}
+
+func (s *SwitchIos) SetErrPatterns(regs []*regexp.Regexp) {
+	s.errs = regs
+}
+
 // GetEncoding return device encoding type as string
 func (s *SwitchIos) GetEncoding() string {
 	return ""

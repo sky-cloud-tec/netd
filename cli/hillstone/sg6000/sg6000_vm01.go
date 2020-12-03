@@ -67,6 +67,14 @@ func (s *opHillstone) GetPrompts(k string) []*regexp.Regexp {
 	return nil
 }
 
+func (s *opHillstone) SetPrompts(k string, regs []*regexp.Regexp) {
+	s.prompts[k] = regs
+}
+
+func (s *opHillstone) SetErrPatterns(regs []*regexp.Regexp) {
+	s.errs = regs
+}
+
 func (s *opHillstone) GetEncoding() string {
 	return ""
 }

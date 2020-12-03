@@ -66,6 +66,14 @@ func (s *Centos) GetPrompts(k string) []*regexp.Regexp {
 	return nil
 }
 
+func (s *Centos) SetPrompts(k string, regs []*regexp.Regexp) {
+	s.prompts[k] = regs
+}
+
+func (s *Centos) SetErrPatterns(regs []*regexp.Regexp) {
+	s.errs = regs
+}
+
 // GetEncoding return device encoding type as string
 func (s *Centos) GetEncoding() string {
 	return s.encodingType
