@@ -44,10 +44,10 @@ func OperatorDump(c *gin.Context) {
 		return
 	}
 	for i, p := range op.GetPrompts(req.Mode) {
-		logs.Info("[HOTFIX]", "prompt", i, p)
+		logs.Info("[HOTFIX]", "prompt ->", i, p)
 	}
 	for i, p := range op.GetErrPatterns() {
-		logs.Info("[HOTFIX]", "err pattern", i, p)
+		logs.Info("[HOTFIX]", "err pattern ->", i, p)
 	}
 	c.JSON(http.StatusOK, &jrpc.IResponse{Code: common.Retcode_OK, Msg: "OK"})
 }
