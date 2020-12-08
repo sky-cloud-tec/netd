@@ -58,10 +58,17 @@ func Utf8ToGbk(s []byte) ([]byte, error) {
 	return d, nil
 }
 
+var enc = map[string]string{
+	"GB-18030": "GB18030",
+}
+
 // ConvToUTF8 convert any encoding type byte to utf8 byte
 func ConvToUTF8(src string, b []byte) ([]byte, error) {
 	if src == "" || src == "UTF-8" || src == "utf-8" {
 		return b, nil
+	}
+	if v, ok := enc[src]; ok {
+		src = v
 	}
 	e, err := ianaindex.MIB.Encoding(src)
 	if err != nil {
