@@ -50,7 +50,7 @@ func createOpTopSec() cli.Operator {
 			regexp.MustCompile("^error"),
 		},
 		lineBeak:     "\n",
-		encodingType: "GBK",
+		encodingType: "ISO-8859-1",
 	}
 }
 
