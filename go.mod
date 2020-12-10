@@ -8,7 +8,7 @@ require (
 	github.com/rs/xid v1.2.1
 	github.com/saintfish/chardet v0.0.0-20120816061221-3af4cd4741ca
 	github.com/shiena/ansicolor v0.0.0-20151119151921-a422bbe96644 // indirect
-	github.com/sky-cloud-tec/proto v0.0.0-20201203090537-f7de4b3f8c38
+	github.com/sky-cloud-tec/proto v0.0.0-20201207101645-0a4780d79b9c
 	github.com/smartystreets/goconvey v1.6.4
 	github.com/songtianyi/rrframework v0.0.0-20180901111106-4caefe307b3f
 	github.com/urfave/cli v1.22.2

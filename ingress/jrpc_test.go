@@ -901,7 +901,7 @@ func TestFortinet_set(t *testing.T) {
 			Vendor:  "fortinet",
 			Type:    "FortiGate-VM64-KVM",
 			Version: "v5.6.x",
-			Address: "192.168.1.239:22",
+			Address: "192.168.1.237:22",
 			Auth: protocol.Auth{
 				Username: "admin",
 				Password: "r00tme",
