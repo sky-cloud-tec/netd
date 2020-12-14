@@ -100,12 +100,12 @@ func Acquire(req *protocol.CliRequest, op cli.Operator) (*CliConn, error) {
 			// use exist conn
 			v.req = req
 			v.op = op
-			logs.Info(req.LogPrefix, "cli conn exist")
+			logs.Info(req.LogPrefix, "user", req.Auth.Username, "cli conn exist")
 			return v, nil
 		}
 		// new user
 		if v.req.Auth.Username != req.Auth.Username {
-			logs.Info(req.LogPrefix, "drop", v.req.Auth.Username, "pick", req.Auth.Username)
+			logs.Info(req.LogPrefix, "drop user", v.req.Auth.Username, "pick", req.Auth.Username)
 		}
 		// or new protocol
 		if v.req.Protocol != req.Protocol {
