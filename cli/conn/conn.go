@@ -555,7 +555,7 @@ outside:
 	logs.Debug(s.req.LogPrefix, "detected encoding", dr, "predefined encoding", s.op.GetEncoding())
 
 	encoding := s.op.GetEncoding()
-	if dr != nil && dr.Charset != "UTF-8" && dr.Confidence > common.AppConfigInstance.Confidence {
+	if dr != nil && dr.Charset != "UTF-8" && dr.Confidence >= common.AppConfigInstance.Confidence {
 		// predefined encoding may set wrong
 		encoding = dr.Charset
 	}
