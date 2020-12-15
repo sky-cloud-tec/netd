@@ -41,6 +41,11 @@ func init() {
 	appConfig = &AppConfig{
 		logCfg: &common.LogConfig{},
 	}
+	if common.AppConfigInstance == nil {
+		common.AppConfigInstance = &common.AppConfig{
+			Confidence: 30,
+		}
+	}
 }
 
 func initLogger() error {
@@ -101,6 +106,13 @@ func main() {
 					Name:  "api-address, api-addr",
 					Value: "0.0.0.0:8189",
 					Usage: "api listen address",
+				},
+				cli.IntFlag{
+					Name:        "confidence, ce",
+					Value:       30,
+					Usage:       "encoding convert confidence",
+					Required:    false,
+					Destination: &common.AppConfigInstance.Confidence,
 				},
 			},
 		},

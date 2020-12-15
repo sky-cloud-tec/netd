@@ -22,3 +22,11 @@ type LogConfig struct {
 	Level    string `json:"level"`
 	MaxSize  int    `json:"maxsize"`
 }
+
+// AppConfig contains app config items
+type AppConfig struct {
+	Confidence int `json:"confidence"`
+}
+
+// AppConfigInstance ...
+var AppConfigInstance *AppConfig

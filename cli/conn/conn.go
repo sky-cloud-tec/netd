@@ -453,13 +453,13 @@ func (s *CliConn) anyMatch(t string, patterns []*regexp.Regexp) []string {
 func (s *CliConn) readLines() *readBuffOut {
 	buf := make([]byte, 1000)
 	var (
-		waitingString, lastLine string
-		errRes                  error
-		wbuf                    bytes.Buffer
+		lastLine string
+		errRes   error
+		wbuf     bytes.Buffer
 	)
 outside:
 	for {
-		n, err := s.read(buf) //this reads the ssh/telnet terminal
+		n, err := s.read(buf) // read ssh/telnet terminal content from session/conn
 		if err != nil {
 			// something wrong
 			logs.Error(s.req.LogPrefix, "io.Reader read error:", err)
@@ -477,14 +477,24 @@ outside:
 
 		// reverse traversal
 		// traverse lastline
-		var lineBeginAt int
+		lineBeginAt := -1
 		for i := wbuf.Len() - 1; i >= 0; i-- {
 			if rbuf[i] == '\n' || rbuf[i] == '\r' {
 				lineBeginAt = i
 				break
 			}
 		}
-		testee := string(rbuf[lineBeginAt:])
+		var testee string
+		if lineBeginAt == -1 {
+			// no newline for now
+			// xxx
+			// {prompt}
+			testee = string(rbuf)
+		} else {
+			// \nxxx
+			// \n{prompt}
+			testee = string(rbuf[lineBeginAt:])
+		}
 
 		// check --More--
 		// there are several cases when you check
@@ -495,7 +505,7 @@ outside:
 		if cli.IsSymmetricalMore(testee) {
 			// remove these bytes from wbuf
 			// DO NOT EAT LINEBREAK
-			wbuf.Truncate(lineBeginAt + 1)
+			wbuf.Truncate(lineBeginAt + 1) // lineBeginAt could not be -1
 			// press enter
 			if _, err := s.writeBuff(""); err != nil {
 				logs.Error(s.req.LogPrefix, "press enter error:", err)
@@ -515,43 +525,16 @@ outside:
 
 		if len(matches) > 0 && !cli.AnyMatch(s.op.GetExcludes(), testee) {
 			// test pass
-			logs.Info(s.req.LogPrefix, "prompt matched", s.mode, ":", matches)
-			// ignore prompt and break
-			if lineBeginAt == 0 {
+			logs.Info(s.req.LogPrefix, "prompt matched --->", s.mode, ":", matches)
+			// truncate prompt and break
+			if lineBeginAt == -1 {
 				lastLine = testee
 			} else {
 				// newline not include
+				// \n not include but \r may include for windows linebreak
 				lastLine = string(rbuf[lineBeginAt+1:])
-				// \n not include but \r maybe include in windows linebreak
-				d := chardet.NewTextDetector()
-				dr, err := d.DetectBest(rbuf[:lineBeginAt])
-				if err != nil {
-					logs.Error(s.req.LogPrefix, "detect origin encoding error:", err)
-				}
-				// print origin encoding
-				logs.Debug(s.req.LogPrefix, "detected encoding", dr, "predefined encoding", s.op.GetEncoding())
-
-				encoding := s.op.GetEncoding()
-				if dr != nil && dr.Charset != "UTF-8" && dr.Confidence > 90 {
-					// predefined encoding may set wrong
-					encoding = dr.Charset
-				}
-				// convert, even if detect error
-				// if not converted, original byte slice will be retured
-				u8buf, err := common.ConvToUTF8(encoding, rbuf[:lineBeginAt])
-				if err != nil {
-					logs.Error(s.req.LogPrefix, "conv to utf8 error:", err)
-					waitingString = string(rbuf[:lineBeginAt])
-				} else {
-					// conv ok, compare size then log
-					logs.Debug(s.req.LogPrefix, "origin size", len(rbuf[:lineBeginAt]), "converted size", len(u8buf))
-					// dectect again
-					dr, err = d.DetectBest(u8buf)
-					logs.Debug(s.req.LogPrefix, "detected encoding after converting", dr, err)
-					// use converted content
-					waitingString = string(u8buf)
-				}
 			}
+			wbuf.Truncate(lineBeginAt + 1)
 			// break the out loop
 			break outside
 		}
@@ -563,9 +546,35 @@ outside:
 			buf = make([]byte, 2*n)
 		}
 	}
+	d := chardet.NewTextDetector()
+	dr, err := d.DetectBest(wbuf.Bytes())
+	if err != nil {
+		logs.Error(s.req.LogPrefix, "detect origin encoding error:", err)
+	}
+	// print origin encoding
+	logs.Debug(s.req.LogPrefix, "detected encoding", dr, "predefined encoding", s.op.GetEncoding())
+
+	encoding := s.op.GetEncoding()
+	if dr != nil && dr.Charset != "UTF-8" && dr.Confidence > common.AppConfigInstance.Confidence {
+		// predefined encoding may set wrong
+		encoding = dr.Charset
+	}
+	// convert, even if detect error
+	// if not converted, original byte slice will be retured
+	u8buf, err := common.ConvToUTF8(encoding, wbuf.Bytes())
+	if err != nil {
+		logs.Error(s.req.LogPrefix, "conv to utf8 error:", err)
+	} else {
+		// conv ok, compare size then log
+		logs.Debug(s.req.LogPrefix, "origin size", wbuf.Len(), "converted size", len(u8buf))
+		// dectect again
+		dr, err = d.DetectBest(u8buf)
+		logs.Debug(s.req.LogPrefix, "detected encoding after converting", dr, err)
+		// use converted content
+	}
 	return &readBuffOut{
 		errRes,
-		waitingString,
+		string(u8buf),
 		lastLine,
 	}
 }
@@ -586,8 +595,8 @@ func (s *CliConn) readBuff() (string, string, error) {
 			for scanner.Scan() {
 				matches := s.anyMatch(scanner.Text(), s.op.GetErrPatterns())
 				if len(matches) > 0 {
-					logs.Info(s.req.LogPrefix, "err pattern matched,", res.ret)
-					return "", res.prompt, fmt.Errorf("err pattern matched, %s", res.ret)
+					logs.Info(s.req.LogPrefix, "err pattern matched:", res.ret)
+					return "", res.prompt, fmt.Errorf("err pattern matched: %s", res.ret)
 				}
 			}
 		}
@@ -599,6 +608,7 @@ func (s *CliConn) readBuff() (string, string, error) {
 
 func (s *CliConn) writeBuff(cmd string) (int, error) {
 	if len(cmd) > 0 && cmd[len(cmd)-1] == '\n' {
+		// linebreaked
 		return s.write([]byte(cmd))
 	}
 	return s.write([]byte(cmd + s.op.GetLinebreak()))
