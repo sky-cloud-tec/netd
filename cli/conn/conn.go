@@ -470,7 +470,6 @@ func (s *CliConn) readLines() *readBuffOut {
 				"",
 				"",
 			}
-
 		}
 		defer f.Close()
 	}
