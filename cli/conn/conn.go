@@ -489,9 +489,11 @@ outside:
 		logs.Debug(s.req.LogPrefix, "(", n, ")", string(buf[:n]))
 
 		// write binary to file
-		if _, err = f.Write(buf[:n]); err != nil {
-			errRes = err
-			break
+		if f != nil {
+			if _, err = f.Write(buf[:n]); err != nil {
+				errRes = err
+				break
+			}
 		}
 
 		// write received content to whole document buffer
