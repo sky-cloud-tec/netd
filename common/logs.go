@@ -25,7 +25,9 @@ type LogConfig struct {
 
 // AppConfig contains app config items
 type AppConfig struct {
-	Confidence int `json:"confidence"`
+	Confidence int    `json:"confidence"`
+	LogCfgFlag int    `json:"log_cfg_flag"`
+	LogCfgDir  string `json:"cfg_dir"`
 }
 
 // AppConfigInstance ...

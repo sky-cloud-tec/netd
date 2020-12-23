@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"os"
 	"regexp"
 	"strings"
 	"time"
@@ -456,7 +457,24 @@ func (s *CliConn) readLines() *readBuffOut {
 		lastLine string
 		errRes   error
 		wbuf     bytes.Buffer
+		f        *os.File
+		err      error
 	)
+
+	if common.AppConfigInstance.LogCfgFlag > 0 {
+		// openfile for writing session output
+		f, err = os.Create(common.AppConfigInstance.LogCfgDir + "/" + s.req.Session + ".binary.cfg")
+		if err != nil {
+			return &readBuffOut{
+				err,
+				"",
+				"",
+			}
+
+		}
+		defer f.Close()
+	}
+
 outside:
 	for {
 		n, err := s.read(buf) // read ssh/telnet terminal content from session/conn
@@ -469,6 +487,12 @@ outside:
 
 		// print received content
 		logs.Debug(s.req.LogPrefix, "(", n, ")", string(buf[:n]))
+
+		// write binary to file
+		if _, err = f.Write(buf[:n]); err != nil {
+			errRes = err
+			break
+		}
 
 		// write received content to whole document buffer
 		wbuf.Write(buf[:n])

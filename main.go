@@ -20,6 +20,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/sky-cloud-tec/netd/api/routers"
@@ -68,6 +69,7 @@ func jrpcHandler(c *cli.Context) error {
 			panic(err)
 		}
 	}()
+	common.AppConfigInstance.LogCfgDir = strings.TrimSuffix(common.AppConfigInstance.LogCfgDir, "/")
 	// init jrpc
 	jrpc, _ := ingress.NewJrpc(c.String("addr"))
 	jrpc.Register(new(ingress.CliHandler))
@@ -113,6 +115,19 @@ func main() {
 					Usage:       "encoding convert confidence",
 					Required:    false,
 					Destination: &common.AppConfigInstance.Confidence,
+				},
+				cli.IntFlag{
+					Name:        "log-cfg-flag, lcf",
+					Value:       0, // false
+					Usage:       "write command output cfg to file as binary",
+					Required:    false,
+					Destination: &common.AppConfigInstance.LogCfgFlag,
+				},
+				cli.StringFlag{
+					Name:        "log-cfg-dir, lcd",
+					Value:       "/var/log/netd",
+					Required:    false,
+					Destination: &common.AppConfigInstance.LogCfgDir,
 				},
 			},
 		},
