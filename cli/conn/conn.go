@@ -162,13 +162,13 @@ func newCliConn(req *protocol.CliRequest, op cli.Operator) (*CliConn, error) {
 			return nil, fmt.Errorf("dial %s error: %s", req.Address, err)
 		}
 		e := regexp.MustCompile("Error: ")
-		p := regexp.MustCompile("Username:$")
+		p := regexp.MustCompile("login: $")
 		_, err = cli.ReadStringUntilError(conn, p, e)
 		if err != nil {
 			return nil, fmt.Errorf("telnet ReadStringUntil error: %s", err)
 		}
 		conn.Write([]byte(req.Auth.Username + "\r"))
-		p = regexp.MustCompile("Password:$")
+		p = regexp.MustCompile("Password: $")
 		_, err = cli.ReadStringUntilError(conn, p, e)
 		if err != nil {
 			return nil, fmt.Errorf("telnet ReadStringUntil error: %s", err)
