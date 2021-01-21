@@ -362,6 +362,12 @@ func (s *CliConn) closePage(drain bool) error {
 			return err
 		}
 	} else if strings.EqualFold(s.req.Vendor, "huawei") {
+		if strings.HasSuffix(s.req.Version, "200") {
+			if _, err := s.writeBuff("screen-length 0 temporary"); err != nil {
+				return err
+			}
+			return nil
+		}
 		if s.mode == "login" {
 			// current in login mode
 			// enter system view
