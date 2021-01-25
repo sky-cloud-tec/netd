@@ -27,7 +27,7 @@ import (
 
 func init() {
 	// register paloalto
-	cli.OperatorManagerInstance.Register(`(?i)paloalto\.pan-os\..*`, createOpPaloalto())
+	cli.OperatorManagerInstance.Register(`(?i)paloalto\.(pan-os|Panorama)\..*`, createOpPaloalto())
 }
 
 type opPaloalto struct {

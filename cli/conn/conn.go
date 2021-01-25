@@ -161,19 +161,26 @@ func newCliConn(req *protocol.CliRequest, op cli.Operator) (*CliConn, error) {
 		if err != nil {
 			return nil, fmt.Errorf("dial %s error: %s", req.Address, err)
 		}
-		e := regexp.MustCompile("Error: ")
-		p := regexp.MustCompile("Username:$")
-		_, err = cli.ReadStringUntilError(conn, p, e)
-		if err != nil {
-			return nil, fmt.Errorf("telnet ReadStringUntil error: %s", err)
+
+		if common.AppConfigInstance.LogCfgFlag == 3 {
+			e := regexp.MustCompile("Error: ")
+			p := regexp.MustCompile("login: $")
+			_, err = cli.ReadStringUntilError(conn, p, e)
+			if err != nil {
+				return nil, fmt.Errorf("telnet ReadStringUntil error: %s", err)
+			}
+			conn.Write([]byte(req.Auth.Username + "\r"))
+			p = regexp.MustCompile("Password: $")
+			_, err = cli.ReadStringUntilError(conn, p, e)
+			if err != nil {
+				return nil, fmt.Errorf("telnet ReadStringUntil error: %s", err)
+			}
+			conn.Write([]byte(req.Auth.Password + "\r"))
+		} else if common.AppConfigInstance.LogCfgFlag == 4 {
+			if _, err := conn.Write([]byte(req.Auth.Username + "\r" + req.Auth.Password + "\r")); err != nil {
+				return nil, fmt.Errorf("auth error %s", err)
+			}
 		}
-		conn.Write([]byte(req.Auth.Username + "\r"))
-		p = regexp.MustCompile("Password:$")
-		_, err = cli.ReadStringUntilError(conn, p, e)
-		if err != nil {
-			return nil, fmt.Errorf("telnet ReadStringUntil error: %s", err)
-		}
-		conn.Write([]byte(req.Auth.Password + "\r"))
 
 		c := &CliConn{t: common.TELNETConn, conn: conn, req: req, op: op, mode: op.GetStartMode()}
 		if err := c.init(); err != nil {
@@ -355,6 +362,12 @@ func (s *CliConn) closePage(drain bool) error {
 			return err
 		}
 	} else if strings.EqualFold(s.req.Vendor, "huawei") {
+		if strings.HasSuffix(s.req.Version, "200") {
+			if _, err := s.writeBuff("screen-length 0 temporary"); err != nil {
+				return err
+			}
+			return nil
+		}
 		if s.mode == "login" {
 			// current in login mode
 			// enter system view
