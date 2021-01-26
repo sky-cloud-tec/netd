@@ -1,0 +1,44 @@
+{
+    "vendors": [{
+        "regex": "(?i)cisco\\.asa[a-z]{0,}\\.(9|[0-9]{1,})\\..*",
+        "linebreak": "\n",
+        "prompts": {
+            "login_prompt": "[[:alnum:]]{1,}(-[[:alnum:]]+){0,}> $",
+            "login_enable_prompt": "[:alnum:]]{1,}(-[[:alnum:]]+){0,}# $",
+            "config_terminal_prompt": "[[:alnum:]]{1,}(-[[:alnum:]]+){0,}\\(config\\)# $"
+        },
+        "transitions": {
+            "login_enable->configure_terminal": ["configure terminal"],
+            "configure_terminal->login_enable": ["exit"]
+        },
+        "modes": {
+            "login_or_login_enable": ["login_prompt", "login_enable_prompt"]
+        },
+        "errs": ["^ERROR: .*$"]
+    }, {
+        "regex": "(?i)cisco\\.asa[a-z]{0,}\\.(9|[0-9]{1,})\\..*",
+        "linebreak": "\n",
+        "prompts": {
+            "login_prompt": "[[:alnum:]]{1,}(-[[:alnum:]]+){0,}> $",
+            "login_enable_prompt": "[:alnum:]]{1,}(-[[:alnum:]]+){0,}# $",
+            "config_terminal_prompt": "[[:alnum:]]{1,}(-[[:alnum:]]+){0,}\\(config\\)# $"
+        },
+        "transitions": {
+            "login_enable->configure_terminal": [
+                "configure terminal"
+            ],
+            "configure_terminal->login_enable": [
+                "exit"
+            ]
+        },
+        "modes": {
+            "login_or_login_enable": [
+                "login_prompt",
+                "login_enable_prompt"
+            ]
+        },
+        "errs": [
+            "^ERROR: .*$"
+        ]
+    }]
+}

@@ -16,4 +16,5 @@ require (
 	golang.org/x/crypto v0.0.0-20191128160524-b544559bb6d1
 	golang.org/x/net v0.0.0-20190620200207-3b0461eec859
 	golang.org/x/text v0.3.2
+	gopkg.in/ini.v1 v1.62.0
 )
