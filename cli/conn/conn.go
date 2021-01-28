@@ -352,6 +352,7 @@ func (s *CliConn) closePage(drain bool) error {
 			return err
 		}
 	} else if strings.EqualFold(s.req.Vendor, "fortinet") && strings.EqualFold(s.req.Type, "fortigate-VM64-KVM") {
+		return nil
 		// set console
 		if _, err := s.writeBuff("config system console\n\tset output standard\nend"); err != nil {
 			return err
@@ -439,7 +440,12 @@ func (s *CliConn) read(buff []byte) (int, error) {
 	}
 	return s.conn.Read(buff)
 }
-
+func (s *CliConn) readFull(buf []byte) (int, error) {
+	if s.t == common.SSHConn {
+		return io.ReadFull(s.r, buf)
+	}
+	return io.ReadFull(s.conn, buf)
+}
 func (s *CliConn) write(b []byte) (int, error) {
 	if s.t == common.SSHConn {
 		return s.w.Write(b)
@@ -543,9 +549,10 @@ outside:
 		if cli.IsSymmetricalMore(testee) {
 			// remove these bytes from wbuf
 			// DO NOT EAT LINEBREAK
-			wbuf.Truncate(lineBeginAt + 1) // lineBeginAt could not be -1
-			// press enter
-			if _, err := s.writeBuff(""); err != nil {
+			// wbuf.Truncate(lineBeginAt + 1) // lineBeginAt could not be -1
+			// or deal with this when output done
+			// press enter or press space
+			if _, err := s.writeBuff(" "); err != nil {
 				logs.Error(s.req.LogPrefix, "press enter error:", err)
 				errRes = err
 				break outside
@@ -610,9 +617,17 @@ outside:
 		logs.Debug(s.req.LogPrefix, "detected encoding after converting", dr, err)
 		// use converted content
 	}
+
+	// replace more
+	x := string(u8buf)
+	if strings.EqualFold(s.req.Vendor, "fortinet") {
+		x1 := strings.Replace(x, "--More-- \r         \r", "", -1)
+		x = x1
+	}
+	logs.Debug(x)
 	return &readBuffOut{
 		errRes,
-		string(u8buf),
+		x,
 		lastLine,
 	}
 }
