@@ -34,6 +34,7 @@ import (
 	"golang.org/x/crypto/ssh"
 
 	"github.com/ziutek/telnet"
+	"strconv"
 )
 
 var (
@@ -205,7 +206,7 @@ func (s *CliConn) heartbeat() {
 				logs.Info(s.req.LogPrefix, "Acquiring heartbeat sema...")
 				semas[s.req.Address] <- struct{}{}
 				logs.Info(s.req.LogPrefix, "heartbeat sema acquired")
-				if _, err := s.writeBuff(""); err != nil {
+				if _, err := s.writeBuff(" "); err != nil {
 					logs.Critical(s.req.LogPrefix, "heartbeat error:", err)
 					if err1 := s.Close(); err1 != nil {
 						logs.Error(s.req.LogPrefix, "close conn err", err1)
@@ -317,6 +318,7 @@ func (s *CliConn) init() error {
 }
 
 func (s *CliConn) closePage(drain bool) error {
+	logs.Info(s.req.LogPrefix, "closing page ...")
 	if strings.EqualFold(s.req.Vendor, "cisco") && (strings.EqualFold(s.req.Type, "asa") || strings.EqualFold(s.req.Type, "asav")) {
 		// login mode no close page
 		if s.mode == "login" {
@@ -404,6 +406,7 @@ func (s *CliConn) closePage(drain bool) error {
 	if _, _, err := s.readBuff(); err != nil {
 		return err
 	}
+	logs.Info(s.req.LogPrefix, "closing page done")
 	return nil
 }
 
@@ -619,17 +622,48 @@ outside:
 	}
 
 	// replace more
-	x := string(u8buf)
+	y := string(u8buf)
+	x := y
 	if strings.EqualFold(s.req.Vendor, "fortinet") {
-		x1 := strings.Replace(x, "--More-- \r         \r", "", -1)
-		x = x1
+		x = removeWinBlankline1Space(removeWinBlankline5Space(removeStandardMore(string(y))))
 	}
-	logs.Debug(x)
+
+	// // debug code start
+	// f1, err := os.Create(common.AppConfigInstance.LogCfgDir + "/" + s.req.Session + ".binary.cfg.str." + strconv.Itoa(len(x)))
+	// if err != nil {
+	// 	return &readBuffOut{
+	// 		err,
+	// 		"",
+	// 		"",
+	// 	}
+	// }
+	// f1.Write(u8buf)
+	// defer f1.Close()
+	// // debug code end
 	return &readBuffOut{
 		errRes,
 		x,
 		lastLine,
 	}
+}
+
+func removeWinLinebreak(x string) string {
+	return regexp.MustCompile(`\r\n`).ReplaceAllString(x, "\n")
+}
+
+func removeStandardMore(x string) string {
+	return regexp.MustCompile(`--More--([ ]+\r){1,2}`).ReplaceAllString(x, "")
+}
+
+func removeWinBlankline5Space(x string) string {
+	return regexp.MustCompile(`( ){5}\r\n`).ReplaceAllString(x, "    ")
+}
+func removeWinBlankline1Space(x string) string {
+	return regexp.MustCompile(` \r\n`).ReplaceAllString(x, "")
+}
+
+func removeBlankline(x string) string {
+	return regexp.MustCompile(`( )+\n`).ReplaceAllString(x, "    ")
 }
 
 // return cmd output, prompt, error
