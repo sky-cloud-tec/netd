@@ -443,12 +443,14 @@ func (s *CliConn) read(buff []byte) (int, error) {
 	}
 	return s.conn.Read(buff)
 }
+
 func (s *CliConn) readFull(buf []byte) (int, error) {
 	if s.t == common.SSHConn {
 		return io.ReadFull(s.r, buf)
 	}
 	return io.ReadFull(s.conn, buf)
 }
+
 func (s *CliConn) write(b []byte) (int, error) {
 	if s.t == common.SSHConn {
 		return s.w.Write(b)
@@ -473,6 +475,33 @@ func (s *CliConn) anyMatch(t string, patterns []*regexp.Regexp) []string {
 	return nil
 }
 
+func (s *CliConn) writeLogFile(b []byte, path string) error {
+	if len(b) < 1 {
+		return nil
+	}
+	if common.AppConfigInstance.LogCfgFlag > 0 {
+		// openfile for writing session output
+		if _, err := os.Stat(path); err == nil {
+			// exists
+			// DO NOT Write
+
+		} else if os.IsNotExist(err) {
+			// does *not* exist
+			// write
+			f, err := os.Create(path)
+			if err != nil {
+				return err
+			}
+			f.Write(b)
+			defer f.Close()
+
+		} else {
+			logs.Error(s.req.LogPrefix, err)
+		}
+	}
+	return nil
+}
+
 func (s *CliConn) readLines() *readBuffOut {
 	buf := make([]byte, 1000)
 	var (
@@ -482,19 +511,6 @@ func (s *CliConn) readLines() *readBuffOut {
 		f        *os.File
 		err      error
 	)
-
-	if common.AppConfigInstance.LogCfgFlag > 0 {
-		// openfile for writing session output
-		f, err = os.Create(common.AppConfigInstance.LogCfgDir + "/" + s.req.Session + ".binary.cfg")
-		if err != nil {
-			return &readBuffOut{
-				err,
-				"",
-				"",
-			}
-		}
-		defer f.Close()
-	}
 
 outside:
 	for {
@@ -594,6 +610,15 @@ outside:
 			buf = make([]byte, 2*n)
 		}
 	}
+
+	path := common.AppConfigInstance.LogCfgDir + "/" + s.req.Session + ".binary.cfg.raw." + strconv.Itoa(wbuf.Len())
+	if err := s.writeLogFile(wbuf.Bytes(), path); err != nil {
+		return &readBuffOut{
+			err,
+			"",
+			"",
+		}
+	}
 	d := chardet.NewTextDetector()
 	dr, err := d.DetectBest(wbuf.Bytes())
 	if err != nil {
@@ -627,19 +652,15 @@ outside:
 	if strings.EqualFold(s.req.Vendor, "fortinet") {
 		x = removeWinBlankline1Space(removeWinBlankline5Space(removeStandardMore(string(y))))
 	}
-
-	// // debug code start
-	// f1, err := os.Create(common.AppConfigInstance.LogCfgDir + "/" + s.req.Session + ".binary.cfg.str." + strconv.Itoa(len(x)))
-	// if err != nil {
-	// 	return &readBuffOut{
-	// 		err,
-	// 		"",
-	// 		"",
-	// 	}
-	// }
-	// f1.Write(u8buf)
-	// defer f1.Close()
-	// // debug code end
+	path1 := common.AppConfigInstance.LogCfgDir + "/" + s.req.Session + ".binary.cfg.str." + strconv.Itoa(len(x))
+	if err := s.writeLogFile([]byte(x), path1); err != nil {
+		return &readBuffOut{
+			err,
+			"",
+			"",
+		}
+	}
+	// debug code end
 	return &readBuffOut{
 		errRes,
 		x,
