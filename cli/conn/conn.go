@@ -354,7 +354,6 @@ func (s *CliConn) closePage(drain bool) error {
 			return err
 		}
 	} else if strings.EqualFold(s.req.Vendor, "fortinet") && strings.EqualFold(s.req.Type, "fortigate-VM64-KVM") {
-		return nil
 		// set console
 		if _, err := s.writeBuff("config system console\n\tset output standard\nend"); err != nil {
 			return err
