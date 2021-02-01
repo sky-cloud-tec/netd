@@ -650,7 +650,7 @@ outside:
 	y := string(u8buf)
 	x := y
 	if strings.EqualFold(s.req.Vendor, "fortinet") {
-		x = removeWinBlankline1Space(removeWinBlankline5Space(removeStandardMore(string(y))))
+		x = removeMoreBreakedPart(removeWinBlankline1Space(removeWinBlankline5Space(removeStandardMore(string(y)))))
 	}
 	path1 := common.AppConfigInstance.LogCfgDir + "/" + s.req.Session + ".binary.cfg.str." + strconv.Itoa(len(x))
 	if err := s.writeLogFile([]byte(x), path1); err != nil {
@@ -674,6 +674,10 @@ func removeWinLinebreak(x string) string {
 
 func removeStandardMore(x string) string {
 	return regexp.MustCompile(`--More--([ ]+\r){1,2}`).ReplaceAllString(x, "")
+}
+
+func removeMoreBreakedPart(x string) string {
+    return regexp.MustCompile(`\n\r( )+\r`).ReplaceAllString(x, "")
 }
 
 func removeWinBlankline5Space(x string) string {
