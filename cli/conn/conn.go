@@ -280,31 +280,32 @@ func (s *CliConn) init() error {
 	} else { //
 		// special devices
 		if strings.EqualFold(s.req.Vendor, "fortinet") && strings.EqualFold(s.req.Type, "fortigate-VM64-KVM") {
-			pts := s.op.GetPrompts(s.req.Mode)
-			if pts == nil {
-				return fmt.Errorf("mode %s not registered", s.req.Mode)
-			}
-			// close page
-			if !strings.Contains(pts[0].String(), s.req.Mode) {
-				//non vdom
-				s.closePage(true)
-			} else {
-				// vdom
-				logs.Debug(s.req.LogPrefix, "entering domain global...")
-				if _, err := s.writeBuff("config global"); err != nil {
-					return err
-				}
-				if err := s.closePage(false); err != nil {
-					return err
-				}
-				logs.Debug(s.req.LogPrefix, "exiting domain global...")
-				if _, err := s.writeBuff("end"); err != nil {
-					return err
-				}
-				if _, _, err := s.readBuff(); err != nil {
-					return err
-				}
-			}
+			// do nothing
+			// pts := s.op.GetPrompts(s.req.Mode)
+			// if pts == nil {
+			// 	return fmt.Errorf("mode %s not registered", s.req.Mode)
+			// }
+			// // close page
+			// if !strings.Contains(pts[0].String(), s.req.Mode) {
+			// 	//non vdom
+			// 	s.closePage(true)
+			// } else {
+			// 	// vdom
+			// 	logs.Debug(s.req.LogPrefix, "entering domain global...")
+			// 	if _, err := s.writeBuff("config global"); err != nil {
+			// 		return err
+			// 	}
+			// 	if err := s.closePage(false); err != nil {
+			// 		return err
+			// 	}
+			// 	logs.Debug(s.req.LogPrefix, "exiting domain global...")
+			// 	if _, err := s.writeBuff("end"); err != nil {
+			// 		return err
+			// 	}
+			// 	if _, _, err := s.readBuff(); err != nil {
+			// 		return err
+			// 	}
+			// }
 		} else {
 			// for any other non special devices
 			// include cisco asa non login_or_login_enable mode
