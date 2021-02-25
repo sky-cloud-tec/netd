@@ -24,9 +24,10 @@ pipeline {
     stage('Build-dockerimage') {
       steps {
         script {
-          def IMAGE_NAME = "${params.distName}:${params.distNumber}-jenkins"
-          sh "docker build -t hub.sky-cloud.net/nap2/${IMAGE_NAME}-`git log |head -1 |awk '{print \$2}'|cut -c 1-8`-${BUILD_NUMBER} ."
-          sh "docker push hub.sky-cloud.net/nap2/${IMAGE_NAME}-`git log |head -1 |awk '{print \$2}'|cut -c 1-8`-${BUILD_NUMBER}"
+          def GIT_COMMITID = sh (script: 'git rev-parse --short HEAD ${GIT_COMMITID}', returnStdout: true).trim()
+          def IMAGE_NAME = "${params.distName}:${params.distNumber}-jenkins-${GIT_COMMITID}-${BUILD_NUMBER}"
+          sh "docker build -t hub.sky-cloud.net/nap2/${IMAGE_NAME} ."
+          sh "docker push hub.sky-cloud.net/nap2/${IMAGE_NAME}"
         }
       }
     }
