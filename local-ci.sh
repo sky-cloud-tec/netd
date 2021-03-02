@@ -14,6 +14,6 @@ num=$(git rev-list --count xyzq)
 name=hub.sky-cloud.net/nap2/netd:${TRAVIS_BRANCH}-local-${rev}-${num}
 docker login -u docker-image-builder  http://hub.sky-cloud.net
 docker build -t ${name} .
-#docker push ${name}
+docker push ${name}
 
 
