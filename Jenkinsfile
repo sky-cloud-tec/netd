@@ -6,7 +6,7 @@ pipeline {
   }
   parameters {
     string(name: 'distName', defaultValue: 'netd' , description: '镜像名')
-    string(name: 'distNumber', defaultValue: 'master', description: '镜像版本')
+    string(name: 'distNumber', defaultValue: "${BRANCH_NAME}", description: '镜像版本')
   }
   
   stages {
