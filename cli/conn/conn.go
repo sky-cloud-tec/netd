@@ -677,7 +677,7 @@ func removeStandardMore(x string) string {
 }
 
 func removeMoreBreakedPart(x string) string {
-    return regexp.MustCompile(`\n\r( )+\r`).ReplaceAllString(x, "")
+	return regexp.MustCompile(`\n\r( )+\r`).ReplaceAllString(x, "")
 }
 
 func removeWinBlankline5Space(x string) string {
