@@ -42,5 +42,9 @@ func TestTgOp(t *testing.T) {
 			cli.AnyMatch(op.GetPrompts("login"), "TopsecOS% "),
 			ShouldBeTrue,
 		)
+		So(
+			cli.AnyMatch(op.GetPrompts("login"), "D2-ECC4000-Fw01-[B-06-11]% "),
+			ShouldBeTrue,
+		)
 	})
 }
