@@ -157,7 +157,7 @@ func (s *opFortinet) RegisterMode(req *protocol.CliRequest) error {
 	// try insert
 	logs.Info(req.LogPrefix, "registering pattern for mode", req.Mode)
 	s.prompts[req.Mode] = []*regexp.Regexp{
-		regexp.MustCompile(`[[:alnum:]]{1,}[[:alnum:]-_]{0,} \(` + req.Mode + `\) # $`),
+		regexp.MustCompile(`[[:alnum:]]{1,}[[:alnum:]-_]{0,} \(` + req.Mode + `\) (#|\$) $`),
 	}
 	// register transtions
 	// someelse vdom/global mode may have been registered, but no transition made
