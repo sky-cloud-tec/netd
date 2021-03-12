@@ -157,7 +157,7 @@ func (s *opFortinet) RegisterMode(req *protocol.CliRequest) error {
 	// try insert
 	logs.Info(req.LogPrefix, "registering pattern for mode", req.Mode)
 	s.prompts[req.Mode] = []*regexp.Regexp{
-		regexp.MustCompile(`[[:alnum:]]{1,}[[:alnum:]-_]{0,} \(` + req.Mode + `\) # $`),
+		regexp.MustCompile(`[[:alnum:]]{1,}[[:alnum:]-_]{0,} \(` + req.Mode + `\) (#|\$) $`),
 	}
 	// register transtions
 	// someelse vdom/global mode may have been registered, but no transition made
@@ -190,6 +190,12 @@ func (s *opFortinet) GetSSHInitializer() cli.SSHInitializer {
 			session.Close()
 			return nil, nil, nil, fmt.Errorf("create stdin pipe failed, %s", err)
 		}
+		// modes := ssh.TerminalModes{
+		// 	ssh.ECHO: 1, // enable echoing
+		// }
+		// if err := session.RequestPty("vt100", 0, 0, modes); err != nil {
+		//	return nil, nil, nil, fmt.Errorf("request pty failed, %s", err)
+		// }
 		if err := session.Shell(); err != nil {
 			session.Close()
 			return nil, nil, nil, fmt.Errorf("create shell failed, %s", err)

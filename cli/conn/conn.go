@@ -34,6 +34,7 @@ import (
 	"golang.org/x/crypto/ssh"
 
 	"github.com/ziutek/telnet"
+	"strconv"
 )
 
 var (
@@ -205,7 +206,7 @@ func (s *CliConn) heartbeat() {
 				logs.Info(s.req.LogPrefix, "Acquiring heartbeat sema...")
 				semas[s.req.Address] <- struct{}{}
 				logs.Info(s.req.LogPrefix, "heartbeat sema acquired")
-				if _, err := s.writeBuff(""); err != nil {
+				if _, err := s.writeBuff(" "); err != nil {
 					logs.Critical(s.req.LogPrefix, "heartbeat error:", err)
 					if err1 := s.Close(); err1 != nil {
 						logs.Error(s.req.LogPrefix, "close conn err", err1)
@@ -317,6 +318,7 @@ func (s *CliConn) init() error {
 }
 
 func (s *CliConn) closePage(drain bool) error {
+	logs.Info(s.req.LogPrefix, "closing page ...")
 	if strings.EqualFold(s.req.Vendor, "cisco") && (strings.EqualFold(s.req.Type, "asa") || strings.EqualFold(s.req.Type, "asav")) {
 		// login mode no close page
 		if s.mode == "login" {
@@ -403,6 +405,7 @@ func (s *CliConn) closePage(drain bool) error {
 	if _, _, err := s.readBuff(); err != nil {
 		return err
 	}
+	logs.Info(s.req.LogPrefix, "closing page done")
 	return nil
 }
 
@@ -440,6 +443,13 @@ func (s *CliConn) read(buff []byte) (int, error) {
 	return s.conn.Read(buff)
 }
 
+func (s *CliConn) readFull(buf []byte) (int, error) {
+	if s.t == common.SSHConn {
+		return io.ReadFull(s.r, buf)
+	}
+	return io.ReadFull(s.conn, buf)
+}
+
 func (s *CliConn) write(b []byte) (int, error) {
 	if s.t == common.SSHConn {
 		return s.w.Write(b)
@@ -464,6 +474,33 @@ func (s *CliConn) anyMatch(t string, patterns []*regexp.Regexp) []string {
 	return nil
 }
 
+func (s *CliConn) writeLogFile(b []byte, path string) error {
+	if len(b) < 1 {
+		return nil
+	}
+	if common.AppConfigInstance.LogCfgFlag > 0 {
+		// openfile for writing session output
+		if _, err := os.Stat(path); err == nil {
+			// exists
+			// DO NOT Write
+
+		} else if os.IsNotExist(err) {
+			// does *not* exist
+			// write
+			f, err := os.Create(path)
+			if err != nil {
+				return err
+			}
+			f.Write(b)
+			defer f.Close()
+
+		} else {
+			logs.Error(s.req.LogPrefix, err)
+		}
+	}
+	return nil
+}
+
 func (s *CliConn) readLines() *readBuffOut {
 	buf := make([]byte, 1000)
 	var (
@@ -473,19 +510,6 @@ func (s *CliConn) readLines() *readBuffOut {
 		f        *os.File
 		err      error
 	)
-
-	if common.AppConfigInstance.LogCfgFlag > 0 {
-		// openfile for writing session output
-		f, err = os.Create(common.AppConfigInstance.LogCfgDir + "/" + s.req.Session + ".binary.cfg")
-		if err != nil {
-			return &readBuffOut{
-				err,
-				"",
-				"",
-			}
-		}
-		defer f.Close()
-	}
 
 outside:
 	for {
@@ -543,9 +567,10 @@ outside:
 		if cli.IsSymmetricalMore(testee) {
 			// remove these bytes from wbuf
 			// DO NOT EAT LINEBREAK
-			wbuf.Truncate(lineBeginAt + 1) // lineBeginAt could not be -1
-			// press enter
-			if _, err := s.writeBuff(""); err != nil {
+			// wbuf.Truncate(lineBeginAt + 1) // lineBeginAt could not be -1
+			// or deal with this when output done
+			// press enter or press space
+			if _, err := s.writeBuff(" "); err != nil {
 				logs.Error(s.req.LogPrefix, "press enter error:", err)
 				errRes = err
 				break outside
@@ -584,6 +609,15 @@ outside:
 			buf = make([]byte, 2*n)
 		}
 	}
+
+	path := common.AppConfigInstance.LogCfgDir + "/" + s.req.Session + ".binary.cfg.raw." + strconv.Itoa(wbuf.Len())
+	if err := s.writeLogFile(wbuf.Bytes(), path); err != nil {
+		return &readBuffOut{
+			err,
+			"",
+			"",
+		}
+	}
 	d := chardet.NewTextDetector()
 	dr, err := d.DetectBest(wbuf.Bytes())
 	if err != nil {
@@ -610,11 +644,50 @@ outside:
 		logs.Debug(s.req.LogPrefix, "detected encoding after converting", dr, err)
 		// use converted content
 	}
+
+	// replace more
+	y := string(u8buf)
+	x := y
+	if strings.EqualFold(s.req.Vendor, "fortinet") {
+		x = removeMoreBreakedPart(removeWinBlankline1Space(removeWinBlankline5Space(removeStandardMore(string(y)))))
+	}
+	path1 := common.AppConfigInstance.LogCfgDir + "/" + s.req.Session + ".binary.cfg.str." + strconv.Itoa(len(x))
+	if err := s.writeLogFile([]byte(x), path1); err != nil {
+		return &readBuffOut{
+			err,
+			"",
+			"",
+		}
+	}
+	// debug code end
 	return &readBuffOut{
 		errRes,
-		string(u8buf),
+		x,
 		lastLine,
 	}
+}
+
+func removeWinLinebreak(x string) string {
+	return regexp.MustCompile(`\r\n`).ReplaceAllString(x, "\n")
+}
+
+func removeStandardMore(x string) string {
+	return regexp.MustCompile(`--More--([ ]+\r){1,2}`).ReplaceAllString(x, "")
+}
+
+func removeMoreBreakedPart(x string) string {
+	return regexp.MustCompile(`\n\r( )+\r`).ReplaceAllString(x, "")
+}
+
+func removeWinBlankline5Space(x string) string {
+	return regexp.MustCompile(`( ){5}\r\n`).ReplaceAllString(x, "    ")
+}
+func removeWinBlankline1Space(x string) string {
+	return regexp.MustCompile(` \r\n`).ReplaceAllString(x, "")
+}
+
+func removeBlankline(x string) string {
+	return regexp.MustCompile(`( )+\n`).ReplaceAllString(x, "    ")
 }
 
 // return cmd output, prompt, error
