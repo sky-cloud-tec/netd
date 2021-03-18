@@ -33,8 +33,9 @@ import (
 	"github.com/sky-cloud-tec/netd/common"
 	"golang.org/x/crypto/ssh"
 
-	"github.com/ziutek/telnet"
 	"strconv"
+
+	"github.com/ziutek/telnet"
 )
 
 var (
@@ -66,7 +67,7 @@ type CliConn struct {
 	t    int                  // connection type 0 = ssh, 1 = telnet
 	mode string               // device cli mode
 	req  *protocol.CliRequest // cli request
-	op   cli.Operator         // cli operator
+	op   *cli.Vendor          // cli operator
 
 	conn   *telnet.Conn // telnet connection
 	client *ssh.Client  // ssh client
@@ -80,7 +81,7 @@ type CliConn struct {
 }
 
 // Acquire cli conn
-func Acquire(req *protocol.CliRequest, op cli.Operator) (*CliConn, error) {
+func Acquire(req *protocol.CliRequest, op *cli.Vendor) (*CliConn, error) {
 	// limit concurrency to 1
 	// there only one req for one connection always
 	logs.Info(req.LogPrefix, "Acquiring sema...")
@@ -134,7 +135,7 @@ func Release(req *protocol.CliRequest) {
 	logs.Info(req.LogPrefix, "sema released")
 }
 
-func newCliConn(req *protocol.CliRequest, op cli.Operator) (*CliConn, error) {
+func newCliConn(req *protocol.CliRequest, op *cli.Vendor) (*CliConn, error) {
 	logs.Info(req.LogPrefix, "creating cli conn...")
 	if strings.ToLower(req.Protocol) == "ssh" {
 		sshConfig := &ssh.ClientConfig{
@@ -163,7 +164,7 @@ func newCliConn(req *protocol.CliRequest, op cli.Operator) (*CliConn, error) {
 			return nil, fmt.Errorf("dial %s error: %s", req.Address, err)
 		}
 
-		if common.AppConfigInstance.LogCfgFlag == 3 {
+		if op.CfgDebugFlag == 3 {
 			e := regexp.MustCompile("Error: ")
 			p := regexp.MustCompile("login: $")
 			_, err = cli.ReadStringUntilError(conn, p, e)
@@ -177,7 +178,7 @@ func newCliConn(req *protocol.CliRequest, op cli.Operator) (*CliConn, error) {
 				return nil, fmt.Errorf("telnet ReadStringUntil error: %s", err)
 			}
 			conn.Write([]byte(req.Auth.Password + "\r"))
-		} else if common.AppConfigInstance.LogCfgFlag == 4 {
+		} else if op.CfgDebugFlag == 4 {
 			if _, err := conn.Write([]byte(req.Auth.Username + "\r" + req.Auth.Password + "\r")); err != nil {
 				return nil, fmt.Errorf("auth error %s", err)
 			}
@@ -478,7 +479,7 @@ func (s *CliConn) writeLogFile(b []byte, path string) error {
 	if len(b) < 1 {
 		return nil
 	}
-	if common.AppConfigInstance.LogCfgFlag > 0 {
+	if s.op.CfgDebugFlag > 0 {
 		// openfile for writing session output
 		if _, err := os.Stat(path); err == nil {
 			// exists
@@ -610,7 +611,7 @@ outside:
 		}
 	}
 
-	path := common.AppConfigInstance.LogCfgDir + "/" + s.req.Session + ".binary.cfg.raw." + strconv.Itoa(wbuf.Len())
+	path := s.op.CfgDebugDir + "/" + s.req.Session + ".binary.cfg.raw." + strconv.Itoa(wbuf.Len())
 	if err := s.writeLogFile(wbuf.Bytes(), path); err != nil {
 		return &readBuffOut{
 			err,
@@ -627,7 +628,7 @@ outside:
 	logs.Debug(s.req.LogPrefix, "detected encoding", dr, "predefined encoding", s.op.GetEncoding())
 
 	encoding := s.op.GetEncoding()
-	if dr != nil && dr.Charset != "UTF-8" && dr.Confidence >= common.AppConfigInstance.Confidence {
+	if dr != nil && dr.Charset != "UTF-8" && dr.Confidence >= s.op.Confidence {
 		// predefined encoding may set wrong
 		encoding = dr.Charset
 	}
@@ -651,7 +652,7 @@ outside:
 	if strings.EqualFold(s.req.Vendor, "fortinet") {
 		x = removeMoreBreakedPart(removeWinBlankline1Space(removeWinBlankline5Space(removeStandardMore(string(y)))))
 	}
-	path1 := common.AppConfigInstance.LogCfgDir + "/" + s.req.Session + ".binary.cfg.str." + strconv.Itoa(len(x))
+	path1 := s.op.CfgDebugDir + "/" + s.req.Session + ".binary.cfg.str." + strconv.Itoa(len(x))
 	if err := s.writeLogFile([]byte(x), path1); err != nil {
 		return &readBuffOut{
 			err,
