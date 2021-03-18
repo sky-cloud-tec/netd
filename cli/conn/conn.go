@@ -723,7 +723,10 @@ func (s *CliConn) writeBuff(cmd string) (int, error) {
 		// linebreaked
 		return s.write([]byte(cmd))
 	}
-	return s.write([]byte(cmd + s.op.GetLinebreak()))
+	if s.op.GetLinebreak() == "windows" {
+		return s.write([]byte(cmd + "\r\n"))
+	}
+	return s.write([]byte(cmd + "\n"))
 }
 
 // Exec execute cli cmds

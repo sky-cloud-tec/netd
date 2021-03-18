@@ -20,6 +20,7 @@ import (
 	"io"
 	"log"
 	"regexp"
+	"strings"
 
 	"github.com/sky-cloud-tec/netd/protocol"
 	"github.com/songtianyi/rrframework/logs"
@@ -68,6 +69,7 @@ type Vendor struct {
 	LineBreak    string // /r/n \n
 	Transitions  map[string][]string
 	Prompts      map[string][]*regexp.Regexp
+	Excludes     []*regexp.Regexp
 	Errs         []*regexp.Regexp
 	Encoding     string
 	Confidence   int
@@ -110,7 +112,7 @@ func (s *Vendor) GetEncoding() string {
 }
 
 func (s *Vendor) GetExcludes() []*regexp.Regexp {
-	return nil
+	return s.Excludes
 }
 
 func (s *Vendor) GetErrPatterns() []*regexp.Regexp {
@@ -173,6 +175,9 @@ func (s *Vendor) registerTransition(src, dst string) {
 }
 
 func (s *Vendor) RegisterMode(req *protocol.CliRequest) error {
+	if strings.ToLower(req.Vendor) != "fortinet" {
+		return nil
+	}
 	if s.GetPrompts(req.Mode) != nil {
 		return nil
 	}
@@ -194,8 +199,12 @@ func (s *Vendor) RegisterMode(req *protocol.CliRequest) error {
 
 func (s *Vendor) GetSSHInitializer() SSHInitializer {
 	return func(c *ssh.Client, req *protocol.CliRequest) (io.Reader, io.WriteCloser, *ssh.Session, error) {
-		if err := s.RegisterMode(req); err != nil {
-			return nil, nil, nil, err
+
+		// consider vdom
+		if strings.ToLower(req.Vendor) == "fortinet" {
+			if err := s.RegisterMode(req); err != nil {
+				return nil, nil, nil, err
+			}
 		}
 		var err error
 		session, err := c.NewSession()
@@ -207,6 +216,14 @@ func (s *Vendor) GetSSHInitializer() SSHInitializer {
 		if err != nil {
 			session.Close()
 			return nil, nil, nil, fmt.Errorf("create stdout pipe failed, %s", err)
+		}
+		if strings.ToLower(req.Vendor) == "hillstone" {
+			modes := ssh.TerminalModes{
+				ssh.ECHO: 1, // enable echoing
+			}
+			if err := session.RequestPty("vt100", 0, 2000, modes); err != nil {
+				return nil, nil, nil, fmt.Errorf("request pty failed, %s", err)
+			}
 		}
 		w, err := session.StdinPipe()
 		if err != nil {
