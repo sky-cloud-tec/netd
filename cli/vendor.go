@@ -76,6 +76,7 @@ type Vendor struct {
 	StartMode    string
 	CfgDebugFlag int
 	CfgDebugDir  string
+	Echo         bool
 }
 
 // SSHInitializer ssh session init func

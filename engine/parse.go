@@ -39,7 +39,9 @@ func startJrpc(cfg *ini.File) error {
 func registerOp(cfg *ini.File) error {
 	for _, sec := range cfg.Sections() {
 		fmt.Println("[", sec.Name(), "]")
-		if sec.Name() == "DEFAULT" || sec.Name() == "default" || sec.Name() == "log" || sec.Name() == "ingress" {
+		if sec.Name() == "DEFAULT" || sec.Name() == "default" ||
+			sec.Name() == "log" || sec.Name() == "ingress" ||
+			sec.Name() == "ssh" || sec.Name() == "telnet" {
 			continue
 		}
 
@@ -88,6 +90,7 @@ func registerOp(cfg *ini.File) error {
 					}
 					errs = append(errs, regexp.MustCompile(e))
 				}
+			case "echo":
 			case "linebreak":
 			case "encoding":
 			case "start":
@@ -98,7 +101,6 @@ func registerOp(cfg *ini.File) error {
 				return fmt.Errorf("unsupported config key %s", parts[0])
 			}
 		}
-		fmt.Println(sec.Key("linebreak").MustString("\n"))
 		op := &cli.Vendor{
 			Transitions: trans,
 			Prompts:     mode_prompts,
@@ -107,6 +109,8 @@ func registerOp(cfg *ini.File) error {
 			LineBreak:   sec.Key("linebreak").MustString("\n"),
 			Encoding:    sec.Key("encoding").MustString(""),
 			StartMode:   sec.Key("start").MustString("login"),
+			Confidence:  sec.Key("confidence").MustInt(80),
+			Echo:        sec.Key("echo").MustBool(false),
 		}
 		fmt.Println(op)
 		cli.VendorManagerInstance.Register(sec.Name(), op)
