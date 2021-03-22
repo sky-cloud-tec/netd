@@ -430,6 +430,44 @@ func TestPaloalto_Show(t *testing.T) {
 	})
 }
 
+func TestPanorama_Show(t *testing.T) {
+	//
+	Convey("show Paloalto cli commands", t, func() {
+		client, err := net.Dial("tcp", "localhost:8188")
+		So(
+			err,
+			ShouldBeNil,
+		)
+		// Synchronous call
+		args := &protocol.CliRequest{
+			Device:  "Panorama-connect-test",
+			Vendor:  "paloalto",
+			Type:    "Panorama",
+			Version: "8.1",
+			Address: "192.168.1.167:22",
+			Auth: protocol.Auth{
+				Username: "admin",
+				Password: "admin",
+			},
+			Commands: []string{},
+			Protocol: "ssh",
+			Mode:     "login",
+			Timeout:  30,
+		}
+		var reply protocol.CliResponse
+		c := jsonrpc.NewClient(client)
+		err = c.Call("CliHandler.Handle", args, &reply)
+		So(
+			err,
+			ShouldBeNil,
+		)
+		So(
+			reply.Retcode == common.OK,
+			ShouldBeTrue,
+		)
+	})
+}
+
 //
 func TestUSG6000V2_Set(t *testing.T) {
 	//

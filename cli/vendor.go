@@ -218,7 +218,7 @@ func (s *Vendor) GetSSHInitializer() SSHInitializer {
 			session.Close()
 			return nil, nil, nil, fmt.Errorf("create stdout pipe failed, %s", err)
 		}
-		if strings.ToLower(req.Vendor) == "hillstone" {
+		if s.Echo {
 			modes := ssh.TerminalModes{
 				ssh.ECHO: 1, // enable echoing
 			}
