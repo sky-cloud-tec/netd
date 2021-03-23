@@ -93,3 +93,16 @@ debug.cfg_dir = /var/log/netd/cfgs
 	err = c.Call("CliHandler.Handle", args, &reply)
 ```
 check [jrpc test](https://github.com/sky-cloud-tec/netd/blob/master/ingress/jrpc_test.go) file for more details
+
+#### 常见问题
+1. 命令执行错误，接口却没报错
+> 错误输出没有被 NetD 捕捉到，可以通过在配置文件中添加 `errs` 的正则来解决
+
+2. 命令执行超时
+> NetD 是的基本原理是模式人的操作行为，人是通过 `prompt` 的出现来判断命令的执行是否结束，NetD 是一样的。将 log 的 level 设置为 `DEBUG`, 复现问题，如果观察到日志在打印完 prompt 之后没有其它输出，之后超时，则是因为 prompt 的匹配有问题，可以通过添加新的 prompt 或者修改已有的 prompt 来解决，最直接的解决方式是将整个 prompt 复制并放进配置里。
+
+3. 命令不支持
+> 不同型号版本的硬件所使用的命令差异较大，即使是同一品牌，同一型号的硬件，在不同版本里所使用的命令也有差异。直接在配置文件里修改原有命令，或者新增一个 section 来解决。
+
+4. 修改配置后没生效
+> 重启 NetD. NetD 不支持动态修改配置，需要手动重启完成配置的更新。注意，重启会导致正在执行的命令中断，所以传入 NetD 的命令最好是可重复执行的。
