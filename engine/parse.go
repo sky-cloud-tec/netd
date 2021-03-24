@@ -120,7 +120,6 @@ func registerOp(cfg *ini.File) error {
 
 func LoadCfg(path string) error {
 	opts := ini.LoadOptions{
-		Insensitive:         true,
 		IgnoreInlineComment: true,
 	}
 	cfg, err := ini.LoadSources(opts, path)
