@@ -519,6 +519,52 @@ func TestUSG6000V2_Set(t *testing.T) {
 	})
 }
 
+func TestUSG_Set2(t *testing.T) {
+	//
+	Convey("set USG6000 cli commands", t, func() {
+		client, err := net.Dial("tcp", "localhost:8188")
+		So(
+			err,
+			ShouldBeNil,
+		)
+		// Synchronous call
+		args := &protocol.CliRequest{
+			Device:  "usg6000-set-test",
+			Vendor:  "huawei",
+			Type:    "usg",
+			Version: "V100R001C30SPCa00",
+			Address: "192.168.1.236:22",
+			Auth: protocol.Auth{
+				Username: "admin",
+				Password: "admin",
+			},
+			Commands: []string{
+				`ip address-set demo_10.1.1.3 type object
+				    address 10.1.1.2 255.255.255.0
+				    quit`,
+			},
+			Protocol: "ssh",
+			Mode:     "system_View",
+			Timeout:  30,
+		}
+		var reply protocol.CliResponse
+		c := jsonrpc.NewClient(client)
+		err = c.Call("CliHandler.Handle", args, &reply)
+		So(
+			err,
+			ShouldBeNil,
+		)
+		So(
+			reply.Retcode == common.OK,
+			ShouldBeTrue,
+		)
+		So(
+			len(reply.CmdsStd) == 1,
+			ShouldBeTrue,
+		)
+	})
+}
+
 //
 func TestUSG6000V2_Show(t *testing.T) {
 	//
