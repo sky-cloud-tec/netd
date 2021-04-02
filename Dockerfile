@@ -1,4 +1,4 @@
-FROM hub.sky-cloud.net/cicd/alpine:alpine
+FROM registry.cn-hangzhou.aliyuncs.com/sky-cloud-tec/alpine:alpine
 MAINTAINER songtianyi@sky-cloud.net
 
 ADD netd /usr/bin/
