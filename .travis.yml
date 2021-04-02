@@ -15,4 +15,4 @@ install:
 script:
     - "sh check.sh"
     - CGO_ENABLED=0 go build .
-      #- "sh ci.sh"
+    - "sh ci.sh"
