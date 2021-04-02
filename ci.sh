@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -o errexit -o nounset
-TRAVIS_BRANCH=master
+TRAVIS_BRANCH=feat_config_based_engine
 if [ "$TRAVIS_BRANCH" != "feat_config_based_engine" ]
 then 
 	    echo "This commit was made against the $TRAVIS_BRANCH and not the master! No deploy!" 
