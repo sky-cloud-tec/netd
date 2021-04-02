@@ -897,10 +897,10 @@ func TestHillstone_show(t *testing.T) {
 			Vendor:  "hillstone",
 			Type:    "SG-6000-VM01",
 			Version: "5.5",
-			Address: "192.168.1.232:22",
+			Address: "192.168.1.199:22",
 			Auth: protocol.Auth{
-				Username: "admin",
-				Password: "r00tme",
+				Username: "hillstone",
+				Password: "hillstone",
 			},
 			Commands: []string{
 				`show version`,
@@ -1218,6 +1218,51 @@ func TestTianyuanJuniper_show(t *testing.T) {
 			Auth: protocol.Auth{
 				Username: "test",
 				Password: "test123",
+			},
+			Commands: []string{
+				`show configuration | no-more`,
+			},
+			Protocol: "ssh",
+			Mode:     "login",
+			Timeout:  30,
+		}
+		var reply protocol.CliResponse
+		c := jsonrpc.NewClient(client)
+		err = c.Call("CliHandler.Handle", args, &reply)
+		So(
+			err,
+			ShouldBeNil,
+		)
+		So(
+			reply.Retcode == common.OK,
+			ShouldBeTrue,
+		)
+		So(
+			len(reply.CmdsStd) == 1,
+			ShouldBeTrue,
+		)
+		fmt.Print(reply.CmdsStd)
+	})
+}
+
+func TestZihuJuniper_show(t *testing.T) {
+
+	Convey("show tianyuan juniper conf", t, func() {
+		client, err := net.Dial("tcp", "localhost:8188")
+		So(
+			err,
+			ShouldBeNil,
+		)
+		// Synchronous call
+		args := &protocol.CliRequest{
+			Device:  "zihu-show-test",
+			Vendor:  "juniper",
+			Type:    "srx",
+			Version: "6.0",
+			Address: "192.168.1.242:22",
+			Auth: protocol.Auth{
+				Username: "admin",
+				Password: "r00tme",
 			},
 			Commands: []string{
 				`show configuration | no-more`,
