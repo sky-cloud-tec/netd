@@ -23,6 +23,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/saintfish/chardet"
@@ -57,6 +58,7 @@ func init() {
 				}
 				logs.Debug("semas", strings.Join(ms, ","))
 				logs.Debug("conns", conns)
+				logs.Debug("InQueue", InQueue)
 			}
 		}
 	}()
@@ -80,6 +82,10 @@ type CliConn struct {
 	closed    bool // to indicate cli conn closed or not
 }
 
+var (
+	InQueue int32
+)
+
 // Acquire cli conn
 func Acquire(req *protocol.CliRequest, op *cli.Vendor) (*CliConn, error) {
 	// limit concurrency to 1
@@ -89,8 +95,10 @@ func Acquire(req *protocol.CliRequest, op *cli.Vendor) (*CliConn, error) {
 		semas[req.Address] = make(chan struct{}, 1)
 	}
 	// try
+	atomic.AddInt32(&InQueue, 1)
 	semas[req.Address] <- struct{}{}
 	logs.Info(req.LogPrefix, "sema acquired")
+	atomic.AddInt32(&InQueue, -1)
 	// no matter what going on next, sema should be released once
 	if req.Mode == "" {
 		req.Mode = op.GetStartMode()
