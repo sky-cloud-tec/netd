@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/sky-cloud-tec/netd.svg?branch=master)](https://travis-ci.org/sky-cloud-tec/netd)
 
-NetD 是深圳天元云科技开源的一款针对网络运维领域的命令执行器, 已成功对接数十种不同品牌版本的防火墙。
+NetD 是深圳天元云科技开源的一款针对网络运维领域的命令执行器, 已成功对接十多种不同品牌版本的防火墙。
 
 #### 特性
 
