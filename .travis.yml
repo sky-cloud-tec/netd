@@ -13,6 +13,6 @@ install:
     - go install golang.org/x/lint/golint
 
 script:
-    - "sh check.sh"
+  #- "sh check.sh"
     - CGO_ENABLED=0 go build .
-      #- "sh ci.sh"
+    - "sh ci.sh"
