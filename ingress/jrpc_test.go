@@ -27,6 +27,52 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
+func TestTSOS_Show(t *testing.T) {
+	//
+	Convey("show tsos", t, func() {
+		client, err := net.Dial("tcp", "localhost:8188")
+		So(
+			err,
+			ShouldBeNil,
+		)
+		// Synchronous call
+		args := &protocol.CliRequest{
+			Device:  "tsos-show-test",
+			Vendor:  "venustech",
+			Type:    "tsos",
+			Version: "6.0",
+			Address: "10.88.88.8:22",
+			Auth: protocol.Auth{
+				Username: "admin",
+				Password: "Admin@r00tme",
+			},
+			Commands: []string{},
+			Protocol: "ssh",
+			Mode:     "login",
+			Timeout:  30,
+		}
+		var reply protocol.CliResponse
+		c := jsonrpc.NewClient(client)
+		err = c.Call("CliHandler.Handle", args, &reply)
+		So(
+			err,
+			ShouldBeNil,
+		)
+		So(
+			reply.Retcode == common.OK,
+			ShouldBeTrue,
+		)
+		// So(
+		// 	reply.CmdsStd,
+		// 	ShouldNotBeNil,
+		// )
+		// So(
+		// 	len(reply.CmdsStd) == 1,
+		// 	ShouldBeTrue,
+		// )
+	})
+}
+
 func TestJuniperSrx_Set(t *testing.T) {
 	//
 	Convey("set juniper srx cli commands", t, func() {
