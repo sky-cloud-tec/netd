@@ -765,12 +765,13 @@ func (s *CliConn) Exec() (map[string]string, error) {
 				s.mode = mt
 				return nil, fmt.Errorf("write buff failed: %s", err)
 			}
-			_, _, err := s.readBuff()
-			if err != nil {
-				s.mode = mt
-				logs.Error(s.req.LogPrefix, "readBuff failed:", err)
-				return nil, fmt.Errorf("readBuff failed: %s", err)
-			}
+		}
+		// read after all commands written
+		_, _, err := s.readBuff()
+		if err != nil {
+			s.mode = mt
+			logs.Error(s.req.LogPrefix, "readBuff failed:", err)
+			return nil, fmt.Errorf("readBuff failed: %s", err)
 		}
 	}
 	if err := s.beforeExec(); err != nil {

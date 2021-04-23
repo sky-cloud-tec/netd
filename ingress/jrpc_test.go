@@ -46,9 +46,9 @@ func TestTSOS_Show(t *testing.T) {
 				Username: "admin",
 				Password: "Admin@r00tme",
 			},
-			Commands: []string{},
+			Commands: []string{"asdf"},
 			Protocol: "ssh",
-			Mode:     "login",
+			Mode:     "configure",
 			Timeout:  30,
 		}
 		var reply protocol.CliResponse
