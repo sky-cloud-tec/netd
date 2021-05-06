@@ -26,7 +26,52 @@ import (
 
 	. "github.com/smartystreets/goconvey/convey"
 )
+func TestPower6000_Show(t *testing.T) {
+	//
+	Convey("show power", t, func() {
+		client, err := net.Dial("tcp", "localhost:8188")
+		So(
+			err,
+			ShouldBeNil,
+		)
 
+		// Synchronous call
+		args := &protocol.CliRequest{
+			Device:  "power-show-test",
+			Vendor:  "venustech",
+			Type:    "Power_V6000-F1120",
+			Version: "3.0",
+			Address: "10.88.88.240:22",
+			Auth: protocol.Auth{
+				Username: "administrator",
+				Password: "Admin@r00tme",
+			},
+			Commands: []string{"asdf"},
+			Protocol: "ssh",
+			Mode:     "login",
+			Timeout:  30,
+		}
+		var reply protocol.CliResponse
+		c := jsonrpc.NewClient(client)
+		err = c.Call("CliHandler.Handle", args, &reply)
+		So(
+			err,
+			ShouldBeNil,
+		)
+		So(
+			reply.Retcode == common.OK,
+			ShouldBeTrue,
+		)
+		// So(
+		// 	reply.CmdsStd,
+		// 	ShouldNotBeNil,
+		// )
+		// So(
+		// 	len(reply.CmdsStd) == 1,
+		// 	ShouldBeTrue,
+		// )
+	})
+}
 func TestTSOS_Show(t *testing.T) {
 	//
 	Convey("show tsos", t, func() {
