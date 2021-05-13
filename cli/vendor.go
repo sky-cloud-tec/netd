@@ -64,7 +64,7 @@ func (s *VendorManager) Register(pattern string, o *Vendor) {
 	}
 	s.operatorMap[pattern] = o
 }
-//Vendor define the data type to be transferred
+// Vendor define the data type to be transferred
 type Vendor struct {
 	LineBreak    string // /r/n \n
 	Transitions  map[string][]string
@@ -85,22 +85,22 @@ type SSHInitializer func(*ssh.Client, *protocol.CliRequest) (io.Reader, io.Write
 // TELNETInitializer telnet conn init func
 type TELNETInitializer func(*telnet.Conn, *protocol.CliRequest) error
 
-//GetPrompts Get methods
+// GetPrompts 判断Prompts是否有值存在，存在初始化变量v
 func (s *Vendor) GetPrompts(k string) []*regexp.Regexp {
 	if v, ok := s.Prompts[k]; ok {
 		return v
 	}
 	return nil
 }
-//SetPrompts Set methods
+// SetPrompts 初始化Prompts值
 func (s *Vendor) SetPrompts(k string, regs []*regexp.Regexp) {
 	s.Prompts[k] = regs
 }
-//SetErrPatterns Set methods
+// SetErrPatterns 初始化Errs值
 func (s *Vendor) SetErrPatterns(regs []*regexp.Regexp) {
 	s.Errs = regs
 }
-//GetTransitions Get methods
+// GetTransitions 判断Transitions是否有值存在，存在初始化变量v
 func (s *Vendor) GetTransitions(c, t string) []string {
 	k := c + "->" + t
 	if v, ok := s.Transitions[k]; ok {
@@ -108,23 +108,23 @@ func (s *Vendor) GetTransitions(c, t string) []string {
 	}
 	return nil
 }
-//GetEncoding Get methods
+// GetEncoding 返回Encoding实例
 func (s *Vendor) GetEncoding() string {
 	return s.Encoding
 }
-//GetExcludes Get methods
+// GetExcludes 返回Excludes实例
 func (s *Vendor) GetExcludes() []*regexp.Regexp {
 	return s.Excludes
 }
-//GetErrPatterns Get methods
+// GetErrPatterns 返回Errs对应的正则表达
 func (s *Vendor) GetErrPatterns() []*regexp.Regexp {
 	return s.Errs
 }
-//GetStartMode Get methods
+// GetStartMode 返回StartMode实例
 func (s *Vendor) GetStartMode() string {
 	return s.StartMode
 }
-//GetLinebreak Get methods
+// GetLinebreak 返回Linebreak实例
 func (s *Vendor) GetLinebreak() string {
 	return s.LineBreak
 }
@@ -176,7 +176,7 @@ func (s *Vendor) registerTransition(src, dst string) {
 	return
 }
 
-//RegisterMode registering mode
+// RegisterMode 注册模式
 func (s *Vendor) RegisterMode(req *protocol.CliRequest) error {
 	if strings.ToLower(req.Vendor) != "fortinet" {
 		return nil
@@ -200,7 +200,7 @@ func (s *Vendor) RegisterMode(req *protocol.CliRequest) error {
 	return nil
 }
 
-//GetSSHInitializer get channel
+// GetSSHInitializer 获取ssh连接通道
 func (s *Vendor) GetSSHInitializer() SSHInitializer {
 	return func(c *ssh.Client, req *protocol.CliRequest) (io.Reader, io.WriteCloser, *ssh.Session, error) {
 
