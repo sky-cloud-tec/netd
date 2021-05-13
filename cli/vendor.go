@@ -92,11 +92,11 @@ func (s *Vendor) GetPrompts(k string) []*regexp.Regexp {
 	}
 	return nil
 }
-// SetPrompts  set Prompts
+// SetPrompts set Prompts
 func (s *Vendor) SetPrompts(k string, regs []*regexp.Regexp) {
 	s.Prompts[k] = regs
 }
-// SetErrPatterns  set Errs
+// SetErrPatterns set Errs
 func (s *Vendor) SetErrPatterns(regs []*regexp.Regexp) {
 	s.Errs = regs
 }
