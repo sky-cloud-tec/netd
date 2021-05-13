@@ -85,22 +85,22 @@ type SSHInitializer func(*ssh.Client, *protocol.CliRequest) (io.Reader, io.Write
 // TELNETInitializer telnet conn init func
 type TELNETInitializer func(*telnet.Conn, *protocol.CliRequest) error
 
-// GetPrompts 判断Prompts是否有值存在，存在初始化变量v
+// GetPrompts 判断 Prompts 是否有值存在，存在初始化变量 v
 func (s *Vendor) GetPrompts(k string) []*regexp.Regexp {
 	if v, ok := s.Prompts[k]; ok {
 		return v
 	}
 	return nil
 }
-// SetPrompts 初始化Prompts值
+// SetPrompts 初始化 Prompts 值
 func (s *Vendor) SetPrompts(k string, regs []*regexp.Regexp) {
 	s.Prompts[k] = regs
 }
-// SetErrPatterns 初始化Errs值
+// SetErrPatterns 初始化 Errs 值
 func (s *Vendor) SetErrPatterns(regs []*regexp.Regexp) {
 	s.Errs = regs
 }
-// GetTransitions 判断Transitions是否有值存在，存在初始化变量v
+// GetTransitions 判断 Transitions 是否有值存在，存在初始化变量 v
 func (s *Vendor) GetTransitions(c, t string) []string {
 	k := c + "->" + t
 	if v, ok := s.Transitions[k]; ok {
@@ -108,23 +108,23 @@ func (s *Vendor) GetTransitions(c, t string) []string {
 	}
 	return nil
 }
-// GetEncoding 返回Encoding实例
+// GetEncoding 返回 Encoding 实例
 func (s *Vendor) GetEncoding() string {
 	return s.Encoding
 }
-// GetExcludes 返回Excludes实例
+// GetExcludes 返回 Excludes 实例
 func (s *Vendor) GetExcludes() []*regexp.Regexp {
 	return s.Excludes
 }
-// GetErrPatterns 返回Errs对应的正则表达
+// GetErrPatterns 返回 Errs 对应的正则表达
 func (s *Vendor) GetErrPatterns() []*regexp.Regexp {
 	return s.Errs
 }
-// GetStartMode 返回StartMode实例
+// GetStartMode 返回 StartMode 实例
 func (s *Vendor) GetStartMode() string {
 	return s.StartMode
 }
-// GetLinebreak 返回Linebreak实例
+// GetLinebreak 返回 Linebreak 实例
 func (s *Vendor) GetLinebreak() string {
 	return s.LineBreak
 }
@@ -200,7 +200,7 @@ func (s *Vendor) RegisterMode(req *protocol.CliRequest) error {
 	return nil
 }
 
-// GetSSHInitializer 获取ssh连接通道
+// GetSSHInitializer 获取 ssh 连接通道
 func (s *Vendor) GetSSHInitializer() SSHInitializer {
 	return func(c *ssh.Client, req *protocol.CliRequest) (io.Reader, io.WriteCloser, *ssh.Session, error) {
 
