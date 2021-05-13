@@ -108,23 +108,23 @@ func (s *Vendor) GetTransitions(c, t string) []string {
 	}
 	return nil
 }
-// GetEncoding 返回 Encoding 实例
+// GetEncoding return Encoding
 func (s *Vendor) GetEncoding() string {
 	return s.Encoding
 }
-// GetExcludes 返回 Excludes 实例
+// GetExcludes return Excludes
 func (s *Vendor) GetExcludes() []*regexp.Regexp {
 	return s.Excludes
 }
-// GetErrPatterns 返回 Errs 对应的正则表达
+// GetErrPatterns return Errs
 func (s *Vendor) GetErrPatterns() []*regexp.Regexp {
 	return s.Errs
 }
-// GetStartMode 返回 StartMode 实例
+// GetStartMode return StartMode
 func (s *Vendor) GetStartMode() string {
 	return s.StartMode
 }
-// GetLinebreak 返回 Linebreak 实例
+// GetLinebreak return Linebreak
 func (s *Vendor) GetLinebreak() string {
 	return s.LineBreak
 }
