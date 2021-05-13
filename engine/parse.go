@@ -132,7 +132,7 @@ func registerOp(cfg *ini.File) error {
 	}
 	return nil
 }
-// LoadCfg 函数返回是检测错误
+// LoadCfg 函数返回时检测错误
 func LoadCfg(path string) error {
 	opts := ini.LoadOptions{
 		IgnoreInlineComment: true,
