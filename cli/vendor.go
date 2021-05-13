@@ -64,7 +64,7 @@ func (s *VendorManager) Register(pattern string, o *Vendor) {
 	}
 	s.operatorMap[pattern] = o
 }
-
+//Vendor define the data type to be transferred
 type Vendor struct {
 	LineBreak    string // /r/n \n
 	Transitions  map[string][]string
@@ -85,21 +85,22 @@ type SSHInitializer func(*ssh.Client, *protocol.CliRequest) (io.Reader, io.Write
 // TELNETInitializer telnet conn init func
 type TELNETInitializer func(*telnet.Conn, *protocol.CliRequest) error
 
+//GetPrompts Get methods
 func (s *Vendor) GetPrompts(k string) []*regexp.Regexp {
 	if v, ok := s.Prompts[k]; ok {
 		return v
 	}
 	return nil
 }
-
+//SetPrompts Set methods
 func (s *Vendor) SetPrompts(k string, regs []*regexp.Regexp) {
 	s.Prompts[k] = regs
 }
-
+//SetErrPatterns Set methods
 func (s *Vendor) SetErrPatterns(regs []*regexp.Regexp) {
 	s.Errs = regs
 }
-
+//GetTransitions Get methods
 func (s *Vendor) GetTransitions(c, t string) []string {
 	k := c + "->" + t
 	if v, ok := s.Transitions[k]; ok {
@@ -107,23 +108,23 @@ func (s *Vendor) GetTransitions(c, t string) []string {
 	}
 	return nil
 }
-
+//GetEncoding Get methods
 func (s *Vendor) GetEncoding() string {
 	return s.Encoding
 }
-
+//GetExcludes Get methods
 func (s *Vendor) GetExcludes() []*regexp.Regexp {
 	return s.Excludes
 }
-
+//GetErrPatterns Get methods
 func (s *Vendor) GetErrPatterns() []*regexp.Regexp {
 	return s.Errs
 }
-
+//GetStartMode Get methods
 func (s *Vendor) GetStartMode() string {
 	return s.StartMode
 }
-
+//GetLinebreak Get methods
 func (s *Vendor) GetLinebreak() string {
 	return s.LineBreak
 }
@@ -175,6 +176,7 @@ func (s *Vendor) registerTransition(src, dst string) {
 	return
 }
 
+//RegisterMode registering mode
 func (s *Vendor) RegisterMode(req *protocol.CliRequest) error {
 	if strings.ToLower(req.Vendor) != "fortinet" {
 		return nil
@@ -198,6 +200,7 @@ func (s *Vendor) RegisterMode(req *protocol.CliRequest) error {
 	return nil
 }
 
+//GetSSHInitializer get channel
 func (s *Vendor) GetSSHInitializer() SSHInitializer {
 	return func(c *ssh.Client, req *protocol.CliRequest) (io.Reader, io.WriteCloser, *ssh.Session, error) {
 
