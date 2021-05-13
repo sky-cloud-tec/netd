@@ -60,8 +60,8 @@ func registerOp(cfg *ini.File) error {
 			continue
 		}
 
-		prompts_vars := make(map[string]*regexp.Regexp, 0)
-		mode_prompts := make(map[string][]*regexp.Regexp, 0)
+		promptsVars := make(map[string]*regexp.Regexp, 0)
+		modePrompts := make(map[string][]*regexp.Regexp, 0)
 		trans := make(map[string][]string, 0)
 		errs := make([]*regexp.Regexp, 0)
 		excludes := make([]*regexp.Regexp, 0)
@@ -71,11 +71,11 @@ func registerOp(cfg *ini.File) error {
 			switch parts[0] {
 			case "prompt":
 				// eg. prompt.active_login
-				prompts_vars[k.Name()] = regexp.MustCompile(k.Value())
+				promptsVars[k.Name()] = regexp.MustCompile(k.Value())
 			case "excludes":
 				for _, pname := range k.Strings(",") {
 					// append single prompt regex to mode
-					v, ok := prompts_vars[pname]
+					v, ok := promptsVars[pname]
 					if !ok {
 						return fmt.Errorf("prompt %s not defined in previous section", pname)
 					}
@@ -83,16 +83,16 @@ func registerOp(cfg *ini.File) error {
 				}
 			case "mode":
 				mode := parts[1]
-				if mode_prompts[mode] == nil {
-					mode_prompts[mode] = make([]*regexp.Regexp, 0)
+				if modePrompts[mode] == nil {
+					modePrompts[mode] = make([]*regexp.Regexp, 0)
 				}
 				for _, pname := range k.Strings(",") {
 					// append single prompt regex to mode
-					v, ok := prompts_vars[pname]
+					v, ok := promptsVars[pname]
 					if !ok {
 						return fmt.Errorf("prompt %s not defined in previous section", pname)
 					}
-					mode_prompts[mode] = append(mode_prompts[mode], v)
+					modePrompts[mode] = append(modePrompts[mode], v)
 				}
 			case "transition":
 				direction := parts[1] + "->" + parts[2]
@@ -118,7 +118,7 @@ func registerOp(cfg *ini.File) error {
 		}
 		op := &cli.Vendor{
 			Transitions: trans,
-			Prompts:     mode_prompts,
+			Prompts:     modePrompts,
 			Excludes:    excludes,
 			Errs:        errs,
 			LineBreak:   sec.Key("linebreak").MustString("\n"),
@@ -132,7 +132,7 @@ func registerOp(cfg *ini.File) error {
 	}
 	return nil
 }
-
+// LoadCfg 函数返回时检测错误
 func LoadCfg(path string) error {
 	opts := ini.LoadOptions{
 		IgnoreInlineComment: true,
