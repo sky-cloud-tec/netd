@@ -16,6 +16,7 @@
 package cli
 
 import (
+	"regexp"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -36,5 +37,13 @@ func TestMoreOK(t *testing.T) {
 			ShouldBeTrue,
 		)
 	})
+}
 
+func TestPromptMatch(t *testing.T) {
+	Convey("test tsos login prompt", t, func() {
+		So(
+			Match(regexp.MustCompile("^[[:alnum:]]{1,}> $"), "\nUSG> "),
+			ShouldBeTrue,
+		)
+	})
 }

@@ -13,22 +13,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-package common
+package main
 
-// LogConfig is the config struct for rrframework/logs
-type LogConfig struct {
-	Adaptor  string `json:"adaptor"`
-	Filepath string `json:"filepath"`
-	Level    string `json:"level"`
-	MaxSize  int    `json:"maxsize"`
+import (
+	"fmt"
+	"gopkg.in/ini.v1"
+	"os"
+)
+
+func main() {
+	cfg, err := ini.Load("../../vendors.ini")
+	if err != nil {
+		fmt.Printf("Fail to read file: %v", err)
+		os.Exit(1)
+	}
+	fmt.Println(cfg)
+	fmt.Println(cfg.SectionStrings())
 }
-
-// AppConfig contains app config items
-type AppConfig struct {
-	Confidence int    `json:"confidence"`
-	LogCfgFlag int    `json:"log_cfg_flag"`
-	LogCfgDir  string `json:"cfg_dir"`
-}
-
-// AppConfigInstance ...
-var AppConfigInstance *AppConfig

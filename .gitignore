@@ -5,3 +5,5 @@ netd*.log
 .idea
 .vscode
 ingress/debug.test
+tools/netd_t/netd_t
+tools/ini_t/ini_t

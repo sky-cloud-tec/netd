@@ -65,7 +65,7 @@ test(){
 	fi
 }
 
-lint
+#lint
 check_license
 fmt
 #test

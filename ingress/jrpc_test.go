@@ -26,6 +26,97 @@ import (
 
 	. "github.com/smartystreets/goconvey/convey"
 )
+func TestPower6000_Show(t *testing.T) {
+	//
+	Convey("show power", t, func() {
+		client, err := net.Dial("tcp", "localhost:8188")
+		So(
+			err,
+			ShouldBeNil,
+		)
+
+		// Synchronous call
+		args := &protocol.CliRequest{
+			Device:  "power-show-test",
+			Vendor:  "venustech",
+			Type:    "Power_V6000-F1120",
+			Version: "3.0",
+			Address: "10.88.88.240:22",
+			Auth: protocol.Auth{
+				Username: "administrator",
+				Password: "Admin@r00tme",
+			},
+			Commands: []string{"asdf"},
+			Protocol: "ssh",
+			Mode:     "login",
+			Timeout:  30,
+		}
+		var reply protocol.CliResponse
+		c := jsonrpc.NewClient(client)
+		err = c.Call("CliHandler.Handle", args, &reply)
+		So(
+			err,
+			ShouldBeNil,
+		)
+		So(
+			reply.Retcode == common.OK,
+			ShouldBeTrue,
+		)
+		// So(
+		// 	reply.CmdsStd,
+		// 	ShouldNotBeNil,
+		// )
+		// So(
+		// 	len(reply.CmdsStd) == 1,
+		// 	ShouldBeTrue,
+		// )
+	})
+}
+func TestTSOS_Show(t *testing.T) {
+	//
+	Convey("show tsos", t, func() {
+		client, err := net.Dial("tcp", "localhost:8188")
+		So(
+			err,
+			ShouldBeNil,
+		)
+		// Synchronous call
+		args := &protocol.CliRequest{
+			Device:  "tsos-show-test",
+			Vendor:  "venustech",
+			Type:    "tsos",
+			Version: "6.0",
+			Address: "10.88.88.8:22",
+			Auth: protocol.Auth{
+				Username: "admin",
+				Password: "Admin@r00tme",
+			},
+			Commands: []string{"asdf"},
+			Protocol: "ssh",
+			Mode:     "configure",
+			Timeout:  30,
+		}
+		var reply protocol.CliResponse
+		c := jsonrpc.NewClient(client)
+		err = c.Call("CliHandler.Handle", args, &reply)
+		So(
+			err,
+			ShouldBeNil,
+		)
+		So(
+			reply.Retcode == common.OK,
+			ShouldBeTrue,
+		)
+		// So(
+		// 	reply.CmdsStd,
+		// 	ShouldNotBeNil,
+		// )
+		// So(
+		// 	len(reply.CmdsStd) == 1,
+		// 	ShouldBeTrue,
+		// )
+	})
+}
 
 func TestJuniperSrx_Set(t *testing.T) {
 	//
@@ -430,6 +521,44 @@ func TestPaloalto_Show(t *testing.T) {
 	})
 }
 
+func TestPanorama_Show(t *testing.T) {
+	//
+	Convey("show Paloalto cli commands", t, func() {
+		client, err := net.Dial("tcp", "localhost:8188")
+		So(
+			err,
+			ShouldBeNil,
+		)
+		// Synchronous call
+		args := &protocol.CliRequest{
+			Device:  "Panorama-connect-test",
+			Vendor:  "paloalto",
+			Type:    "Panorama",
+			Version: "8.1",
+			Address: "192.168.1.167:22",
+			Auth: protocol.Auth{
+				Username: "admin",
+				Password: "admin",
+			},
+			Commands: []string{},
+			Protocol: "ssh",
+			Mode:     "login",
+			Timeout:  30,
+		}
+		var reply protocol.CliResponse
+		c := jsonrpc.NewClient(client)
+		err = c.Call("CliHandler.Handle", args, &reply)
+		So(
+			err,
+			ShouldBeNil,
+		)
+		So(
+			reply.Retcode == common.OK,
+			ShouldBeTrue,
+		)
+	})
+}
+
 //
 func TestUSG6000V2_Set(t *testing.T) {
 	//
@@ -458,6 +587,52 @@ func TestUSG6000V2_Set(t *testing.T) {
 				    destination-address geo-location BeiJing
 				    quit
 				  quit`,
+			},
+			Protocol: "ssh",
+			Mode:     "system_View",
+			Timeout:  30,
+		}
+		var reply protocol.CliResponse
+		c := jsonrpc.NewClient(client)
+		err = c.Call("CliHandler.Handle", args, &reply)
+		So(
+			err,
+			ShouldBeNil,
+		)
+		So(
+			reply.Retcode == common.OK,
+			ShouldBeTrue,
+		)
+		So(
+			len(reply.CmdsStd) == 1,
+			ShouldBeTrue,
+		)
+	})
+}
+
+func TestUSG_Set2(t *testing.T) {
+	//
+	Convey("set USG6000 cli commands", t, func() {
+		client, err := net.Dial("tcp", "localhost:8188")
+		So(
+			err,
+			ShouldBeNil,
+		)
+		// Synchronous call
+		args := &protocol.CliRequest{
+			Device:  "usg6000-set-test",
+			Vendor:  "huawei",
+			Type:    "usg",
+			Version: "V100R001C30SPCa00",
+			Address: "192.168.1.236:22",
+			Auth: protocol.Auth{
+				Username: "admin",
+				Password: "admin",
+			},
+			Commands: []string{
+				`ip address-set demo_10.1.1.3 type object
+				    address 10.1.1.2 255.255.255.0
+				    quit`,
 			},
 			Protocol: "ssh",
 			Mode:     "system_View",
@@ -813,10 +988,10 @@ func TestHillstone_show(t *testing.T) {
 			Vendor:  "hillstone",
 			Type:    "SG-6000-VM01",
 			Version: "5.5",
-			Address: "192.168.1.232:22",
+			Address: "192.168.1.199:22",
 			Auth: protocol.Auth{
-				Username: "admin",
-				Password: "r00tme",
+				Username: "hillstone",
+				Password: "hillstone",
 			},
 			Commands: []string{
 				`show version`,
@@ -1134,6 +1309,51 @@ func TestTianyuanJuniper_show(t *testing.T) {
 			Auth: protocol.Auth{
 				Username: "test",
 				Password: "test123",
+			},
+			Commands: []string{
+				`show configuration | no-more`,
+			},
+			Protocol: "ssh",
+			Mode:     "login",
+			Timeout:  30,
+		}
+		var reply protocol.CliResponse
+		c := jsonrpc.NewClient(client)
+		err = c.Call("CliHandler.Handle", args, &reply)
+		So(
+			err,
+			ShouldBeNil,
+		)
+		So(
+			reply.Retcode == common.OK,
+			ShouldBeTrue,
+		)
+		So(
+			len(reply.CmdsStd) == 1,
+			ShouldBeTrue,
+		)
+		fmt.Print(reply.CmdsStd)
+	})
+}
+
+func TestZihuJuniper_show(t *testing.T) {
+
+	Convey("show tianyuan juniper conf", t, func() {
+		client, err := net.Dial("tcp", "localhost:8188")
+		So(
+			err,
+			ShouldBeNil,
+		)
+		// Synchronous call
+		args := &protocol.CliRequest{
+			Device:  "zihu-show-test",
+			Vendor:  "juniper",
+			Type:    "srx",
+			Version: "6.0",
+			Address: "192.168.1.242:22",
+			Auth: protocol.Auth{
+				Username: "admin",
+				Password: "r00tme",
 			},
 			Commands: []string{
 				`show configuration | no-more`,

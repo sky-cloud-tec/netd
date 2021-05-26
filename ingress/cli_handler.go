@@ -19,24 +19,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sky-cloud-tec/netd/cli"
-	_ "github.com/sky-cloud-tec/netd/cli/brocade/g600" //  load linux centos
-	_ "github.com/sky-cloud-tec/netd/cli/cisco/asa"    // load juniper srx
-	_ "github.com/sky-cloud-tec/netd/cli/cisco/ios"    // load cisco switch ios
-	_ "github.com/sky-cloud-tec/netd/cli/cisco/nxos"   // load cisco switch nxos
-	"github.com/sky-cloud-tec/netd/cli/conn"
-	_ "github.com/sky-cloud-tec/netd/cli/dptech/fw1000"      // load dptech fw1000
-	_ "github.com/sky-cloud-tec/netd/cli/fortinet/fortigate" // load fortinet fortigate
-	_ "github.com/sky-cloud-tec/netd/cli/h3c/secpath"        // load h3c secpath
-	_ "github.com/sky-cloud-tec/netd/cli/hillstone/sg6000"   // load hillstone SG6000
-	_ "github.com/sky-cloud-tec/netd/cli/huawei/usg"         // load huawei USG
-	_ "github.com/sky-cloud-tec/netd/cli/juniper/srx"        // load cisco asa
-	_ "github.com/sky-cloud-tec/netd/cli/juniper/ssg"        // load juniper ssg
-	_ "github.com/sky-cloud-tec/netd/cli/linux/centos"       // load linux centos
-	_ "github.com/sky-cloud-tec/netd/cli/paloalto/panos"     // load paloalto panos
-	_ "github.com/sky-cloud-tec/netd/cli/topsec/ngfw4000"    // load topsec ngfw4000
-
 	"github.com/rs/xid"
+	"github.com/sky-cloud-tec/netd/cli"
+	"github.com/sky-cloud-tec/netd/cli/conn"
 	"github.com/sky-cloud-tec/netd/common"
 	"github.com/sky-cloud-tec/netd/protocol"
 	"github.com/songtianyi/rrframework/logs"
@@ -102,7 +87,7 @@ func (s *CliHandler) doHandle(req *protocol.CliRequest, res *protocol.CliRespons
 	// build device operator type
 	t := strings.Join([]string{req.Vendor, req.Type, req.Version}, ".")
 	// get operator by type
-	op := cli.OperatorManagerInstance.Get(t)
+	op := cli.VendorManagerInstance.Get(t)
 	if op == nil {
 		logs.Error(req.LogPrefix, "no operator match", t)
 		*res = s.makeCliErrRes(common.ErrNoOpFound, "no operator match "+t)
