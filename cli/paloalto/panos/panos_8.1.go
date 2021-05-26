@@ -40,9 +40,9 @@ type opPaloalto struct {
 
 func createOpPaloalto() cli.Operator {
 	loginPrompt := regexp.MustCompile("[[:alnum:]_]{1,}[.]{0,1}[[:alnum:]_-]{0,}[.]{0,1}[[:alnum:]_-]{0,}@[[:alnum:]._-]+> $")
-	loginPromptActive := regexp.MustCompile(`[[:alnum:]_]{1,}[.]{0,1}[[:alnum:]_-]{0,}[.]{0,1}[[:alnum:]_-]{0,}@[[:alnum:]._-]+\((active|passive)\)> $`)
+	loginPromptActive := regexp.MustCompile(`[[:alnum:]_]{1,}[.]{0,1}[[:alnum:]_-]{0,}[.]{0,1}[[:alnum:]_-]{0,}@[[:alnum:]._-]+\((active|passive|active-primary)\)> $`)
 	configurePrompt := regexp.MustCompile(`[[:alnum:]_]{1,}[.]{0,1}[[:alnum:]_-]{0,}[.]{0,1}[[:alnum:]_-]{0,}@[[:alnum:]._-]+# $`)
-	configurePromptActive := regexp.MustCompile(`[[:alnum:]_]{1,}[.]{0,1}[[:alnum:]_-]{0,}[.]{0,1}[[:alnum:]_-]{0,}@[[:alnum:]._-]+\((active|passive)\)# $`)
+	configurePromptActive := regexp.MustCompile(`[[:alnum:]_]{1,}[.]{0,1}[[:alnum:]_-]{0,}[.]{0,1}[[:alnum:]_-]{0,}@[[:alnum:]._-]+\((active|passive|active-primary)\)# $`)
 
 	return &opPaloalto{
 		transitions: map[string][]string{
