@@ -30,7 +30,7 @@ var dst string
 func main() {
 	app := cli.NewApp()
 	app.Usage = `NetD make network device operations easy!
-	It's a dammon app which allow you to run cli commands through grpc, amqp(not support yet) etc.`
+	It's a dammon app which allow you to run cli commands through jrpc, grpc, amqp(some are not support yet) etc.`
 	app.Version = "2.0.0"
 	app.Compiled = time.Now()
 	app.Authors = []cli.Author{
