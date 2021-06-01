@@ -26,6 +26,7 @@ import (
 
 	. "github.com/smartystreets/goconvey/convey"
 )
+
 func TestPower6000_Show(t *testing.T) {
 	//
 	Convey("show power", t, func() {
@@ -313,7 +314,7 @@ func TestCiscoAsa_Show(t *testing.T) {
 			Vendor:  "cisco",
 			Type:    "asa",
 			Version: "9.6(x)",
-			Address: "192.168.1.238:22",
+			Address: "192.168.1.170:22",
 			Auth: protocol.Auth{
 				Username: "admin",
 				Password: "r00tme",

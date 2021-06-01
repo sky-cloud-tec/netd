@@ -18,6 +18,7 @@ package conn
 import (
 	"bufio"
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -45,13 +46,13 @@ var (
 )
 
 func init() {
-	conns = make(map[string]*CliConn, 0)
-	semas = make(map[string]chan struct{}, 0)
+	conns = make(map[string]*CliConn)
+	semas = make(map[string]chan struct{})
 	go func() {
-		dick := time.Tick(30 * time.Second)
+		tick := time.NewTicker(30 * time.Second)
 		for {
 			select {
-			case <-dick:
+			case <-tick.C:
 				ms := make([]string, 0)
 				for k, v := range semas {
 					ms = append(ms, fmt.Sprintf("%s:%d", k, len(v)))
@@ -150,11 +151,11 @@ func newCliConn(req *protocol.CliRequest, op *cli.Vendor) (*CliConn, error) {
 			User:            req.Auth.Username,
 			Auth:            []ssh.AuthMethod{ssh.Password(req.Auth.Password)},
 			HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-			Timeout:         5 * time.Second,
+			Timeout:         time.Duration(cli.SshCfgInstance.Timeout) * time.Second,
 		}
 		sshConfig.SetDefaults()
-		sshConfig.Ciphers = append(sshConfig.Ciphers, []string{"aes128-cbc", "3des-cbc"}...)
-		sshConfig.KeyExchanges = append(sshConfig.KeyExchanges, []string{"diffie-hellman-group-exchange-sha1", "diffie-hellman-group1-sha1", "diffie-hellman-group-exchange-sha256"}...)
+		sshConfig.Ciphers = append(sshConfig.Ciphers, cli.SshCfgInstance.Ciphers...)
+		sshConfig.KeyExchanges = append(sshConfig.KeyExchanges, cli.SshCfgInstance.Exchanges...)
 		client, err := ssh.Dial("tcp", req.Address, sshConfig)
 		if err != nil {
 			logs.Error(req.LogPrefix, "dial", req.Address, "error:", err)
@@ -167,12 +168,12 @@ func newCliConn(req *protocol.CliRequest, op *cli.Vendor) (*CliConn, error) {
 		}
 		return c, nil
 	} else if strings.ToLower(req.Protocol) == "telnet" {
-		conn, err := telnet.DialTimeout("tcp", req.Address, 5*time.Second)
+		conn, err := telnet.DialTimeout("tcp", req.Address, time.Duration(cli.TelnetCfgInstance.Timeout)*time.Second)
 		if err != nil {
 			return nil, fmt.Errorf("dial %s error: %s", req.Address, err)
 		}
 
-		if op.CfgDebugFlag == 3 {
+		if cli.TelnetCfgInstance.Write == "twice" {
 			e := regexp.MustCompile("Error: ")
 			p := regexp.MustCompile("login: $")
 			_, err = cli.ReadStringUntilError(conn, p, e)
@@ -186,7 +187,7 @@ func newCliConn(req *protocol.CliRequest, op *cli.Vendor) (*CliConn, error) {
 				return nil, fmt.Errorf("telnet ReadStringUntil error: %s", err)
 			}
 			conn.Write([]byte(req.Auth.Password + "\r"))
-		} else if op.CfgDebugFlag == 4 {
+		} else { // write once default
 			if _, err := conn.Write([]byte(req.Auth.Username + "\r" + req.Auth.Password + "\r")); err != nil {
 				return nil, fmt.Errorf("auth error %s", err)
 			}
@@ -204,10 +205,10 @@ func newCliConn(req *protocol.CliRequest, op *cli.Vendor) (*CliConn, error) {
 
 func (s *CliConn) heartbeat() {
 	go func() {
-		tick := time.Tick(30 * time.Second)
+		tick := time.NewTicker(30 * time.Second)
 		for {
 			select {
-			case <-tick:
+			case <-tick.C:
 				// try
 				if s.closed {
 					break
@@ -248,6 +249,7 @@ func (s *CliConn) init() error {
 		}
 	} else if s.t == common.TELNETConn {
 		// do nothing
+		logs.Debug("init telnet conn")
 	}
 	// read login prompt
 	_, prompt, err := s.readBuff()
@@ -328,6 +330,28 @@ func (s *CliConn) init() error {
 
 func (s *CliConn) closePage(drain bool) error {
 	logs.Info(s.req.LogPrefix, "closing page ...")
+	if s.op.CancelAt != "" {
+		// configured in cfg file
+		if s.mode != s.op.CancelAt {
+			// can do this in this mode
+			return nil
+		}
+		if s.op.Cancels == nil {
+			return errors.New("command for canceling more not set")
+		}
+		// do cancel
+		for i, cmd := range s.op.Cancels {
+			if _, err := s.writeBuff(cmd); err != nil {
+				return err
+			}
+			if i < len(s.op.Cancels)-1 || drain {
+				if _, _, err1 := s.readBuff(); err1 != nil {
+					return err1
+				}
+			}
+		}
+		return nil
+	}
 	if strings.EqualFold(s.req.Vendor, "cisco") && (strings.EqualFold(s.req.Type, "asa") || strings.EqualFold(s.req.Type, "asav")) {
 		// login mode no close page
 		if s.mode == "login" {
@@ -778,7 +802,7 @@ func (s *CliConn) Exec() (map[string]string, error) {
 		logs.Error(s.req.LogPrefix, "beforeExec error:", err)
 		return nil, fmt.Errorf("beforeExec error: %s", err)
 	}
-	cmdstd := make(map[string]string, 0)
+	cmdstd := make(map[string]string)
 	// do execute cli commands
 	for _, v := range s.req.Commands {
 		logs.Info(s.req.LogPrefix, "exec", "<", v, ">", "in", s.mode, "mode")

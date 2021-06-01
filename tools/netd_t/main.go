@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+// This is a simple netd test tool
 package main
 
 import (
@@ -25,6 +26,9 @@ import (
 
 func main() {
 	client, err := net.Dial("tcp", "localhost:8188")
+	if err != nil {
+		panic(err)
+	}
 	// Synchronous call
 	// args := &protocol.CliRequest{
 	// 	Device:  "topsec-telnet-test",

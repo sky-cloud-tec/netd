@@ -18,10 +18,27 @@ package cli
 import (
 	"bytes"
 	"errors"
-	"github.com/songtianyi/rrframework/logs"
 	"io"
 	"regexp"
+
+	"github.com/songtianyi/rrframework/logs"
 )
+
+var (
+	SshCfgInstance    *SshCfg
+	TelnetCfgInstance *TelnetCfg
+)
+
+type SshCfg struct {
+	Timeout   int
+	Ciphers   []string
+	Exchanges []string
+}
+
+type TelnetCfg struct {
+	Timeout int
+	Write   string
+}
 
 // AnyMatch return true if any regex in patterns matches the input string
 func AnyMatch(patterns []*regexp.Regexp, s string) bool {

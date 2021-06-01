@@ -35,7 +35,7 @@ var (
 
 func init() {
 	VendorManagerInstance = &VendorManager{
-		operatorMap: make(map[string]*Vendor, 0),
+		operatorMap: make(map[string]*Vendor),
 	}
 }
 
@@ -64,6 +64,7 @@ func (s *VendorManager) Register(pattern string, o *Vendor) {
 	}
 	s.operatorMap[pattern] = o
 }
+
 // Vendor define the data type to be transferred
 type Vendor struct {
 	LineBreak    string // /r/n \n
@@ -77,6 +78,8 @@ type Vendor struct {
 	CfgDebugFlag int
 	CfgDebugDir  string
 	Echo         bool
+	CancelAt     string // which mode that cancel commands should run at
+	Cancels      []string
 }
 
 // SSHInitializer ssh session init func
@@ -92,14 +95,17 @@ func (s *Vendor) GetPrompts(k string) []*regexp.Regexp {
 	}
 	return nil
 }
+
 // SetPrompts set Prompts
 func (s *Vendor) SetPrompts(k string, regs []*regexp.Regexp) {
 	s.Prompts[k] = regs
 }
+
 // SetErrPatterns set Errs
 func (s *Vendor) SetErrPatterns(regs []*regexp.Regexp) {
 	s.Errs = regs
 }
+
 // GetTransitions 判断 Transitions 是否有值存在，存在初始化变量 v
 func (s *Vendor) GetTransitions(c, t string) []string {
 	k := c + "->" + t
@@ -108,22 +114,27 @@ func (s *Vendor) GetTransitions(c, t string) []string {
 	}
 	return nil
 }
+
 // GetEncoding return Encoding
 func (s *Vendor) GetEncoding() string {
 	return s.Encoding
 }
+
 // GetExcludes return Excludes
 func (s *Vendor) GetExcludes() []*regexp.Regexp {
 	return s.Excludes
 }
+
 // GetErrPatterns return Errs
 func (s *Vendor) GetErrPatterns() []*regexp.Regexp {
 	return s.Errs
 }
+
 // GetStartMode return StartMode
 func (s *Vendor) GetStartMode() string {
 	return s.StartMode
 }
+
 // GetLinebreak return Linebreak
 func (s *Vendor) GetLinebreak() string {
 	return s.LineBreak
@@ -173,7 +184,6 @@ func (s *Vendor) registerTransition(src, dst string) {
 	s.Transitions[k] = []string{"end\nconfig vdom\n\t" +
 		"edit " + dst +
 		``}
-	return
 }
 
 // RegisterMode 注册模式

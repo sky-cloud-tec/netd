@@ -40,6 +40,37 @@ func initLogger(cfg *ini.File) error {
 	return logs.SetLogger("file", property)
 }
 
+func initSSH(cfg *ini.File) error {
+	sshSec := cfg.Section("ssh")
+	if sshSec == nil {
+		return fmt.Errorf("set ssh connect parameters in cfg file please")
+	}
+	cli.SshCfgInstance = &cli.SshCfg{
+		Timeout:   sshSec.Key("timeout").MustInt(5),
+		Ciphers:   sshSec.Key("ciphers").Strings(","),
+		Exchanges: sshSec.Key("exchanges").Strings(","),
+	}
+	return nil
+}
+
+func initTelnet(cfg *ini.File) error {
+	telnetSec := cfg.Section("telnet")
+	if telnetSec == nil {
+		// telnet is optional
+		// but we should give a default telnet config
+		cli.TelnetCfgInstance = &cli.TelnetCfg{
+			Timeout: 5,
+			Write:   "once",
+		}
+		return nil
+	}
+	cli.TelnetCfgInstance = &cli.TelnetCfg{
+		Timeout: telnetSec.Key("timeout").MustInt(5),
+		Write:   telnetSec.Key("write").MustString("once"),
+	}
+	return nil
+}
+
 func startJrpc(cfg *ini.File) error {
 	// init jrpc
 	ingressSec := cfg.Section("ingress")
@@ -65,6 +96,10 @@ func registerOp(cfg *ini.File) error {
 		trans := make(map[string][]string, 0)
 		errs := make([]*regexp.Regexp, 0)
 		excludes := make([]*regexp.Regexp, 0)
+		var (
+			cancelAt string
+			cancels  []string
+		)
 		for _, k := range sec.Keys() {
 			fmt.Println(k.Name(), "=", k.String())
 			parts := strings.Split(k.Name(), ".")
@@ -110,6 +145,8 @@ func registerOp(cfg *ini.File) error {
 			case "encoding":
 			case "start":
 			case "cancel":
+				cancelAt = parts[1]
+				cancels = k.Strings(",")
 			case "debug":
 			case "init":
 			default:
@@ -126,12 +163,15 @@ func registerOp(cfg *ini.File) error {
 			StartMode:   sec.Key("start").MustString("login"),
 			Confidence:  sec.Key("confidence").MustInt(80),
 			Echo:        sec.Key("echo").MustBool(false),
+			CancelAt:    cancelAt,
+			Cancels:     cancels,
 		}
 		fmt.Println(op)
 		cli.VendorManagerInstance.Register(sec.Name(), op)
 	}
 	return nil
 }
+
 // LoadCfg 函数返回时检测错误
 func LoadCfg(path string) error {
 	opts := ini.LoadOptions{
@@ -143,6 +183,12 @@ func LoadCfg(path string) error {
 	}
 	// init logger
 	if err := initLogger(cfg); err != nil {
+		return err
+	}
+	if err := initSSH(cfg); err != nil {
+		return err
+	}
+	if err := initTelnet(cfg); err != nil {
 		return err
 	}
 	if err := registerOp(cfg); err != nil {
